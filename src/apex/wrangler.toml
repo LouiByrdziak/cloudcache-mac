@@ -1,0 +1,21 @@
+name = "apex-worker"
+main = "index.ts"
+compatibility_date = "2025-10-07"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "APEX_D1"
+database_name = "apex-db"
+
+[[kv_namespaces]]
+binding = "APEX_KV"
+
+[[r2_buckets]]
+binding = "APEX_R2"
+bucket_name = "apex-bucket"
+
+[env.staging]
+name = "apex-worker-staging"
+
+[env.preview]
+name = "apex-worker-preview"

@@ -1,0 +1,21 @@
+name = "app-worker"
+main = "index.ts"
+compatibility_date = "2025-10-07"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "APP_D1"
+database_name = "app-db"
+
+[[kv_namespaces]]
+binding = "APP_KV"
+
+[[r2_buckets]]
+binding = "APP_R2"
+bucket_name = "app-bucket"
+
+[env.staging]
+name = "app-worker-staging"
+
+[env.preview]
+name = "app-worker-preview"

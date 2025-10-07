@@ -1,0 +1,21 @@
+name = "admin-worker"
+main = "index.ts"
+compatibility_date = "2025-10-07"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "ADMIN_D1"
+database_name = "admin-db"
+
+[[kv_namespaces]]
+binding = "ADMIN_KV"
+
+[[r2_buckets]]
+binding = "ADMIN_R2"
+bucket_name = "admin-bucket"
+
+[env.staging]
+name = "admin-worker-staging"
+
+[env.preview]
+name = "admin-worker-preview"

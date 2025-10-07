@@ -1,13 +1,6 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "lib": ["DOM", "ESNext"],
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
-  },
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {},
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

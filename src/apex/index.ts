@@ -1,1 +1,5 @@
-export const apex = "Apex module ready";
+export default {
+  async fetch(request: Request): Promise<Response> {
+    return new Response("apex: ok", { status: 200 });
+  },
+};

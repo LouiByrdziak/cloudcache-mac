@@ -1,0 +1,57 @@
+name: Deploy
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      NODE_VERSION: 22
+      PNPM_VERSION: 9
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile=false
+
+      - name: Determine changed packages
+        id: changed
+        run: |
+          set -euo pipefail
+          BEFORE_SHA="${{ github.event.before }}"
+          if [ -z "$BEFORE_SHA" ]; then
+            BEFORE_SHA="$(git rev-parse HEAD^)"
+          fi
+          CHANGED=$(git diff --name-only "$BEFORE_SHA" "${{ github.sha }}" | grep '^src/' | cut -d/ -f2 | sort -u | tr '\n' ' ' || true)
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+
+      - name: No changes
+        if: steps.changed.outputs.changed == ''
+        run: echo "No worker changes detected."
+
+      - name: Deploy changed workers
+        if: steps.changed.outputs.changed != ''
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          for pkg in ${{ steps.changed.outputs.changed }}; do
+            echo "Deploying $pkg"
+            bash scripts/deploy.sh "$pkg" production
+          done
+
+
