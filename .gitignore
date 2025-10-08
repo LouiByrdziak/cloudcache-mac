@@ -7,6 +7,10 @@
 **/.dev.vars
 **/.wrangler/
 .wrangler/
+## Yarn artifacts (ensure PNPM-only)
+.pnp.cjs
+.yarn/
+.yarnrc.yml
 **/node_modules/
 node_modules/
 **/dist/

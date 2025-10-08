@@ -1,5 +1,9 @@
 // src/admin/index.ts
-var admin = "Admin module ready";
+var index_default = {
+  async fetch(request) {
+    return new Response("admin: ok", { status: 200 });
+  }
+};
 export {
-  admin
+  index_default as default
 };

@@ -2,6 +2,7 @@
   "name": "Cloudcache",
   "packageManager": "pnpm@9.0.0",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "lint": "pnpm -r lint",
     "format": "pnpm -r format",
     "typecheck": "pnpm -r typecheck",
@@ -17,12 +18,14 @@
     ]
   },
   "devDependencies": {
+    "@cloudflare/unenv-preset": "^2.7.7",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
     "eslint": "^9.11.1",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
-    "wrangler": "^4.42.0"
+    "tsup": "^8.5.0",
+    "wrangler": "^4.42.1"
   }
 }

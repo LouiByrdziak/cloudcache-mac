@@ -27,6 +27,7 @@ suffix=""
 # Emit minimal config without resource bindings (deploys a simple worker)
 {
   echo "name = \"${lower_module}-worker\""
+  echo "account_id = \"${ACCOUNT_ID}\""
   echo "main = \"index.ts\""
   echo "compatibility_date = \"2025-10-07\""
   echo "compatibility_flags = [\"nodejs_compat\"]"

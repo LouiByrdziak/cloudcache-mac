@@ -1,3 +1,5 @@
-declare const admin = "Admin module ready";
+declare const _default: {
+    fetch(request: Request): Promise<Response>;
+};
 
-export { admin };
+export { _default as default };

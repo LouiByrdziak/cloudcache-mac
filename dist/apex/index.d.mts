@@ -1,3 +1,5 @@
-declare const apex = "Apex module ready";
+declare const _default: {
+    fetch(request: Request): Promise<Response>;
+};
 
-export { apex };
+export { _default as default };

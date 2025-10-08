@@ -1,5 +1,9 @@
 // src/apex/index.ts
-var apex = "Apex module ready";
+var index_default = {
+  async fetch(request) {
+    return new Response("apex: ok", { status: 200 });
+  }
+};
 export {
-  apex
+  index_default as default
 };

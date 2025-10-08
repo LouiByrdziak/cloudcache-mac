@@ -1,3 +1,5 @@
-declare const app = "App module ready";
+declare const _default: {
+    fetch(request: Request): Promise<Response>;
+};
 
-export { app };
+export { _default as default };

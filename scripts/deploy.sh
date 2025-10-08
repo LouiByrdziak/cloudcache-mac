@@ -39,12 +39,23 @@ fi
 
 echo "🚀 Deploying $MODULE → $ENV"
 CONFIG_PATH="$MODULE_DIR/wrangler.toml"
-ENTRY_PATH="$MODULE_DIR/index.ts"
+# Prefer prebuilt ESM to bypass Wrangler bundler (avoids Yarn PnP/esbuild issues)
+ENTRY_PATH="$ROOT_DIR/dist/$MODULE/index.mjs"
+
+# Fallback: build if missing
+if [[ ! -f "$ENTRY_PATH" ]]; then
+  echo "ℹ️  Prebuilt artifact missing, building $MODULE…"
+  mkdir -p "$ROOT_DIR/dist/$MODULE"
+  pnpm dlx tsup "$ROOT_DIR/src/$MODULE/index.ts" \
+    --format esm --target es2022 --dts=false --sourcemap=false \
+    --out-dir "$ROOT_DIR/dist/$MODULE" --clean || {
+      echo "❌ Build failed"; exit 4; }
+fi
 
 # Generate env-specific config with IDs
 GEN_CONFIG=$(bash "$SCRIPT_DIR/generate-config.sh" "$MODULE" "$ENV")
 
-pnpm exec wrangler deploy "$ENTRY_PATH" --config "$GEN_CONFIG" --env "$ENV"
+env -u NODE_OPTIONS pnpm exec wrangler deploy "$ENTRY_PATH" --no-bundle --config "$GEN_CONFIG" --env "$ENV"
 echo "✅ Deployment complete — $MODULE/$ENV"
 echo "8855RROKK-ACK"
 
