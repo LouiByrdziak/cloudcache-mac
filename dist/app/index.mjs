@@ -123,7 +123,7 @@ var health = createHealthHandler({
   service: "app",
   envName: "staging",
   dependencies: { kvBinding: "APP_KV", d1Binding: "APP_D1", r2Binding: "APP_R2" },
-  readyz: { ttlMs: 5e3, timeoutMs: 400, requireAuth: true, tokenHeader: "X-Ready-Token", tokenEnvKey: "READYZ_TOKEN" }
+  readyz: { ttlMs: 5e3, timeoutMs: 400, requireAuth: false }
 });
 var index_default = {
   async fetch(request, env) {

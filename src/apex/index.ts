@@ -4,7 +4,7 @@ const health = createHealthHandler({
   service: "apex",
   envName: "staging",
   dependencies: { kvBinding: "APEX_KV", d1Binding: "APEX_D1", r2Binding: "APEX_R2" },
-  readyz: { ttlMs: 5000, timeoutMs: 400, requireAuth: true, tokenHeader: "X-Ready-Token", tokenEnvKey: "READYZ_TOKEN" },
+  readyz: { ttlMs: 5000, timeoutMs: 400, requireAuth: false },
 });
 
 export default {

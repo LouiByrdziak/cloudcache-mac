@@ -123,7 +123,8 @@ var health = createHealthHandler({
   service: "admin",
   envName: "staging",
   dependencies: { kvBinding: "ADMIN_KV", d1Binding: "ADMIN_D1", r2Binding: "ADMIN_R2" },
-  readyz: { ttlMs: 5e3, timeoutMs: 400, requireAuth: true, tokenHeader: "X-Ready-Token", tokenEnvKey: "READYZ_TOKEN" }
+  // Cloudflare Access will guard /readyz; no Worker secret header
+  readyz: { ttlMs: 5e3, timeoutMs: 400, requireAuth: false }
 });
 var index_default = {
   async fetch(request, env) {
