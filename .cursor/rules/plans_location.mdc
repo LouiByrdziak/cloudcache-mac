@@ -1,0 +1,6 @@
+RULE: Plans location and naming
+
+- All new plans must be created under docs/plans/ using the user-provided filename.
+- Never create or use one.plan.md.
+- Do not write plans to repository root or .cursor/.
+- If a plan is accidentally generated elsewhere, move it to docs/plans/<name>.md immediately.
