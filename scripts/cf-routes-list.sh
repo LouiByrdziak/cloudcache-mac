@@ -17,3 +17,4 @@ curl -sS "${CF_ZONE_BASE}/workers/routes" "${CF_AUTH[@]}" | jq -r '.result[] | [
 
 
 
+
