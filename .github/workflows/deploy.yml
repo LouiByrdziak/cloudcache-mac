@@ -45,26 +45,9 @@ jobs:
             bash scripts/deploy.sh "$pkg" production
           done
 
-      - name: Summary
-        run: |
-          {
-            echo "### Deploy";
-            echo "- Status: completed";
-          } >> "$GITHUB_STEP_SUMMARY"
-      - name: Save run report
-        if: always()
-        run: |
-          {
-            echo "repo=${{ github.repository }}";
-            echo "sha=${{ github.sha }}";
-            echo "workflow=${{ github.workflow }}";
-            echo "run_number=${{ github.run_number }}";
-          } > run-report.txt
-      - uses: actions/upload-artifact@v4
-        if: always()
+      - name: Report run
+        uses: ./.github/actions/report-run
         with:
-          name: Deploy-run-${{ github.run_number }}
-          path: run-report.txt
-          retention-days: 14
+          job: Deploy
 
 

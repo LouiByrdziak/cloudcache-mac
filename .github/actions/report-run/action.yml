@@ -1,0 +1,35 @@
+name: 'Report Run'
+description: 'Publishes a concise job summary and uploads a run-report artifact'
+inputs:
+  job:
+    description: 'Human-friendly job name (CI, Deploy, Secrets Scan, Policy Guards)'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Publish summary
+      shell: bash
+      run: |
+        {
+          echo "### ${{ inputs.job }}";
+          echo "- Repo: ${{ github.repository }}";
+          echo "- SHA: ${{ github.sha }}";
+          echo "- Run: ${{ github.run_number }}";
+          echo "- Status: completed";
+        } >> "$GITHUB_STEP_SUMMARY"
+    - name: Build run report
+      shell: bash
+      run: |
+        {
+          echo "repo=${{ github.repository }}";
+          echo "sha=${{ github.sha }}";
+          echo "workflow=${{ github.workflow }}";
+          echo "run_number=${{ github.run_number }}";
+          echo "job=${{ inputs.job }}";
+        } > run-report.txt
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.job }}-run-${{ github.run_number }}
+        path: run-report.txt
+        retention-days: 14
+

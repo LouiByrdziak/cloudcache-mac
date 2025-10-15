@@ -24,13 +24,10 @@ jobs:
             exit 1
           fi
           echo "No disallowed references found in code paths."
-      - name: Summary (pages-dev)
-        run: |
-          {
-            echo "### Policy Guards";
-            echo "- Check: pages-dev ban";
-            echo "- Status: completed";
-          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Report run (pages-dev)
+        uses: ./.github/actions/report-run
+        with:
+          job: Policy-Guards-pagesdev
 
   guard-plan-location:
     runs-on: ubuntu-latest
@@ -49,13 +46,10 @@ jobs:
             exit 1
           fi
           echo "Plan location guard passed."
-      - name: Summary (plan-location)
-        run: |
-          {
-            echo "### Policy Guards";
-            echo "- Check: plan location";
-            echo "- Status: completed";
-          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Report run (plan-location)
+        uses: ./.github/actions/report-run
+        with:
+          job: Policy-Guards-planlocation
       - name: Save run report
         if: always()
         run: |
