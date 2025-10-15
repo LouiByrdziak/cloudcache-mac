@@ -2,9 +2,12 @@ name: Policy Guards
 on:
   pull_request:
 
+env:
+  ENABLE_POLICY_GUARDS: ${{ vars.ENABLE_POLICY_GUARDS || 'true' }}
+
 jobs:
   ban-pages-dev:
-    if: ${{ vars.ENABLE_POLICY_GUARDS != 'false' }}
+    if: ${{ env.ENABLE_POLICY_GUARDS != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +29,7 @@ jobs:
           echo "No disallowed references found in code paths."
 
   guard-plan-location:
-    if: ${{ vars.ENABLE_POLICY_GUARDS != 'false' }}
+    if: ${{ env.ENABLE_POLICY_GUARDS != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
