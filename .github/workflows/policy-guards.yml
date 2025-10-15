@@ -5,7 +5,6 @@ on:
 
 jobs:
   ban-pages-dev:
-    if: ${{ vars.ENABLE_POLICY_GUARDS != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,12 +27,12 @@ jobs:
       - name: Summary (pages-dev)
         run: |
           {
-            echo "### Policy Guards toggles";
-            echo "- ENABLE_POLICY_GUARDS=${{ vars.ENABLE_POLICY_GUARDS || 'true' }}";
+            echo "### Policy Guards";
+            echo "- Check: pages-dev ban";
+            echo "- Status: completed";
           } >> "$GITHUB_STEP_SUMMARY"
 
   guard-plan-location:
-    if: ${{ vars.ENABLE_POLICY_GUARDS != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,8 +52,9 @@ jobs:
       - name: Summary (plan-location)
         run: |
           {
-            echo "### Policy Guards toggles";
-            echo "- ENABLE_POLICY_GUARDS=${{ vars.ENABLE_POLICY_GUARDS || 'true' }}";
+            echo "### Policy Guards";
+            echo "- Check: plan location";
+            echo "- Status: completed";
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Save run report
         if: always()
@@ -64,7 +64,6 @@ jobs:
             echo "sha=${{ github.sha }}";
             echo "workflow=${{ github.workflow }}";
             echo "run_number=${{ github.run_number }}";
-            echo "enable_policy_guards=${{ vars.ENABLE_POLICY_GUARDS || 'true' }}";
           } > run-report.txt
       - uses: actions/upload-artifact@v4
         if: always()

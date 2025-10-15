@@ -5,7 +5,6 @@ on:
 
 jobs:
   build:
-    if: ${{ vars.ENABLE_CI != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,8 +20,8 @@ jobs:
       - name: Summary
         run: |
           {
-            echo "### CI toggles";
-            echo "- ENABLE_CI=${{ vars.ENABLE_CI || 'true' }}";
+            echo "### CI";
+            echo "- Status: completed";
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Save run report
         if: always()
@@ -32,7 +31,6 @@ jobs:
             echo "sha=${{ github.sha }}";
             echo "workflow=${{ github.workflow }}";
             echo "run_number=${{ github.run_number }}";
-            echo "enable_ci=${{ vars.ENABLE_CI || 'true' }}";
           } > run-report.txt
       - uses: actions/upload-artifact@v4
         if: always()

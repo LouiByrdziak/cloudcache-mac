@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   deploy:
-    if: ${{ vars.ENABLE_DEPLOY != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,8 +48,8 @@ jobs:
       - name: Summary
         run: |
           {
-            echo "### Deploy toggles";
-            echo "- ENABLE_DEPLOY=${{ vars.ENABLE_DEPLOY || 'true' }}";
+            echo "### Deploy";
+            echo "- Status: completed";
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Save run report
         if: always()
@@ -60,7 +59,6 @@ jobs:
             echo "sha=${{ github.sha }}";
             echo "workflow=${{ github.workflow }}";
             echo "run_number=${{ github.run_number }}";
-            echo "enable_deploy=${{ vars.ENABLE_DEPLOY || 'true' }}";
           } > run-report.txt
       - uses: actions/upload-artifact@v4
         if: always()
