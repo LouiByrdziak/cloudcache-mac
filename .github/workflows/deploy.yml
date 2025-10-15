@@ -11,20 +11,13 @@ jobs:
   deploy:
     if: ${{ vars.ENABLE_DEPLOY != 'false' }}
     runs-on: ubuntu-latest
-    env:
-      NODE_VERSION: 22
-      PNPM_VERSION: 9
     steps:
       - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
+      - name: Setup Node and PNPM
+        uses: ./.github/actions/setup-node-pnpm
         with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+          node-version: '22'
+          pnpm-version: '9'
 
       - run: pnpm install --frozen-lockfile=false
 
