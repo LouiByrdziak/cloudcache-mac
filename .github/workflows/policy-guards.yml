@@ -1,0 +1,47 @@
+name: Policy Guards
+on:
+  pull_request:
+
+jobs:
+  ban-pages-dev:
+    if: ${{ vars.ENABLE_POLICY_GUARDS != 'false' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail on pages.dev or wrangler pages references in code
+        run: |
+          set -euo pipefail
+          dirs=(src scripts packages .github)
+          hits=""
+          for d in "${dirs[@]}"; do
+            if [ -d "$d" ]; then
+              part=$(grep -RInE "pages\.dev|wrangler pages" "$d" || true)
+              hits="$hits$part\n"
+            fi
+          done
+          if [ -n "$(echo "$hits" | sed '/^$/d')" ]; then
+            echo -e "Found disallowed references in code paths:\n$hits" >&2
+            exit 1
+          fi
+          echo "No disallowed references found in code paths."
+
+  guard-plan-location:
+    if: ${{ vars.ENABLE_POLICY_GUARDS != 'false' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Block one.plan.md and plans outside docs/plans/
+        run: |
+          set -euo pipefail
+          bad=""
+          x=$(git ls-files | grep -E '^one\.plan\.md$|/one\.plan\.md$' || true)
+          [ -n "$x" ] && bad="$bad$x\n"
+          y=$(git ls-files | grep -Ei '\\.(md|mdc)$' | grep -Ei 'plan' | grep -v '^docs/plans/' || true)
+          [ -n "$y" ] && bad="$bad$y\n"
+          if [ -n "$(echo -e "$bad" | sed '/^$/d')" ]; then
+            echo -e "Plan location violations:\n$bad" >&2
+            exit 1
+          fi
+          echo "Plan location guard passed."
+
+

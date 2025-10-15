@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   deploy:
+    if: ${{ vars.ENABLE_DEPLOY != 'false' }}
     runs-on: ubuntu-latest
     env:
       NODE_VERSION: 22
