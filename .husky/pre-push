@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+. ./_/husky.sh
+
+# Lint GitHub workflows if actionlint is available
+if command -v actionlint >/dev/null 2>&1; then
+  actionlint || { echo "actionlint failed"; exit 1; }
+else
+  echo "actionlint not installed; skipping"
+fi
+
+# TypeScript sanity (no emit)
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm -w tsc -p tsconfig.base.json --noEmit || {
+    echo "Typecheck failed"; exit 1;
+  }
+else
+  echo "pnpm not available; skipping typecheck"
+fi
+
+# Optional secrets scan
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --no-banner --staged --redact || {
+    echo "Secrets scan failed"; exit 1;
+  }
+else
+  echo "gitleaks not installed; skipping"
+fi
+

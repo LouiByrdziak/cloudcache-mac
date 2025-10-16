@@ -11,12 +11,15 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
-      "pnpm exec eslint --fix",
-      "pnpm exec prettier --write"
+    "*.{js,ts,tsx,json,md,yml,yaml}": [
+      "prettier --check"
     ],
-    "*.{json,md,css,scss}": [
-      "pnpm exec prettier --write"
+    "*.{js,ts,tsx}": [
+      "eslint --max-warnings=0"
+    ],
+    "*.sh": [
+      "shfmt -d",
+      "shellcheck -S warning"
     ]
   },
   "devDependencies": {
