@@ -7,6 +7,7 @@
 **/.dev.vars
 **/.wrangler/
 .wrangler/
+**/.wrangler/tmp
 ## Yarn artifacts (ensure PNPM-only)
 .pnp.cjs
 .yarn/
@@ -15,6 +16,7 @@
 node_modules/
 **/dist/
 dist/
+apps/*/dist/
 .DS_Store
 Thumbs.db
 .vscode/

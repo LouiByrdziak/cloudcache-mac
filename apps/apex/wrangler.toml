@@ -1,5 +1,5 @@
 name = "apex-worker"
-main = "index.ts"
+main = "src/index.ts"
 compatibility_date = "2025-10-07"
 compatibility_flags = ["nodejs_compat"]
 

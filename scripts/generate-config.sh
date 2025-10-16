@@ -16,7 +16,7 @@ if [[ -z "$ACCOUNT_ID" ]]; then
   exit 2
 fi
 
-MODULE_DIR="$ROOT_DIR/src/$MODULE"
+MODULE_DIR="$ROOT_DIR/apps/$MODULE"
 OUT_CONFIG="$MODULE_DIR/.wrangler.generated.toml"
 
 lower_module="$MODULE"
@@ -28,7 +28,7 @@ suffix=""
 {
   echo "name = \"${lower_module}-worker\""
   echo "account_id = \"${ACCOUNT_ID}\""
-  echo "main = \"index.ts\""
+  echo "main = \"src/index.ts\""
   echo "compatibility_date = \"2025-10-07\""
   echo "compatibility_flags = [\"nodejs_compat\"]"
   echo "workers_dev = false"

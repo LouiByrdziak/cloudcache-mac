@@ -29,7 +29,7 @@ jobs:
           if [ -z "$BEFORE_SHA" ]; then
             BEFORE_SHA="$(git rev-parse HEAD^)"
           fi
-          CHANGED=$(git diff --name-only "$BEFORE_SHA" "${{ github.sha }}" | grep '^src/' | cut -d/ -f2 | sort -u | tr '\n' ' ' || true)
+          CHANGED=$(git diff --name-only "$BEFORE_SHA" "${{ github.sha }}" | grep '^apps/' | cut -d/ -f2 | sort -u | tr '\n' ' ' || true)
           echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
 
       - name: No changes

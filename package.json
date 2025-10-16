@@ -32,5 +32,10 @@
     "prettier": "^3.3.3",
     "tsup": "^8.5.0",
     "wrangler": "^4.42.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "wrangler": "4.42.1"
+    }
   }
 }

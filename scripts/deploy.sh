@@ -9,7 +9,7 @@ ENV="${2:-production}"
 [[ -z "$MODULE" || ! "$MODULE" =~ ^(apex|app|admin)$ ]] && { echo "Usage: $0 [apex|app|admin] [production|staging|preview]"; exit 1; }
 [[ ! "$ENV" =~ ^(production|staging|preview)$ ]] && { echo "Invalid env: $ENV"; exit 1; }
 
-MODULE_DIR="$ROOT_DIR/src/$MODULE"
+MODULE_DIR="$ROOT_DIR/apps/$MODULE"
 cd "$MODULE_DIR"
 
 select_module_token "$MODULE"
@@ -46,7 +46,7 @@ ENTRY_PATH="$ROOT_DIR/dist/$MODULE/index.mjs"
 if [[ ! -f "$ENTRY_PATH" ]]; then
   echo "ℹ️  Prebuilt artifact missing, building $MODULE…"
   mkdir -p "$ROOT_DIR/dist/$MODULE"
-  pnpm dlx tsup "$ROOT_DIR/src/$MODULE/index.ts" \
+  pnpm dlx tsup "$ROOT_DIR/apps/$MODULE/index.ts" \
     --format esm --target es2022 --dts=false --sourcemap=false \
     --out-dir "$ROOT_DIR/dist/$MODULE" --clean || {
       echo "❌ Build failed"; exit 4; }
