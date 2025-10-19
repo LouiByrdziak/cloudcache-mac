@@ -9,11 +9,16 @@ if [[ -z "$DOMAIN" ]]; then
   exit 1
 fi
 
+# Find app id
 APP_ID=$(curl -sS "${CF_ACCT_BASE}/access/apps?per_page=1000" "${CF_AUTH[@]}" | jq -r --arg d "$DOMAIN" '.result[] | select(.domain==$d) | .id' | head -n1)
 [[ -n "$APP_ID" ]] || { echo "❌ App not found: $DOMAIN" >&2; exit 2; }
 
-curl -sS "${CF_ACCT_BASE}/access/apps/${APP_ID}/policies?per_page=100" "${CF_AUTH[@]}" \
-  | jq -r '.result[] | [.id,.name,.decision,(.precedence|tostring),(.include[]?.service_token?.token_id // "")] | @tsv'
+# Patch to disable auto redirect and clear allowed_idps
+PATCH=$(jq -n '{auto_redirect_to_identity:false, allowed_idps:[]}')
+curl -sS -X PATCH "${CF_ACCT_BASE}/access/apps/${APP_ID}" "${CF_AUTH[@]}" --data "$PATCH" >/dev/null
+echo "✅ Tuned app settings for ${DOMAIN} (auto_redirect_to_identity=false, allowed_idps=[])"
+
+
 
 
 
