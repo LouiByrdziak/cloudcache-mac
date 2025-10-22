@@ -8,16 +8,7 @@ compatibility_flags = ["nodejs_compat"]
 #   staging: staging-apex.cloudcache.ai
 #   preview: use staging-apex.cloudcache.ai (no Pages)
 
-[[d1_databases]]
-binding = "APEX_D1"
-database_name = "apex-db"
-
-[[kv_namespaces]]
-binding = "APEX_KV"
-
-[[r2_buckets]]
-binding = "APEX_R2"
-bucket_name = "apex-bucket"
+## Phase 1: defer explicit resource bindings; health endpoints are not required
 
 [env.staging]
 name = "apex-worker-staging"

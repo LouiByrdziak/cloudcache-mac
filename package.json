@@ -8,7 +8,16 @@
     "typecheck": "pnpm -r typecheck",
     "format:check": "pnpm exec prettier -c .",
     "lint:quick": "pnpm exec eslint .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "deploy:staging:app": "bash scripts/modules/app/deploy-staging.sh staging",
+    "deploy:staging:admin": "bash scripts/modules/admin/deploy-staging.sh staging",
+    "deploy:staging:apex": "bash scripts/modules/apex/deploy-staging.sh staging",
+
+    "verify:access": "bash scripts/access/verify.sh staging",
+    "verify:ping": "bash scripts/verify/ping.sh staging",
+
+    "shopify:scopes": "bash scripts/shopify/scopes-assert.sh",
+    "cf:snapshot": "bash scripts/cf/inventory-snapshot.sh"
   },
   "lint-staged": {
     "*.{js,ts,tsx,json,md,yml,yaml}": [

@@ -8,16 +8,7 @@ compatibility_flags = ["nodejs_compat"]
 #   staging: staging-admin.cloudcache.ai
 #   preview: use staging-admin.cloudcache.ai (no Pages)
 
-[[d1_databases]]
-binding = "ADMIN_D1"
-database_name = "admin-db"
-
-[[kv_namespaces]]
-binding = "ADMIN_KV"
-
-[[r2_buckets]]
-binding = "ADMIN_R2"
-bucket_name = "admin-bucket"
+## Phase 1: defer explicit resource bindings; health endpoints are not required
 
 [env.staging]
 name = "admin-worker-staging"

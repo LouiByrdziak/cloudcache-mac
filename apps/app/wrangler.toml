@@ -8,16 +8,7 @@ compatibility_flags = ["nodejs_compat"]
 #   staging: staging-app.cloudcache.ai
 #   preview: use staging-app.cloudcache.ai (no Pages)
 
-[[d1_databases]]
-binding = "APP_D1"
-database_name = "app-db"
-
-[[kv_namespaces]]
-binding = "APP_KV"
-
-[[r2_buckets]]
-binding = "APP_R2"
-bucket_name = "app-bucket"
+## Phase 1: defer explicit resource bindings; health endpoints are not required
 
 [env.staging]
 name = "app-worker-staging"
