@@ -84,85 +84,13 @@ load_env_file_if_exists() {
   fi
 }
 
-keychain_get() {
-  # macOS Keychain lookup: service name "cloudcache:$1"
-  if has_cmd security; then
-    security find-generic-password -s "cloudcache:$1" -w 2>/dev/null || true
+# Resolve a Cloudflare API token.
+# This function is simpler now, it just ensures the variable is set.
+resolve_cf_token() {
+  if [[ -z "${CF_API_TOKEN:-}" ]]; then
+    die "CF_API_TOKEN is not set. Please configure it in your .env file."
   fi
-}
-
-ensure_secret() {
-  local var
-  for var in "$@"; do
-    if [[ -z "${!var:-}" ]]; then
-      local val
-      val="$(keychain_get "$var")"
-      if [[ -n "$val" ]]; then
-        # export dynamically by indirection
-        printf -v "$var" '%s' "$val"
-        export "$var"
-      fi
-    fi
-  done
-}
-
-# Try multiple keychain service names for first hit
-keychain_get_many() {
-  if ! has_cmd security; then
-    return 0
-  fi
-  local name
-  for name in "$@"; do
-    local v
-    v=$(security find-generic-password -s "$name" -w 2>/dev/null || true)
-    if [[ -n "$v" ]]; then
-      printf "%s" "$v"
-      return 0
-    fi
-  done
-}
-
-# Resolve a Cloudflare API token for a module: apex|admin|app
-resolve_cf_token_for_module() {
-  local module="$1"
-  local upper
-  upper=$(printf "%s" "$module" | tr '[:lower:]' '[:upper:]')
-  # macOS bash 3.x lacks ${var^}; use awk to capitalize first letter
-  local cap
-  cap=$(printf "%s" "$module" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')
-
-  # Candidate env var names in priority order
-  local candidates=(
-    "CLOUDFLARE_API_TOKEN"
-    "CLOUDFLARE_API_TOKEN_${upper}"
-    "Cloudflare_Api_Token_${cap}"
-    # Special-case: app may be referred to as Api in some setups
-  )
-  if [[ "$module" == "app" ]]; then
-    candidates+=("Cloudflare_Api_Token_Api")
-  fi
-  candidates+=("CF_API_TOKEN")
-
-  local name val
-  for name in "${candidates[@]}"; do
-    # 1) Env var present
-    if [[ -n "${!name:-}" ]]; then
-      printf "%s" "${!name}"
-      return 0
-    fi
-    # 2) Keychain lookup under common service names
-    val="$(keychain_get_many "cloudcache:${name}" "$name")"
-    if [[ -n "$val" ]]; then
-      # Export back to env for downstream tools
-      printf -v "$name" '%s' "$val"
-      export "$name"
-      printf "%s" "$val"
-      return 0
-    fi
-  done
-
-  # Not found
-  return 1
+  printf "%s" "$CF_API_TOKEN"
 }
 
 # ---
@@ -187,10 +115,10 @@ run() {
 # Cloudflare API
 # ---
 setup_cf_env() {
-  require_env CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_API_TOKEN
-  redact "$CLOUDFLARE_API_TOKEN"
-  CF_ACCT_BASE="${API_ROOT}/accounts/${CLOUDFLARE_ACCOUNT_ID}"
-  CF_AUTH_HEADERS=(-H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" -H "Content-Type: application/json")
+  require_env CF_ACCOUNT_ID CF_API_TOKEN
+  redact "$CF_API_TOKEN"
+  CF_ACCT_BASE="${API_ROOT}/accounts/${CF_ACCOUNT_ID}"
+  CF_AUTH_HEADERS=(-H "Authorization: Bearer ${CF_API_TOKEN}" -H "Content-Type: application/json")
 }
 
 cf_api_call() {

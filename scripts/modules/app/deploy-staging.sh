@@ -7,11 +7,8 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 export CF_ENV="$ENV"
 log "Deploying APP ($ENV)"
+require_env CF_API_TOKEN CF_ACCOUNT_ID
 pushd "$ROOT_DIR/apps/app" >/dev/null
-# Resolve per-module token (prefers CLOUDFLARE_API_TOKEN_APP / Cloudflare_Api_Token_App / Cloudflare_Api_Token_Api)
-token="$(resolve_cf_token_for_module app || true)"
-if [[ -n "$token" ]]; then export CLOUDFLARE_API_TOKEN="$token"; fi
-ensure_secret CLOUDFLARE_ACCOUNT_ID
 run wrangler deploy --env "$ENV"
 popd >/dev/null
 log "APP $ENV deploy complete"
