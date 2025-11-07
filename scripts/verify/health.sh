@@ -13,7 +13,7 @@ main() {
     local domain="${1:-}"
     [[ -z "$domain" ]] && usage "Missing domain argument."
     
-    local health_url="https://'${domain}'/readyz"
+    local health_url="https://${domain}/readyz"
     
     step "Probing health endpoint for '$domain'..."
     
