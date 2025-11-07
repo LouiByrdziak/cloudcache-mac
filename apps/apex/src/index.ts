@@ -40,20 +40,23 @@ export default {
       background: #f5f5f5;
     }
     .container {
-      background: white;
       padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     h1 {
       margin-top: 0;
-      color: #333;
+      color: #F48120;
+    }
+    h2 {
+      margin-top: 10px;
+      color: #FC7C1E;
+      font-weight: normal;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Welcome to Cloudcache</h1>
+    <h2>I love Cloudcache</h2>
   </div>
 </body>
 </html>
