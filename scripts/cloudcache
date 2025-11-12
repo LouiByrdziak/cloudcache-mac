@@ -1,0 +1,365 @@
+#!/usr/bin/env bash
+#
+# Cloudcache Unified Infrastructure Management
+#
+# Single entrypoint for bootstrap, bind, and verify operations
+#
+
+set -euo pipefail
+IFS=$'\n\t'
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Check dependencies
+command -v jq >/dev/null 2>&1 || die "jq is required (brew install jq)"
+command -v wrangler >/dev/null 2>&1 || die "wrangler is required (npm install -g wrangler)"
+
+# Source core library
+source "$SCRIPT_DIR/lib/core.sh"
+
+# Load env files
+load_env_file_if_exists "$ROOT_DIR/.env"
+load_env_file_if_exists "$ROOT_DIR/.env.local"
+
+# Module validation
+MODULES=("apex" "app" "admin")
+ENVIRONMENTS=("preview" "staging" "prod")
+
+validate_module() {
+  local module="$1"
+  if [[ ! " ${MODULES[*]} " =~ " ${module} " ]]; then
+    die "Invalid module: $module. Must be one of: ${MODULES[*]}"
+  fi
+}
+
+validate_env() {
+  local env="$1"
+  if [[ ! " ${ENVIRONMENTS[*]} " =~ " ${env} " ]]; then
+    die "Invalid environment: $env. Must be one of: ${ENVIRONMENTS[*]}"
+  fi
+}
+
+# Prompt for secret value
+prompt_secret() {
+  local name="$1"
+  local description="${2:-}"
+  local value=""
+  
+  if [[ -n "$description" ]]; then
+    echo "$description" >&2
+  fi
+  
+  read -sp "Enter $name: " value
+  echo >&2
+  [[ -n "$value" ]] || die "$name cannot be empty"
+  printf "%s" "$value"
+}
+
+# Prompt for config value (not secret)
+prompt_config() {
+  local name="$1"
+  local description="${2:-}"
+  local value=""
+  
+  if [[ -n "$description" ]]; then
+    echo "$description" >&2
+  fi
+  
+  read -p "Enter $name: " value
+  [[ -n "$value" ]] || die "$name cannot be empty"
+  printf "%s" "$value"
+}
+
+# Get worker name for module and environment
+get_worker_name() {
+  local module="$1"
+  local env="$2"
+  
+  case "$env" in
+    prod)
+      echo "${module}-worker"
+      ;;
+    staging)
+      echo "${module}-worker-staging"
+      ;;
+    preview)
+      echo "${module}-worker-preview"
+      ;;
+    *)
+      die "Unknown environment: $env"
+      ;;
+  esac
+}
+
+# Get secrets required for a module
+get_module_secrets() {
+  local module="$1"
+  
+  case "$module" in
+    app)
+      echo "SHOPIFY_API_KEY SHOPIFY_API_SECRET CF_ACCESS_CLIENT_ID CF_ACCESS_CLIENT_SECRET"
+      ;;
+    admin|apex)
+      echo "CF_ACCESS_CLIENT_ID CF_ACCESS_CLIENT_SECRET"
+      ;;
+    *)
+      die "Unknown module: $module"
+      ;;
+  esac
+}
+
+# Bootstrap command: create infrastructure and set up secrets
+cmd_bootstrap() {
+  local module="${1:-}"
+  local env="${2:-}"
+  
+  [[ -n "$module" ]] || die "Usage: bootstrap <module> <env>"
+  [[ -n "$env" ]] || die "Usage: bootstrap <module> <env>"
+  
+  validate_module "$module"
+  validate_env "$env"
+  
+  setup_cf_env
+  setup_wrangler_token
+  
+  step "Bootstrapping $module for $env environment"
+  
+  # For Workers: use wrangler deploy to create/update
+  if [[ "$module" != "apex" ]]; then
+    local worker_name
+    worker_name=$(get_worker_name "$module" "$env")
+    
+    step "Deploying Worker: $worker_name"
+    local wrangler_toml="$ROOT_DIR/apps/$module/wrangler.toml"
+    
+    if [[ "$env" == "prod" ]]; then
+      run wrangler deploy --config "$wrangler_toml"
+    else
+      run wrangler deploy --config "$wrangler_toml" --env "$env"
+    fi
+  else
+    # For APEX: create Pages project if needed
+    step "Setting up Pages project: apex-cloudcache"
+    
+    # Check if project exists
+    local projects
+    projects=$(cf_get "${CF_ACCT_BASE}/pages/projects" 2>/dev/null || echo '{"result":[]}')
+    
+    local project_exists
+    project_exists=$(echo "$projects" | jq -r '.result[] | select(.name=="apex-cloudcache") | .name' || echo "")
+    
+    if [[ -z "$project_exists" ]]; then
+      step "Creating Pages project: apex-cloudcache"
+      local project_data
+      project_data=$(jq -n '{
+        name: "apex-cloudcache",
+        production_branch: "main"
+      }')
+      cf_post "${CF_ACCT_BASE}/pages/projects" "$project_data" >/dev/null
+      log "Pages project created"
+    else
+      log "Pages project already exists"
+    fi
+  fi
+  
+  log "Bootstrap complete. Run 'bind' command to set secrets."
+}
+
+# Bind command: set secrets for a module/environment
+cmd_bind() {
+  local module="${1:-}"
+  local env="${2:-}"
+  
+  [[ -n "$module" ]] || die "Usage: bind <module> <env>"
+  [[ -n "$env" ]] || die "Usage: bind <module> <env>"
+  
+  validate_module "$module"
+  validate_env "$env"
+  
+  setup_cf_env
+  setup_wrangler_token
+  
+  step "Binding secrets for $module ($env)"
+  
+  if [[ "$module" == "apex" ]]; then
+    # Pages environment variables
+    step "Setting Pages environment variables"
+    
+    local cf_access_id cf_access_secret
+    cf_access_id=$(prompt_secret "CF_ACCESS_CLIENT_ID" "Cloudflare Access Client ID for $env")
+    cf_access_secret=$(prompt_secret "CF_ACCESS_CLIENT_SECRET" "Cloudflare Access Client Secret for $env")
+    
+    # Map env to Pages env name
+    local pages_env="production"
+    case "$env" in
+      staging) pages_env="staging" ;;
+      preview) pages_env="preview" ;;
+    esac
+    
+    local env_data
+    env_data=$(jq -n --arg id "$cf_access_id" --arg secret "$cf_access_secret" '{
+      vars: {
+        CF_ACCESS_CLIENT_ID: $id,
+        CF_ACCESS_CLIENT_SECRET: $secret
+      }
+    }')
+    
+    cf_put "${CF_ACCT_BASE}/pages/projects/apex-cloudcache/env/$pages_env" "$env_data" >/dev/null || \
+      cf_post "${CF_ACCT_BASE}/pages/projects/apex-cloudcache/env/$pages_env" "$env_data" >/dev/null
+    
+    log "Pages environment variables set for $pages_env"
+  else
+    # Worker secrets
+    local worker_name
+    worker_name=$(get_worker_name "$module" "$env")
+    
+    step "Setting secrets for Worker: $worker_name"
+    
+    local secrets
+    secrets=$(get_module_secrets "$module")
+    
+    for secret_name in $secrets; do
+      local secret_value
+      secret_value=$(prompt_secret "$secret_name" "Value for $secret_name ($env)")
+      
+      step "Setting $secret_name for $worker_name"
+      
+      # wrangler secret put reads from stdin
+      if [[ "$env" == "prod" ]]; then
+        echo "$secret_value" | wrangler secret put "$secret_name" --name "$worker_name" --config "$ROOT_DIR/apps/$module/wrangler.toml" || die "Failed to set secret $secret_name"
+      else
+        echo "$secret_value" | wrangler secret put "$secret_name" --name "$worker_name" --env "$env" --config "$ROOT_DIR/apps/$module/wrangler.toml" || die "Failed to set secret $secret_name"
+      fi
+      
+      log "Secret $secret_name set"
+    done
+  fi
+  
+  log "Secrets bound successfully"
+}
+
+# Verify command: check infrastructure and secrets
+cmd_verify() {
+  local module="${1:-}"
+  local env="${2:-}"
+  
+  [[ -n "$module" ]] || die "Usage: verify <module> <env>"
+  [[ -n "$env" ]] || die "Usage: verify <module> <env>"
+  
+  validate_module "$module"
+  validate_env "$env"
+  
+  setup_cf_env
+  setup_wrangler_token
+  
+  step "Verifying $module ($env)"
+  
+  if [[ "$module" == "apex" ]]; then
+    # Check Pages project
+    local project
+    project=$(cf_get "${CF_ACCT_BASE}/pages/projects/apex-cloudcache" 2>/dev/null || echo "")
+    
+    if [[ -z "$project" ]]; then
+      die "Pages project 'apex-cloudcache' not found"
+    fi
+    
+    log "Pages project exists: apex-cloudcache"
+    
+    # Check environment variables
+    local pages_env="production"
+    case "$env" in
+      staging) pages_env="staging" ;;
+      preview) pages_env="preview" ;;
+    esac
+    
+    local env_vars
+    env_vars=$(cf_get "${CF_ACCT_BASE}/pages/projects/apex-cloudcache/env/$pages_env" 2>/dev/null || echo '{"vars":{}}')
+    
+    local has_id has_secret
+    has_id=$(echo "$env_vars" | jq -r '.vars.CF_ACCESS_CLIENT_ID // empty' || echo "")
+    has_secret=$(echo "$env_vars" | jq -r '.vars.CF_ACCESS_CLIENT_SECRET // empty' || echo "")
+    
+    if [[ -n "$has_id" && -n "$has_secret" ]]; then
+      log "Environment variables set for $pages_env"
+    else
+      die "Missing environment variables for $pages_env"
+    fi
+  else
+    # Check Worker
+    local worker_name
+    worker_name=$(get_worker_name "$module" "$env")
+    
+    step "Checking Worker: $worker_name"
+    
+    local deployments
+    deployments=$(wrangler deployments list --name "$worker_name" --config "$ROOT_DIR/apps/$module/wrangler.toml" 2>/dev/null || echo "")
+    
+    if [[ -z "$deployments" ]]; then
+      die "Worker '$worker_name' not found or not deployed"
+    fi
+    
+    log "Worker exists: $worker_name"
+    
+    # Check secrets
+    local secrets
+    secrets=$(get_module_secrets "$module")
+    
+    local missing_secrets=""
+    for secret_name in $secrets; do
+      local secret_list
+      if [[ "$env" == "prod" ]]; then
+        secret_list=$(wrangler secret list --name "$worker_name" --config "$ROOT_DIR/apps/$module/wrangler.toml" 2>/dev/null || echo "")
+      else
+        secret_list=$(wrangler secret list --name "$worker_name" --env "$env" --config "$ROOT_DIR/apps/$module/wrangler.toml" 2>/dev/null || echo "")
+      fi
+      
+      if ! echo "$secret_list" | grep -q "$secret_name"; then
+        missing_secrets="$missing_secrets $secret_name"
+      fi
+    done
+    
+    if [[ -n "$missing_secrets" ]]; then
+      die "Missing secrets:$missing_secrets"
+    fi
+    
+    log "All secrets present"
+  fi
+  
+  log "Verification complete"
+}
+
+# Main command dispatcher
+main() {
+  local command="${1:-}"
+  
+  case "$command" in
+    bootstrap)
+      shift
+      cmd_bootstrap "$@"
+      ;;
+    bind)
+      shift
+      cmd_bind "$@"
+      ;;
+    verify)
+      shift
+      cmd_verify "$@"
+      ;;
+    *)
+      echo "Usage: $0 {bootstrap|bind|verify} <module> <env>" >&2
+      echo "" >&2
+      echo "Commands:" >&2
+      echo "  bootstrap  Create/update infrastructure (Workers/Pages)" >&2
+      echo "  bind        Set secrets interactively" >&2
+      echo "  verify      Verify infrastructure and secrets" >&2
+      echo "" >&2
+      echo "Modules: apex, app, admin" >&2
+      echo "Environments: preview, staging, prod" >&2
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"
+

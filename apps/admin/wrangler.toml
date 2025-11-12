@@ -2,15 +2,22 @@ name = "admin-worker"
 main = "src/index.ts"
 compatibility_date = "2025-10-07"
 
-# Domains:
-#   prod:    admin.cloudcache.ai
-#   staging: staging-admin.cloudcache.ai
-#   preview: use staging-admin.cloudcache.ai (no Pages)
+# Remote bindings for local dev (no .dev.vars needed)
+[dev]
+remote = true
 
-## Phase 1: defer explicit resource bindings; health endpoints are not required
+# Production routes
+routes = [
+  { pattern = "admin.cloudcache.ai/*", zone_name = "cloudcache.ai" }
+]
 
+# Staging environment
 [env.staging]
 name = "admin-worker-staging"
+routes = [
+  { pattern = "staging-admin.cloudcache.ai/*", zone_name = "cloudcache.ai" }
+]
 
+# Preview environment
 [env.preview]
 name = "admin-worker-preview"

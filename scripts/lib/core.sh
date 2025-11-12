@@ -149,6 +149,7 @@ cf_api_call() {
 
 cf_get() { cf_api_call "GET" "$1"; }
 cf_post() { cf_api_call "POST" "$1" "${2:-}"; }
+cf_put() { cf_api_call "PUT" "$1" "${2:-}"; }
 cf_delete() { cf_api_call "DELETE" "$1"; }
 
 # ---

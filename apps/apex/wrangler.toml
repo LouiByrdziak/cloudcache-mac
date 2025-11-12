@@ -2,15 +2,27 @@ name = "apex-worker"
 main = "src/index.ts"
 compatibility_date = "2025-10-07"
 
-# Domains:
-#   prod:    cloudcache.ai (and www.cloudcache.ai)
-#   staging: staging-apex.cloudcache.ai
-#   preview: use staging-apex.cloudcache.ai (no Pages)
+# Remote bindings for local dev (no .dev.vars needed)
+[dev]
+remote = true
 
-## Phase 1: defer explicit resource bindings; health endpoints are not required
+# Production routes
+routes = [
+  { pattern = "cloudcache.ai/*", zone_name = "cloudcache.ai" },
+  { pattern = "www.cloudcache.ai/*", zone_name = "cloudcache.ai" }
+]
 
+# Staging environment
 [env.staging]
 name = "apex-worker-staging"
+routes = [
+  { pattern = "staging-apex.cloudcache.ai/*", zone_name = "cloudcache.ai" }
+]
 
+# Preview environment
 [env.preview]
 name = "apex-worker-preview"
+
+# Pages configuration for Astro SSR
+# Note: Pages project should be created separately via scripts/cloudcache bootstrap
+# Build output directory should match Astro adapter output (.astro/output or .output/public)
