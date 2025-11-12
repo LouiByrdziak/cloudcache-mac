@@ -1,3 +1,9 @@
+# Environment files (protect against accidental commits)
+**/.env
+**/.env.*
+!**/.env.example
+
+# Wrangler local config files
 **/wrangler.local.toml
 **/wrangler.toml.local
 **/.wrangler.generated.toml
