@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts",
+    "build": "tsup",
+    "build:bundle": "tsup",
     "dev": "pnpm exec wrangler dev --port 8789"
   },
   "dependencies": {

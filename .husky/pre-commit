@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-. ./_/husky.sh
 
 # Staged-only, fast checks
 pnpm dlx lint-staged

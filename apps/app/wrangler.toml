@@ -1,15 +1,16 @@
 name = "app-worker"
-main = "src/index.ts"
+main = "dist/index.js"
 compatibility_date = "2025-10-07"
-
-# Remote bindings for local dev (no .dev.vars needed)
-[dev]
-remote = true
 
 # Production routes
 routes = [
   { pattern = "app.cloudcache.ai/*", zone_name = "cloudcache.ai" }
 ]
+
+# Production KV namespace
+[[kv_namespaces]]
+binding = "APP_KV"
+id = "0b01afadb4984342a5e0ef09d7ff5fcd"
 
 # Staging environment
 [env.staging]
@@ -18,6 +19,16 @@ routes = [
   { pattern = "staging-app.cloudcache.ai/*", zone_name = "cloudcache.ai" }
 ]
 
+[[env.staging.kv_namespaces]]
+binding = "APP_KV"
+id = "5df224d061fb4f869a1a713f1ebd7252"
+
 # Preview environment
 [env.preview]
 name = "app-worker-preview"
+# Preview has no routes - uses workers.dev subdomain
+routes = []
+
+[[env.preview.kv_namespaces]]
+binding = "APP_KV"
+id = "58050e98476b42578f917f32582b6647"

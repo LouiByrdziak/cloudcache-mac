@@ -16,10 +16,8 @@
     "deploy:staging:app": "bash scripts/modules/app/deploy-staging.sh staging",
     "deploy:staging:admin": "bash scripts/modules/admin/deploy-staging.sh staging",
     "deploy:staging:apex": "bash scripts/modules/apex/deploy-staging.sh staging",
-
     "verify:access": "bash scripts/access/verify.sh staging",
     "verify:ping": "bash scripts/verify/ping.sh staging",
-
     "shopify:scopes": "bash scripts/shopify/scopes-assert.sh",
     "cf:snapshot": "bash scripts/cf/inventory-snapshot.sh"
   },
@@ -28,12 +26,13 @@
       "prettier --check"
     ],
     "*.{js,ts,tsx}": [
-      "eslint --max-warnings=0"
+      "bash scripts/lint-staged-eslint.sh"
     ],
     "*.sh": [
-      "shfmt -d",
-      "shellcheck -S warning"
-    ]
+      "bash scripts/lint-staged-shfmt.sh",
+      "bash scripts/lint-staged-shellcheck.sh"
+    ],
+    ".husky/_/*.sh": []
   },
   "devDependencies": {
     "@cloudflare/unenv-preset": "^2.7.7",

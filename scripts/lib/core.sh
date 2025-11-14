@@ -57,7 +57,9 @@ require_env() {
       missing=1
     fi
   done
-  (( missing )) && die "Aborting due to missing environment variables."
+  if [[ $missing -eq 1 ]]; then
+    die "Aborting due to missing environment variables."
+  fi
 }
 
 redact() {
@@ -95,11 +97,16 @@ resolve_cf_token() {
 
 # Setup wrangler token mapping.
 # Wrangler requires CLOUDFLARE_API_TOKEN, so we map it from CF_API_TOKEN.
+# Also set CLOUDFLARE_ACCOUNT_ID to avoid deprecation warnings.
 setup_wrangler_token() {
   if [[ -z "${CF_API_TOKEN:-}" ]]; then
     die "CF_API_TOKEN is not set. Please configure it in your .env file."
   fi
   export CLOUDFLARE_API_TOKEN="$CF_API_TOKEN"
+  # Set CLOUDFLARE_ACCOUNT_ID for wrangler (preferred over deprecated CF_ACCOUNT_ID)
+  if [[ -n "${CF_ACCOUNT_ID:-}" ]]; then
+    export CLOUDFLARE_ACCOUNT_ID="$CF_ACCOUNT_ID"
+  fi
   redact "$CF_API_TOKEN"
 }
 
@@ -153,20 +160,25 @@ cf_put() { cf_api_call "PUT" "$1" "${2:-}"; }
 cf_delete() { cf_api_call "DELETE" "$1"; }
 
 # ---
-# ENV Handling (default to staging, allow prod)
-# ---
-ENV_INPUT="${1-}"
-ENV="${ENV_INPUT:-${ENV:-staging}}"
-if [[ "$ENV" != "staging" && "$ENV" != "prod" ]]; then
-  die "ENV must be staging|prod"
-fi
-
-# ---
-# Project root and dotenv loading
+# Project root (always set when sourced)
 # ---
 CORE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="${ROOT_DIR:-$(cd "$CORE_DIR/../.." && pwd)}"
-load_env_file_if_exists "$ROOT_DIR/.env"
-load_env_file_if_exists "$ROOT_DIR/.env.local"
-load_env_file_if_exists "$ROOT_DIR/.env.$ENV"
-load_env_file_if_exists "$ROOT_DIR/.env.$ENV.local"
+
+# ---
+# ENV Handling (default to staging, allow prod)
+# Only execute when script is run directly, not when sourced
+# ---
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  ENV_INPUT="${1-}"
+  ENV="${ENV_INPUT:-${ENV:-staging}}"
+  if [[ "$ENV" != "staging" && "$ENV" != "prod" ]]; then
+    die "ENV must be staging|prod"
+  fi
+
+  # Load env files for direct execution
+  load_env_file_if_exists "$ROOT_DIR/.env"
+  load_env_file_if_exists "$ROOT_DIR/.env.local"
+  load_env_file_if_exists "$ROOT_DIR/.env.$ENV"
+  load_env_file_if_exists "$ROOT_DIR/.env.$ENV.local"
+fi

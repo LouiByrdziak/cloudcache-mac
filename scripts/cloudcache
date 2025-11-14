@@ -15,8 +15,11 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 command -v jq >/dev/null 2>&1 || die "jq is required (brew install jq)"
 command -v wrangler >/dev/null 2>&1 || die "wrangler is required (npm install -g wrangler)"
 
-# Source core library
+# Source core library (sets ROOT_DIR)
 source "$SCRIPT_DIR/lib/core.sh"
+
+# Ensure ROOT_DIR is set
+ROOT_DIR="${ROOT_DIR:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 
 # Load env files
 load_env_file_if_exists "$ROOT_DIR/.env"
@@ -28,16 +31,36 @@ ENVIRONMENTS=("preview" "staging" "prod")
 
 validate_module() {
   local module="$1"
-  if [[ ! " ${MODULES[*]} " =~ " ${module} " ]]; then
+  local found=0
+  for m in "${MODULES[@]}"; do
+    if [[ "$m" == "$module" ]]; then
+      found=1
+      break
+    fi
+  done
+  if [[ $found -eq 0 ]]; then
     die "Invalid module: $module. Must be one of: ${MODULES[*]}"
   fi
 }
 
 validate_env() {
   local env="$1"
-  if [[ ! " ${ENVIRONMENTS[*]} " =~ " ${env} " ]]; then
-    die "Invalid environment: $env. Must be one of: ${ENVIRONMENTS[*]}"
+  # Allow "prev" as alias for "preview"
+  if [[ "$env" == "prev" ]]; then
+    env="preview"
   fi
+  local found=0
+  for e in "${ENVIRONMENTS[@]}"; do
+    if [[ "$e" == "$env" ]]; then
+      found=1
+      break
+    fi
+  done
+  if [[ $found -eq 0 ]]; then
+    die "Invalid environment: $env. Must be one of: preview (or prev), staging, prod"
+  fi
+  # Return normalized env name
+  echo "$env"
 }
 
 # Prompt for secret value
@@ -46,12 +69,11 @@ prompt_secret() {
   local description="${2:-}"
   local value=""
   
-  if [[ -n "$description" ]]; then
-    echo "$description" >&2
-  fi
-  
-  read -sp "Enter $name: " value
-  echo >&2
+  # Simple, clean prompt - just ask for the secret name
+  # Use -rs: -r prevents backslash interpretation, -s suppresses echo (silent mode)
+  printf "Enter %s: " "$name" >&2
+  read -rs value
+  echo >&2  # Add newline after silent input
   [[ -n "$value" ]] || die "$name cannot be empty"
   printf "%s" "$value"
 }
@@ -92,7 +114,7 @@ get_worker_name() {
   esac
 }
 
-# Get secrets required for a module
+# Get secrets required for a module (returns space-separated string)
 get_module_secrets() {
   local module="$1"
   
@@ -118,7 +140,8 @@ cmd_bootstrap() {
   [[ -n "$env" ]] || die "Usage: bootstrap <module> <env>"
   
   validate_module "$module"
-  validate_env "$env"
+  # Normalize env (prev -> preview)
+  env=$(validate_env "$env")
   
   setup_cf_env
   setup_wrangler_token
@@ -175,20 +198,19 @@ cmd_bind() {
   [[ -n "$env" ]] || die "Usage: bind <module> <env>"
   
   validate_module "$module"
-  validate_env "$env"
+  # Normalize env (prev -> preview)
+  env=$(validate_env "$env")
   
   setup_cf_env
   setup_wrangler_token
-  
-  step "Binding secrets for $module ($env)"
   
   if [[ "$module" == "apex" ]]; then
     # Pages environment variables
     step "Setting Pages environment variables"
     
     local cf_access_id cf_access_secret
-    cf_access_id=$(prompt_secret "CF_ACCESS_CLIENT_ID" "Cloudflare Access Client ID for $env")
-    cf_access_secret=$(prompt_secret "CF_ACCESS_CLIENT_SECRET" "Cloudflare Access Client Secret for $env")
+    cf_access_id=$(prompt_secret "CF_ACCESS_CLIENT_ID")
+    cf_access_secret=$(prompt_secret "CF_ACCESS_CLIENT_SECRET")
     
     # Map env to Pages env name
     local pages_env="production"
@@ -214,25 +236,34 @@ cmd_bind() {
     local worker_name
     worker_name=$(get_worker_name "$module" "$env")
     
-    step "Setting secrets for Worker: $worker_name"
+    local secrets_str
+    secrets_str=$(get_module_secrets "$module")
     
-    local secrets
-    secrets=$(get_module_secrets "$module")
+    # Convert space-separated string to array
+    # Save and restore IFS to handle spaces correctly
+    local old_ifs="$IFS"
+    IFS=' '
+    local secrets_array=($secrets_str)
+    IFS="$old_ifs"
     
-    for secret_name in $secrets; do
+    for secret_name in "${secrets_array[@]}"; do
       local secret_value
-      secret_value=$(prompt_secret "$secret_name" "Value for $secret_name ($env)")
+      secret_value=$(prompt_secret "$secret_name")
       
-      step "Setting $secret_name for $worker_name"
+      step "Setting $secret_name for $worker_name (will overwrite if exists)"
       
       # wrangler secret put reads from stdin
+      # Note: This will overwrite/replace any existing secret with the same name
+      # For production, use --env="" to explicitly target top-level environment
+      # For staging/preview, use --env to let wrangler use the name from config file
       if [[ "$env" == "prod" ]]; then
-        echo "$secret_value" | wrangler secret put "$secret_name" --name "$worker_name" --config "$ROOT_DIR/apps/$module/wrangler.toml" || die "Failed to set secret $secret_name"
+        echo "$secret_value" | wrangler secret put "$secret_name" --name "$worker_name" --env "" --config "$ROOT_DIR/apps/$module/wrangler.toml" || die "Failed to set secret $secret_name"
       else
-        echo "$secret_value" | wrangler secret put "$secret_name" --name "$worker_name" --env "$env" --config "$ROOT_DIR/apps/$module/wrangler.toml" || die "Failed to set secret $secret_name"
+        # Don't pass --name when using --env; wrangler uses name from config file's [env.*] section
+        echo "$secret_value" | wrangler secret put "$secret_name" --env "$env" --config "$ROOT_DIR/apps/$module/wrangler.toml" || die "Failed to set secret $secret_name"
       fi
       
-      log "Secret $secret_name set"
+      log "Secret $secret_name set (overwritten if it existed)"
     done
   fi
   
@@ -248,7 +279,8 @@ cmd_verify() {
   [[ -n "$env" ]] || die "Usage: verify <module> <env>"
   
   validate_module "$module"
-  validate_env "$env"
+  # Normalize env (prev -> preview)
+  env=$(validate_env "$env")
   
   setup_cf_env
   setup_wrangler_token
@@ -302,19 +334,30 @@ cmd_verify() {
     log "Worker exists: $worker_name"
     
     # Check secrets
-    local secrets
-    secrets=$(get_module_secrets "$module")
+    local secrets_str
+    secrets_str=$(get_module_secrets "$module")
+    
+    # Convert space-separated string to array
+    local old_ifs="$IFS"
+    IFS=' '
+    local secrets_array=($secrets_str)
+    IFS="$old_ifs"
     
     local missing_secrets=""
-    for secret_name in $secrets; do
+    for secret_name in "${secrets_array[@]}"; do
       local secret_list
       if [[ "$env" == "prod" ]]; then
-        secret_list=$(wrangler secret list --name "$worker_name" --config "$ROOT_DIR/apps/$module/wrangler.toml" 2>/dev/null || echo "")
+        secret_list=$(wrangler secret list --name "$worker_name" --config "$ROOT_DIR/apps/$module/wrangler.toml" 2>/dev/null || echo "[]")
       else
-        secret_list=$(wrangler secret list --name "$worker_name" --env "$env" --config "$ROOT_DIR/apps/$module/wrangler.toml" 2>/dev/null || echo "")
+        # Don't pass --name when using --env; wrangler uses name from config file's [env.*] section
+        secret_list=$(wrangler secret list --env "$env" --config "$ROOT_DIR/apps/$module/wrangler.toml" 2>/dev/null || echo "[]")
       fi
       
-      if ! echo "$secret_list" | grep -q "$secret_name"; then
+      # Parse JSON output and check if secret exists
+      local secret_exists
+      secret_exists=$(echo "$secret_list" | jq -r --arg name "$secret_name" '.[]? | select(.name==$name) | .name' 2>/dev/null || echo "")
+      
+      if [[ -z "$secret_exists" ]]; then
         missing_secrets="$missing_secrets $secret_name"
       fi
     done
@@ -355,7 +398,7 @@ main() {
       echo "  verify      Verify infrastructure and secrets" >&2
       echo "" >&2
       echo "Modules: apex, app, admin" >&2
-      echo "Environments: preview, staging, prod" >&2
+      echo "Environments: preview (or prev), staging, prod" >&2
       exit 1
       ;;
   esac

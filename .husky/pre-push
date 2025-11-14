@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-. ./_/husky.sh
 
 # Lint GitHub workflows if actionlint is available
 if command -v actionlint >/dev/null 2>&1; then
