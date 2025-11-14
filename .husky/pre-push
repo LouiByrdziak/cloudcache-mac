@@ -9,9 +9,14 @@ fi
 
 # TypeScript sanity (no emit)
 if command -v pnpm >/dev/null 2>&1; then
-  pnpm -w tsc -p tsconfig.base.json --noEmit || {
-    echo "Typecheck failed"; exit 1;
-  }
+  # Use pnpm exec to run tsc from node_modules
+  if pnpm exec tsc --version >/dev/null 2>&1; then
+    pnpm exec tsc -p tsconfig.base.json --noEmit || {
+      echo "Typecheck failed"; exit 1;
+    }
+  else
+    echo "TypeScript not installed; skipping typecheck"
+  fi
 else
   echo "pnpm not available; skipping typecheck"
 fi
