@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 
 # Staged-only, fast checks
-pnpm dlx lint-staged
+# Suppress url.parse() deprecation warning from dependencies
+NODE_OPTIONS="--no-deprecation" pnpm dlx lint-staged

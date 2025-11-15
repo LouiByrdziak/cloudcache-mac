@@ -7,6 +7,11 @@ routes = [
   { pattern = "app.cloudcache.ai/*", zone_name = "cloudcache.ai" }
 ]
 
+# Remote bindings for local dev (no .dev.vars needed)
+# Note: remote bindings are enabled by default in Wrangler v4
+[dev]
+port = 8789
+
 # Production KV namespace
 [[kv_namespaces]]
 binding = "APP_KV"

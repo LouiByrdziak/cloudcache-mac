@@ -46,6 +46,7 @@ jobs:
 
       - name: Deploy to Preview
         if: github.event_name == 'pull_request'
+        id: deploy-preview
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
@@ -55,6 +56,15 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+
+      - name: Verify Preview Deployment
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Verifying preview deployment..."
+          PREVIEW_URL="https://app-worker-preview.cloudcache.workers.dev"
+          bash scripts/verify/preview.sh app "$PREVIEW_URL" || exit 1
+          echo "✅ Preview verification passed"
+          echo "Preview URL: $PREVIEW_URL"
 
       - name: Deploy to Staging
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'

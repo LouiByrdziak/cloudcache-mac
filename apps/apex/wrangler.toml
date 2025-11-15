@@ -1,16 +1,17 @@
 name = "apex-worker"
-main = "src/index.ts"
+main = "dist/index.mjs"
 compatibility_date = "2025-10-07"
-
-# Remote bindings for local dev (no .dev.vars needed)
-[dev]
-remote = true
 
 # Production routes
 routes = [
   { pattern = "cloudcache.ai/*", zone_name = "cloudcache.ai" },
   { pattern = "www.cloudcache.ai/*", zone_name = "cloudcache.ai" }
 ]
+
+# Remote bindings for local dev (no .dev.vars needed)
+# Note: remote bindings are enabled by default in Wrangler v4
+[dev]
+port = 8788
 
 # Staging environment
 [env.staging]
@@ -22,6 +23,7 @@ routes = [
 # Preview environment
 [env.preview]
 name = "apex-worker-preview"
+workers_dev = true
 
 # Pages configuration for Astro SSR
 # Note: Pages project should be created separately via scripts/cloudcache bootstrap

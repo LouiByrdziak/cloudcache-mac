@@ -2,14 +2,15 @@ name = "admin-worker"
 main = "dist/index.js"
 compatibility_date = "2025-10-07"
 
-# Remote bindings for local dev (no .dev.vars needed)
-[dev]
-remote = true
-
 # Production routes
 routes = [
   { pattern = "admin.cloudcache.ai/*", zone_name = "cloudcache.ai" }
 ]
+
+# Remote bindings for local dev (no .dev.vars needed)
+# Note: remote bindings are enabled by default in Wrangler v4
+[dev]
+port = 8787
 
 # Staging environment
 [env.staging]

@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+#
+# Preview Browser Testing Script
+#
+# Opens Chrome browser (local or headless) to test preview URLs and verify visual markers
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$SCRIPT_DIR/../lib/core.sh"
+source "$SCRIPT_DIR/../lib/preview-urls.sh"
+
+# Expected validation markers per module
+declare -A VALIDATION_MARKERS
+VALIDATION_MARKERS["apex"]="I love Cloudcache APEX"
+VALIDATION_MARKERS["app"]="I love Cloudcache APP"
+VALIDATION_MARKERS["admin"]="I love Cloudcache ADMIN"
+
+# Check if Playwright is available
+check_playwright() {
+  if command -v playwright >/dev/null 2>&1; then
+    return 0
+  fi
+  # Check if node_modules has playwright
+  if [[ -f "$ROOT_DIR/node_modules/.bin/playwright" ]]; then
+    return 0
+  fi
+  return 1
+}
+
+# Test preview URL with browser automation
+test_with_browser() {
+  local preview_url="$1"
+  local module="$2"
+  local headless="${3:-false}"
+  local expected_text="${VALIDATION_MARKERS[$module]}"
+  
+  [[ -z "$expected_text" ]] && die "Unknown module: $module"
+  
+  step "Testing $module preview URL with browser: $preview_url"
+  
+  # Check if we can use Playwright
+  if check_playwright; then
+    log "Using Playwright for browser testing"
+    test_with_playwright "$preview_url" "$module" "$expected_text" "$headless"
+  else
+    log "Playwright not available, using curl to verify content"
+    test_with_curl "$preview_url" "$module" "$expected_text"
+  fi
+}
+
+# Test with Playwright (preferred method)
+test_with_playwright() {
+  local preview_url="$1"
+  local module="$2"
+  local expected_text="$3"
+  local headless="$4"
+  
+  local playwright_cmd
+  if command -v playwright >/dev/null 2>&1; then
+    playwright_cmd="playwright"
+  elif [[ -f "$ROOT_DIR/node_modules/.bin/playwright" ]]; then
+    playwright_cmd="$ROOT_DIR/node_modules/.bin/playwright"
+  else
+    die "Playwright not found"
+  fi
+  
+  # Create temporary test script
+  local test_script=$(mktemp)
+  cat > "$test_script" <<EOF
+const { chromium } = require('playwright');
+
+(async () => {
+  const browser = await chromium.launch({ headless: $headless });
+  const page = await browser.newPage();
+  
+  try {
+    await page.goto('$preview_url', { waitUntil: 'networkidle' });
+    const content = await page.textContent('body');
+    
+    if (content && content.includes('$expected_text')) {
+      console.log('SUCCESS: Found validation marker');
+      process.exit(0);
+    } else {
+      console.error('FAILURE: Validation marker not found');
+      console.error('Expected: $expected_text');
+      console.error('Content:', content);
+      process.exit(1);
+    }
+  } catch (error) {
+    console.error('FAILURE:', error.message);
+    process.exit(1);
+  } finally {
+    await browser.close();
+  }
+})();
+EOF
+  
+  # Run the test
+  if node "$test_script"; then
+    log "✅ Browser test passed: Found '$expected_text'"
+    rm -f "$test_script"
+    return 0
+  else
+    log "❌ Browser test failed: Could not find '$expected_text'"
+    rm -f "$test_script"
+    return 1
+  fi
+}
+
+# Fallback: Test with curl (checks HTML content)
+test_with_curl() {
+  local preview_url="$1"
+  local module="$2"
+  local expected_text="$3"
+  
+  log "Fetching page content with curl..."
+  local html_content
+  html_content=$(curl -s --max-time 10 "$preview_url" || echo "")
+  
+  if [[ -z "$html_content" ]]; then
+    die "Failed to fetch page content from $preview_url"
+  fi
+  
+  if echo "$html_content" | grep -q "$expected_text"; then
+    log "✅ Found validation marker '$expected_text' in page content"
+    return 0
+  else
+    log "❌ Validation marker '$expected_text' not found in page content"
+    return 1
+  fi
+}
+
+# Open browser interactively (local only)
+open_browser_interactive() {
+  local preview_url="$1"
+  local module="$2"
+  
+  step "Opening browser for interactive testing: $preview_url"
+  
+  # Detect OS and open browser
+  case "$(uname -s)" in
+    Darwin)
+      open "$preview_url"
+      ;;
+    Linux)
+      if command -v xdg-open >/dev/null 2>&1; then
+        xdg-open "$preview_url"
+      elif command -v gnome-open >/dev/null 2>&1; then
+        gnome-open "$preview_url"
+      else
+        die "No browser launcher found. Please open $preview_url manually"
+      fi
+      ;;
+    *)
+      log "Please open $preview_url in your browser manually"
+      ;;
+  esac
+  
+  log "Browser opened. Please verify that you see: 'I love Cloudcache ${module^^}' in green, centered on the page"
+}
+
+main() {
+  local module="${1:-}"
+  local preview_url="${2:-}"
+  local mode="${3:-auto}"  # auto, interactive, headless
+  
+  [[ -z "$module" ]] && die "Usage: $0 <module> [preview-url] [mode]"
+  
+  # Validate module
+  case "$module" in
+    apex|app|admin)
+      ;;
+    *)
+      die "Invalid module: $module. Must be one of: apex, app, admin"
+      ;;
+  esac
+  
+  # Get preview URL if not provided
+  if [[ -z "$preview_url" ]]; then
+    preview_url=$(get_module_preview_url "$module")
+  fi
+  
+  # Normalize URL
+  preview_url="${preview_url%/}"
+  if [[ ! "$preview_url" =~ ^https?:// ]]; then
+    preview_url="https://${preview_url}"
+  fi
+  
+  case "$mode" in
+    interactive)
+      open_browser_interactive "$preview_url" "$module"
+      ;;
+    headless)
+      test_with_browser "$preview_url" "$module" "true"
+      ;;
+    auto|*)
+      # Try browser automation first, fallback to interactive if not available
+      if check_playwright; then
+        test_with_browser "$preview_url" "$module" "false"
+      else
+        log "Playwright not available, opening browser interactively"
+        open_browser_interactive "$preview_url" "$module"
+      fi
+      ;;
+  esac
+}
+
+main "$@"
+

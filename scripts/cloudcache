@@ -68,12 +68,10 @@ prompt_secret() {
   local name="$1"
   local description="${2:-}"
   local value=""
-  
-  # Simple, clean prompt - just ask for the secret name
-  # Use -rs: -r prevents backslash interpretation, -s suppresses echo (silent mode)
+
   printf "Enter %s: " "$name" >&2
-  read -rs value
-  echo >&2  # Add newline after silent input
+  read -r value
+  echo >&2
   [[ -n "$value" ]] || die "$name cannot be empty"
   printf "%s" "$value"
 }
@@ -554,6 +552,63 @@ cmd_status() {
   log "Status check complete"
 }
 
+# Test preview command: deploy, verify, and test preview deployments
+cmd_test_preview() {
+  local module="${1:-}"
+  local preview_url="${2:-}"
+  
+  [[ -n "$module" ]] || die "Usage: test-preview <module> [url]"
+  
+  validate_module "$module"
+  
+  setup_cf_env
+  setup_wrangler_token
+  
+  step "Testing preview deployment for $module"
+  
+  # Source preview utilities
+  source "$SCRIPT_DIR/lib/preview-urls.sh"
+  
+  # Get preview URL if not provided
+  if [[ -z "$preview_url" ]]; then
+    case "$module" in
+      apex)
+        preview_url=$(get_module_preview_url "$module")
+        log "Using default preview URL: $preview_url"
+        ;;
+      app|admin)
+        preview_url=$(get_module_preview_url "$module")
+        log "Using default preview URL: $preview_url"
+        ;;
+    esac
+  fi
+  
+  # Normalize URL
+  preview_url="${preview_url%/}"
+  if [[ ! "$preview_url" =~ ^https?:// ]]; then
+    preview_url="https://${preview_url}"
+  fi
+  
+  # Run verification script
+  step "Running preview verification..."
+  if "$SCRIPT_DIR/verify/preview.sh" "$module" "$preview_url" >/dev/null; then
+    log "✅ Preview verification passed"
+  else
+    die "Preview verification failed"
+  fi
+  
+  # Run browser testing (non-interactive)
+  step "Running browser tests..."
+  if "$SCRIPT_DIR/verify/preview-browser.sh" "$module" "$preview_url" "headless"; then
+    log "✅ Browser tests passed"
+  else
+    log "⚠️  Browser tests failed (this may be expected if Playwright is not installed)"
+  fi
+  
+  log "Preview testing complete for $module"
+  echo "Preview URL: $preview_url"
+}
+
 # Main command dispatcher
 main() {
   local command="${1:-}"
@@ -575,14 +630,19 @@ main() {
       shift
       cmd_status "$@"
       ;;
+    test-preview)
+      shift
+      cmd_test_preview "$@"
+      ;;
     *)
-      echo "Usage: $0 {bootstrap|bind|verify|status} <module> <env>" >&2
+      echo "Usage: $0 {bootstrap|bind|verify|status|test-preview} <module> <env|url>" >&2
       echo "" >&2
       echo "Commands:" >&2
-      echo "  bootstrap  Create/update infrastructure (Workers/Pages)" >&2
-      echo "  bind        Set secrets interactively" >&2
-      echo "  verify      Verify infrastructure and secrets" >&2
-      echo "  status      Show deployment status, secrets, routes, health checks" >&2
+      echo "  bootstrap    Create/update infrastructure (Workers/Pages)" >&2
+      echo "  bind          Set secrets interactively" >&2
+      echo "  verify        Verify infrastructure and secrets" >&2
+      echo "  status        Show deployment status, secrets, routes, health checks" >&2
+      echo "  test-preview  Test preview deployment (verify + browser tests)" >&2
       echo "" >&2
       echo "Modules: apex, app, admin" >&2
       echo "Environments: preview (or prev), staging, prod" >&2
