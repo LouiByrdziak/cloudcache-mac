@@ -244,6 +244,13 @@ for module in "${MODULES[@]}"; do
       
       echo "  **URL:** \`$url\`" >> "$REPORT_FILE"
 
+      # Skip protected production endpoints (behind Cloudflare Access)
+      if [[ "$mode" == "production" && "$env" == "cloudflare" ]]; then
+        echo "  - 🟡 SKIPPED: Production endpoints are protected by Cloudflare Access." | tee -a "$REPORT_FILE"
+        echo "" >> "$REPORT_FILE"
+        continue
+      fi
+
       # Pre-check: verify URL is accessible
       if ! curl -s --head --fail --max-time 5 "$url" >/dev/null 2>&1; then
         echo "  - 🟡 SKIPPED: URL $url is not accessible." | tee -a "$REPORT_FILE"
@@ -251,19 +258,14 @@ for module in "${MODULES[@]}"; do
         continue
       fi
 
-      # Skip protected production endpoints (behind Cloudflare Access)
-      if [[ "$mode" == "production" && "$env" == "cloudflare" ]]; then
-        echo "  - 🟡 SKIPPED: Production endpoints are protected by Cloudflare Access." >> "$REPORT_FILE"
-      else
-        # 1. Health & Version Check
-        run_check "Health & Version Check" "node '$ROOT_DIR/scripts/validation/helpers/check-health.js' '$url' '$GIT_HASH'"
-        
-        # 2. Badge Verification
-        run_check "Badge Verification" "node '$ROOT_DIR/scripts/validation/helpers/check-badge.js' '$url'"
+      # 1. Health & Version Check
+      run_check "Health & Version Check" "node '$ROOT_DIR/scripts/validation/helpers/check-health.js' '$url' '$GIT_HASH'"
+      
+      # 2. Badge Verification
+      run_check "Badge Verification" "node '$ROOT_DIR/scripts/validation/helpers/check-badge.js' '$url'"
 
-        # 3. Link Verification (Optional, can be noisy)
-        # run_check "Link Verification" "node '$ROOT_DIR/scripts/validation/helpers/check-links.js' '$url'"
-      fi
+      # 3. Link Verification (Optional, can be noisy)
+      # run_check "Link Verification" "node '$ROOT_DIR/scripts/validation/helpers/check-links.js' '$url'"
       
       echo "" >> "$REPORT_FILE"
     done
