@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsup",
     "build:bundle": "tsup",
-    "dev": "pnpm exec wrangler dev --port 8789"
+    "dev": "pnpm build && pnpm exec wrangler dev --port 8789 --inspector-port 9229 --no-bundle"
   },
   "dependencies": {
     "@cloudcache/platform-env": "workspace:*",

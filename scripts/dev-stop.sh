@@ -43,6 +43,18 @@ if kill_port 8788; then
   stopped_any=true
 fi
 
+# Also stop Node.js inspector ports (used by wrangler)
+# APP uses 9229, ADMIN uses 9230, APEX uses 9231
+if kill_port 9229; then
+  stopped_any=true
+fi
+if kill_port 9230; then
+  stopped_any=true
+fi
+if kill_port 9231; then
+  stopped_any=true
+fi
+
 if [[ "$stopped_any" == "true" ]]; then
   sleep 1
   log "✅ All development servers stopped"

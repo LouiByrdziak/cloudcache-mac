@@ -29,6 +29,11 @@ step "Checking for stale processes on dev ports..."
 kill_port 8789
 kill_port 8787
 kill_port 8788
+# Also check for Node.js inspector ports (used by wrangler)
+# APP uses 9229, ADMIN uses 9230, APEX uses 9231
+kill_port 9229
+kill_port 9230
+kill_port 9231
 
 # Colors for output
 GREEN='\033[0;32m'

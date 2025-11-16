@@ -2,130 +2,75 @@
 #
 # Preview Browser Testing Script
 #
-# Opens Chrome browser (local or headless) to test preview URLs and verify visual markers
+# Validates preview deployments using health endpoint JSON responses
+# This approach is content-agnostic and validates actual service functionality
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$SCRIPT_DIR/../lib/core.sh"
 source "$SCRIPT_DIR/../lib/preview-urls.sh"
 
-# Expected validation markers per module
-declare -A VALIDATION_MARKERS
-VALIDATION_MARKERS["apex"]="I love Cloudcache APEX"
-VALIDATION_MARKERS["app"]="I love Cloudcache APP"
-VALIDATION_MARKERS["admin"]="I love Cloudcache ADMIN"
-
-# Check if Playwright is available
-check_playwright() {
-  if command -v playwright >/dev/null 2>&1; then
+# Validate deployment using health endpoint JSON responses
+# This approach is content-agnostic and validates actual service functionality
+test_healthz_json() {
+  local preview_url="$1"
+  local module="$2"
+  
+  log "Validating $module deployment using /healthz endpoint..."
+  
+  local healthz_response
+  healthz_response=$(curl -s --max-time 10 "${preview_url}/healthz" || echo "")
+  
+  if [[ -z "$healthz_response" ]]; then
+    log "❌ Failed to fetch /healthz endpoint"
+    return 1
+  fi
+  
+  # Check for valid JSON with status: "ok"
+  if ! echo "$healthz_response" | grep -q '"status"[[:space:]]*:[[:space:]]*"ok"'; then
+    log "❌ /healthz response missing status: ok"
+    log "Response: $healthz_response"
+    return 1
+  fi
+  
+  # For app/admin, also verify service field matches module name
+  if [[ "$module" == "app" ]]; then
+    if ! echo "$healthz_response" | grep -q '"service"[[:space:]]*:[[:space:]]*"app"'; then
+      log "❌ /healthz response service field does not match 'app'"
+      log "Response: $healthz_response"
+      return 1
+    fi
+    log "✅ Found status: ok and service: app in /healthz response"
+    return 0
+  elif [[ "$module" == "admin" ]]; then
+    if ! echo "$healthz_response" | grep -q '"service"[[:space:]]*:[[:space:]]*"admin"'; then
+      log "❌ /healthz response service field does not match 'admin'"
+      log "Response: $healthz_response"
+      return 1
+    fi
+    log "✅ Found status: ok and service: admin in /healthz response"
+    return 0
+  else
+    # apex just needs status: ok (may not have service field)
+    log "✅ Found status: ok in /healthz response"
     return 0
   fi
-  # Check if node_modules has playwright
-  if [[ -f "$ROOT_DIR/node_modules/.bin/playwright" ]]; then
-    return 0
-  fi
-  return 1
 }
 
-# Test preview URL with browser automation
+# Test preview URL using health endpoint JSON validation
 test_with_browser() {
   local preview_url="$1"
   local module="$2"
   local headless="${3:-false}"
-  local expected_text="${VALIDATION_MARKERS[$module]}"
   
-  [[ -z "$expected_text" ]] && die "Unknown module: $module"
+  step "Testing $module preview URL: $preview_url"
   
-  step "Testing $module preview URL with browser: $preview_url"
-  
-  # Check if we can use Playwright
-  if check_playwright; then
-    log "Using Playwright for browser testing"
-    test_with_playwright "$preview_url" "$module" "$expected_text" "$headless"
-  else
-    log "Playwright not available, using curl to verify content"
-    test_with_curl "$preview_url" "$module" "$expected_text"
-  fi
-}
-
-# Test with Playwright (preferred method)
-test_with_playwright() {
-  local preview_url="$1"
-  local module="$2"
-  local expected_text="$3"
-  local headless="$4"
-  
-  local playwright_cmd
-  if command -v playwright >/dev/null 2>&1; then
-    playwright_cmd="playwright"
-  elif [[ -f "$ROOT_DIR/node_modules/.bin/playwright" ]]; then
-    playwright_cmd="$ROOT_DIR/node_modules/.bin/playwright"
-  else
-    die "Playwright not found"
-  fi
-  
-  # Create temporary test script
-  local test_script=$(mktemp)
-  cat > "$test_script" <<EOF
-const { chromium } = require('playwright');
-
-(async () => {
-  const browser = await chromium.launch({ headless: $headless });
-  const page = await browser.newPage();
-  
-  try {
-    await page.goto('$preview_url', { waitUntil: 'networkidle' });
-    const content = await page.textContent('body');
-    
-    if (content && content.includes('$expected_text')) {
-      console.log('SUCCESS: Found validation marker');
-      process.exit(0);
-    } else {
-      console.error('FAILURE: Validation marker not found');
-      console.error('Expected: $expected_text');
-      console.error('Content:', content);
-      process.exit(1);
-    }
-  } catch (error) {
-    console.error('FAILURE:', error.message);
-    process.exit(1);
-  } finally {
-    await browser.close();
-  }
-})();
-EOF
-  
-  # Run the test
-  if node "$test_script"; then
-    log "✅ Browser test passed: Found '$expected_text'"
-    rm -f "$test_script"
+  # Use health endpoint JSON validation (content-agnostic)
+  if test_healthz_json "$preview_url" "$module"; then
+    log "✅ Deployment validation passed for $module"
     return 0
   else
-    log "❌ Browser test failed: Could not find '$expected_text'"
-    rm -f "$test_script"
-    return 1
-  fi
-}
-
-# Fallback: Test with curl (checks HTML content)
-test_with_curl() {
-  local preview_url="$1"
-  local module="$2"
-  local expected_text="$3"
-  
-  log "Fetching page content with curl..."
-  local html_content
-  html_content=$(curl -s --max-time 10 "$preview_url" || echo "")
-  
-  if [[ -z "$html_content" ]]; then
-    die "Failed to fetch page content from $preview_url"
-  fi
-  
-  if echo "$html_content" | grep -q "$expected_text"; then
-    log "✅ Found validation marker '$expected_text' in page content"
-    return 0
-  else
-    log "❌ Validation marker '$expected_text' not found in page content"
+    log "❌ Deployment validation failed for $module"
     return 1
   fi
 }
@@ -156,7 +101,10 @@ open_browser_interactive() {
       ;;
   esac
   
-  log "Browser opened. Please verify that you see: 'I love Cloudcache ${module^^}' in green, centered on the page"
+  log "Browser opened. Please verify:"
+  log "  1. Page loads successfully (HTTP 200)"
+  log "  2. Health endpoint works: ${preview_url}/healthz"
+  log "  3. Service identification in /healthz JSON response"
 }
 
 main() {
@@ -194,16 +142,10 @@ main() {
       test_with_browser "$preview_url" "$module" "true"
       ;;
     auto|*)
-      # Try browser automation first, fallback to interactive if not available
-      if check_playwright; then
-        test_with_browser "$preview_url" "$module" "false"
-      else
-        log "Playwright not available, opening browser interactively"
-        open_browser_interactive "$preview_url" "$module"
-      fi
+      # Use health endpoint JSON validation (content-agnostic)
+      test_with_browser "$preview_url" "$module" "false"
       ;;
   esac
 }
 
 main "$@"
-
