@@ -6,7 +6,7 @@ set -uo pipefail
 # the health of all Cloudcache deployments.
 
 # --- Configuration ---
-ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 REPORTS_DIR="$ROOT_DIR/docs/reports/validation"
 TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
 REPORT_FILE="$REPORTS_DIR/validation-report-$TIMESTAMP.md"
