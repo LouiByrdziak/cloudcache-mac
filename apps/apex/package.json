@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "tsup src/index.ts --format esm",
-    "dev": "pnpm exec wrangler dev --port 8788"
+    "dev": "pnpm build && pnpm exec wrangler dev --port 8788 --inspector-port 9231 --no-bundle"
   },
   "devDependencies": {
     "tsup": "^8.2.2"
