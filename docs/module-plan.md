@@ -2,25 +2,22 @@
 
 Checksum: **8855Rlb#**
 
-* **Checksum confirmation**
+- **Checksum confirmation**
+  - At the beginning of **every new session**, the AI agent must confirm this plan’s checksum (`8855Rlb#`).
+  - If the checksum does not match, the agent must **stop immediately** and reload the canonical plan before continuing.
 
-  * At the beginning of **every new session**, the AI agent must confirm this plan’s checksum (`8855Rlb#`).
-  * If the checksum does not match, the agent must **stop immediately** and reload the canonical plan before continuing.
+- **Execution discipline**
+  - The AI agent must execute **only the code blocks exactly as written** in this plan.
+  - No modifications, substitutions, or re-ordering of steps are permitted.
+  - The agent must not prompt the user to run code manually; execution must be applied directly as specified.
+  - If any dependency or context is missing, the agent must stop and escalate, not improvise.
 
-* **Execution discipline**
+- **Step addressing**
+  - Each step and sub-step is uniquely numbered (e.g., `Run Step 3.2`, `Run Step 6.3`).
+  - The agent must execute **only** the explicitly requested sub-step when requested to `Run Step *.*`.
+  - The agent must never “auto-advance” to another step.
 
-  * The AI agent must execute **only the code blocks exactly as written** in this plan.
-  * No modifications, substitutions, or re-ordering of steps are permitted.
-  * The agent must not prompt the user to run code manually; execution must be applied directly as specified.
-  * If any dependency or context is missing, the agent must stop and escalate, not improvise.
-
-* **Step addressing**
-
-  * Each step and sub-step is uniquely numbered (e.g., `Run Step 3.2`, `Run Step 6.3`).
-  * The agent must execute **only** the explicitly requested sub-step when requested to `Run Step *.*`.
-  * The agent must never “auto-advance” to another step.
-
-* **Mandatory verification after every sub-step**
+- **Mandatory verification after every sub-step**
 
   After executing **each sub-step**, the agent must immediately:
   1. Execute the sub-step number & title, the checksum, and date timestamp.
@@ -29,22 +26,18 @@ Checksum: **8855Rlb#**
   4. Report any errors, warnings, or deviations right away.
   5. Pause and wait for explicit user confirmation before moving on.
 
-* **Scope of plan**
+- **Scope of plan**
+  - This plan contains only runnable code for the defined steps.
+  - The agent must not invent or infer additional steps beyond what is written.
+  - If a step cannot be executed as written, the agent must stop, report the issue, and wait for instructions.
 
-  * This plan contains only runnable code for the defined steps.
-  * The agent must not invent or infer additional steps beyond what is written.
-  * If a step cannot be executed as written, the agent must stop, report the issue, and wait for instructions.
+- **Idempotency & re-runs**
+  - All steps are designed to run safely even if re-executed.
+  - The agent must acknowledge when a sub-step was already satisfied (e.g., directory exists) and avoid duplicating work.
 
-* **Idempotency & re-runs**
-
-  * All steps are designed to run safely even if re-executed.
-  * The agent must acknowledge when a sub-step was already satisfied (e.g., directory exists) and avoid duplicating work.
-
-* **Audit trail**
-
-  * Each executed sub-step must be logged with its number, the checksum, and date timestamp.
-  * The agent must include this information in its output for verification.
-
+- **Audit trail**
+  - Each executed sub-step must be logged with its number, the checksum, and date timestamp.
+  - The agent must include this information in its output for verification.
 
 🔑 **Key change from your draft:**
 Agent understands **verification mandatory after every sub-step** (not just steps in general), so there’s no ambiguity: nothing proceeds without verification + confirmation at the most granular level.
@@ -80,7 +73,7 @@ grep -qxF 'node_modules/' .gitignore || echo 'node_modules/' >> .gitignore
 import { defineConfig } from "open-next/config";
 export default defineConfig({
   output: ".open-next",
-  adapter: { name: "@opennextjs/cloudflare" }
+  adapter: { name: "@opennextjs/cloudflare" },
 });
 ```
 
@@ -120,7 +113,7 @@ database_id = "00000000-0000-0000-0000-000000000000"
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -p <PORT>",              // app=3001, admin=3002, apex=3003
+    "dev": "next dev -p <PORT>", // app=3001, admin=3002, apex=3003
     "dev:port": "PORT=${PORT:-<PORT>} next dev -p $PORT",
     "build": "next build && open-next build",
     "preview": "wrangler dev --local",
@@ -164,7 +157,9 @@ scope: ["modules/<mod>/**"]
 enforce: true
 extends: "../../../ARCHITECTURE.mdc"
 ---
+
 # <MOD> Module Rules
+
 - Only use bindings prefixed `<MOD>_`.
 - No imports from other modules; only from `shared/`.
 ```
@@ -278,7 +273,9 @@ packages:
 scope: ["modules/**", "shared/**"]
 enforce: true
 ---
+
 # Cloudcache Global Architecture
+
 - OpenNext + @opennextjs/cloudflare only.
 - Per-module isolation: own package.json, wrangler, secrets, bindings.
 - No cross-module imports; reuse only via `shared/`.
@@ -293,11 +290,14 @@ enforce: true
 scope: ["modules/**"]
 enforce: true
 ---
+
 ## Import Boundaries
+
 - Forbid imports from sibling modules:
-  - Patterns: "modules/*", "../../modules/*"
+  - Patterns: "modules/_", "../../modules/_"
 
 ## Banned Dependencies
+
 - "@cloudflare/next-on-pages" is disallowed.
 ```
 
@@ -311,7 +311,7 @@ enforce: true
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: { instrumentationHook: false }
+  experimental: { instrumentationHook: false },
 };
 module.exports = nextConfig;
 ```

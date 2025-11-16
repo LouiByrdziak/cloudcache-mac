@@ -1,5 +1,6 @@
 {
   "name": "Cloudcache",
+  "type": "module",
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -9,6 +10,7 @@
     "format:check": "pnpm exec prettier -c .",
     "lint:quick": "pnpm exec eslint .",
     "prepare": "husky",
+    "predev": "bash scripts/dev-stop.sh",
     "dev": "pnpm exec concurrently -n admin,apex,app -c blue,green,yellow \"pnpm --filter ./apps/admin dev\" \"pnpm --filter ./apps/apex dev\" \"pnpm --filter ./apps/app dev\"",
     "dev:admin": "pnpm --filter ./apps/admin dev",
     "dev:apex": "pnpm --filter ./apps/apex dev",
@@ -26,7 +28,7 @@
       "prettier --check"
     ],
     "*.{js,ts,tsx}": [
-      "bash scripts/lint-staged-eslint.sh"
+      "eslint --max-warnings=0"
     ],
     "*.sh": [
       "bash scripts/lint-staged-shfmt.sh",
@@ -36,15 +38,18 @@
   },
   "devDependencies": {
     "@cloudflare/unenv-preset": "^2.7.7",
+    "@eslint/js": "^9.39.1",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
+    "concurrently": "^9.1.0",
     "eslint": "^9.11.1",
+    "globals": "^16.5.0",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
     "prettier": "^3.3.3",
     "tsup": "^8.5.0",
-    "wrangler": "^4.42.1",
-    "concurrently": "^9.1.0"
+    "typescript-eslint": "^8.46.4",
+    "wrangler": "^4.42.1"
   },
   "pnpm": {
     "overrides": {

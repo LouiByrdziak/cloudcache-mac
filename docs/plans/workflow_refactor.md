@@ -34,20 +34,20 @@
 
 ## Implementation steps
 
-1) CI (blocking PR checks)
+1. CI (blocking PR checks)
 
 - Trigger: `on: [pull_request]`
 - Setup Node/PNPM consistently; remove `|| true` from typecheck/lint/format.
 - Optional: add a `format:check` script (prevents auto‑format on CI) and ensure `pnpm run format:check` exists.
 - Add toggle: `if: ${{ vars.ENABLE_CI != 'false' }}` on the job.
 
-2) Secrets Scan (PR‑only)
+2. Secrets Scan (PR‑only)
 
 - Trigger: `on: [pull_request]`
 - Keep gitleaks action; ensure `.gitleaks.toml` tuned.
 - Add toggle: `if: ${{ vars.ENABLE_SECRETS_SCAN != 'false' }}`.
 
-3) Policy guards (combine)
+3. Policy guards (combine)
 
 - New `.github/workflows/policy-guards.yml` with two jobs:
 - ban-pages-dev (code paths: src, scripts, packages, .github)
@@ -56,32 +56,32 @@
 - Add toggle: `if: ${{ vars.ENABLE_POLICY_GUARDS != 'false' }}`.
 - Delete the two legacy guard workflows after validating the combined workflow.
 
-4) Deploy (main‑only)
+4. Deploy (main‑only)
 
 - Trigger: `on: push: branches: [main]`
 - Ensure it runs only after PR checks by using GitHub’s branch protection (required status checks: CI, Secrets Scan, Policy Guards).
 - Add toggle: `if: ${{ vars.ENABLE_DEPLOY != 'false' }}`.
 - Keep diff‑based worker deployment.
 
-5) Centralize environment versions
+5. Centralize environment versions
 
 - Create `.github/workflows/_env.yml` (or a shared composite action) containing common env:
 - `NODE_VERSION: 22`, `PNPM_VERSION: 9`.
 - Reference these in CI and Deploy to avoid drift, or factor into a composite action under `.github/actions/setup-node-pnpm/`.
 
-6) Local shift‑left (optional but recommended)
+6. Local shift‑left (optional but recommended)
 
 - Add `lefthook.yml` (or husky) with:
 - pre‑commit: `pnpm run format:check`, `pnpm run lint:quick`
 - pre‑push: `pnpm run typecheck`
 - Document in README how to install the hook.
 
-7) Visibility & notifications
+7. Visibility & notifications
 
 - Keep checks PR‑blocking (branch protection rules).
 - Optional: add a step to echo a summary of failures (type/lint/format) so the PR shows a clear reason.
 
-8) Documentation
+8. Documentation
 
 - Add `docs/plans/workflow_refactor.md` (this file) describing the operating model, toggles, and how to disable a workflow during incidents.
 - Update README “Contributing” section with local hooks and how to read CI statuses.

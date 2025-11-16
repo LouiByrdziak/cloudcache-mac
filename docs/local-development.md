@@ -9,6 +9,7 @@ Local development uses **remote bindings** to fetch secrets from Cloudflare, eli
 ## Prerequisites
 
 1. **Wrangler CLI** installed and authenticated:
+
    ```bash
    npm install -g wrangler
    wrangler login
@@ -35,6 +36,7 @@ pnpm dev
 ```
 
 This runs `wrangler dev --remote` which:
+
 - Fetches secrets from Cloudflare Workers
 - Runs locally on port 8789
 - Hot-reloads on code changes
@@ -57,12 +59,14 @@ Runs on port 8787 with remote bindings.
 For APEX (Astro Pages SSR):
 
 **Static development** (no secrets needed):
+
 ```bash
 cd apps/apex
 pnpm dev  # Uses astro dev
 ```
 
 **With secrets** (use Preview Deployments):
+
 - Push to a branch
 - Preview deployment is created automatically
 - Access via Preview URL (protected by Access if configured)
@@ -77,6 +81,7 @@ remote = true
 ```
 
 This tells Wrangler to:
+
 - Fetch secrets from Cloudflare (not local files)
 - Use remote Workers runtime for accurate testing
 - Avoid exposing secrets locally
@@ -120,12 +125,12 @@ pnpm test
 Use Miniflare for local integration testing (see `packages/test-utils`):
 
 ```typescript
-import { createMiniflare, mockKV } from '@cloudcache/test-utils';
+import { createMiniflare, mockKV } from "@cloudcache/test-utils";
 
 const mf = createMiniflare({
-  script: '...',
+  script: "...",
   bindings: {
-    MY_KV: mockKV({ key: 'value' }),
+    MY_KV: mockKV({ key: "value" }),
   },
 });
 ```
@@ -141,6 +146,7 @@ const mf = createMiniflare({
 ### View Logs
 
 Logs appear in the terminal where `wrangler dev` is running. They include:
+
 - Correlation IDs for request tracing
 - Structured JSON format
 - Request/response details
@@ -158,15 +164,18 @@ wrangler tail --name app-worker --format pretty
 ### Common Issues
 
 **"Missing environment variable"**
+
 - Run `scripts/cloudcache verify` to check secrets
 - Ensure you're authenticated: `wrangler login`
 - Check `wrangler.toml` has `[dev] remote = true`
 
 **"Worker not found"**
+
 - Run `scripts/cloudcache bootstrap` to create infrastructure
 - Verify Worker name matches `wrangler.toml`
 
 **"Authentication failed"**
+
 - Run `wrangler login` to re-authenticate
 - Check `CF_API_TOKEN` is set (for CLI operations)
 
@@ -177,6 +186,7 @@ Wrangler dev automatically reloads on code changes. No need to restart manually.
 ## Port Configuration
 
 Default ports (configured in `package.json`):
+
 - APP: 8789
 - ADMIN: 8787
 - APEX: 8788 (if using Astro dev)
@@ -188,4 +198,3 @@ Default ports (configured in `package.json`):
 3. **Use Preview Deployments** for APEX when secrets are needed
 4. **Check logs** for correlation IDs when debugging
 5. **Verify secrets** with `scripts/cloudcache verify` if issues occur
-

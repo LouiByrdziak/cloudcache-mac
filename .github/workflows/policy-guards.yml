@@ -65,5 +65,3 @@ jobs:
           name: Policy-Guards-run-${{ github.run_number }}
           path: run-report.txt
           retention-days: 14
-
-

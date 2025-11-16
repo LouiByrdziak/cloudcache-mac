@@ -3,6 +3,7 @@
 ## Problem Summary
 
 When editing HTML content in Cloudflare Workers (wrangler dev), changes to source files may not appear in the browser even after:
+
 - Saving the file
 - Hard refreshing the browser (Cmd+Shift+R)
 - Restarting the IDE
@@ -10,6 +11,7 @@ When editing HTML content in Cloudflare Workers (wrangler dev), changes to sourc
 ## Root Cause
 
 The wrangler dev server caches compiled code in memory. When you edit TypeScript source files, the running process may not automatically reload the changes, especially if:
+
 - The dev server was started before the edit
 - The `.wrangler` cache directory contains stale compiled code
 - Multiple dev server processes are running
@@ -17,6 +19,7 @@ The wrangler dev server caches compiled code in memory. When you edit TypeScript
 ## Solution Process
 
 ### Step 1: Verify the File Change
+
 ```bash
 # Check the actual file content
 cd apps/[module-name]
@@ -27,6 +30,7 @@ cat src/index.ts | grep -A 2 -B 2 "Your text"
 ```
 
 ### Step 2: Verify What Server is Actually Serving
+
 ```bash
 # Check what the server is returning
 curl -s http://localhost:[port]/ | grep "Your search text"
@@ -37,12 +41,14 @@ diff src/index.ts /tmp/server_response.html  # If applicable
 ```
 
 ### Step 3: Clear Wrangler Cache
+
 ```bash
 cd apps/[module-name]
 rm -rf .wrangler
 ```
 
 ### Step 4: Restart Dev Server
+
 ```bash
 # Find the process
 lsof -ti:[port]
@@ -56,6 +62,7 @@ pnpm dev
 ```
 
 ### Step 5: Verify the Fix
+
 ```bash
 # Check server response
 curl -s http://localhost:[port]/ | grep "Your text"
@@ -87,7 +94,7 @@ To prevent browser caching issues, add cache-control headers to responses:
 
 ```typescript
 return new Response(html, {
-  headers: { 
+  headers: {
     "Content-Type": "text/html; charset=utf-8",
     "Cache-Control": "no-cache, no-store, must-revalidate",
   },
@@ -106,4 +113,3 @@ return new Response(html, {
 - Source files: `apps/[module]/src/index.ts`
 - Config: `apps/[module]/wrangler.toml` (check `main` field)
 - Cache: `apps/[module]/.wrangler/` (can be deleted)
-

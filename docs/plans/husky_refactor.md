@@ -1,4 +1,5 @@
 <!-- e893d855-7664-4263-9b6d-5804c4c08e2c 044b9a43-8473-4975-ab35-9fba3f1f8b9c -->
+
 # Minimal Husky Guardrails for Cloudcache
 
 ## Goal
@@ -19,8 +20,7 @@ Add fast, local guardrails that run automatically from Cursor’s Sidebar Commit
 
 ## Implementation Steps
 
-1) Dev dependencies (repo)
-
+1. Dev dependencies (repo)
    - Ensure these exist at root (skip if already present):
      - husky, lint-staged, prettier, eslint
    - Optional local tools (per-machine, not in package.json):
@@ -28,33 +28,24 @@ Add fast, local guardrails that run automatically from Cursor’s Sidebar Commit
      - shellcheck, shfmt (brew install shellcheck shfmt) for shell sanity
      - gitleaks (brew install gitleaks) for optional secrets scan
 
-2) Initialize Husky
-
+2. Initialize Husky
    - Run: pnpm dlx husky init
    - This creates `.husky/` and wires Git hooks.
 
-3) lint-staged configuration (package.json)
-
+3. lint-staged configuration (package.json)
    - Add minimal, fast rules (staged files only):
+
 ```json
 {
   "lint-staged": {
-    "*.{js,ts,tsx,json,md,yml,yaml}": [
-      "prettier --check"
-    ],
-    "*.{js,ts,tsx}": [
-      "eslint --max-warnings=0"
-    ],
-    "*.sh": [
-      "shfmt -d",
-      "shellcheck -S warning"
-    ]
+    "*.{js,ts,tsx,json,md,yml,yaml}": ["prettier --check"],
+    "*.{js,ts,tsx}": ["eslint --max-warnings=0"],
+    "*.sh": ["shfmt -d", "shellcheck -S warning"]
   }
 }
 ```
 
-
-4) .husky/pre-commit (fast)
+4. .husky/pre-commit (fast)
 
 ```bash
 #!/bin/sh
@@ -64,7 +55,7 @@ Add fast, local guardrails that run automatically from Cursor’s Sidebar Commit
 pnpm dlx lint-staged
 ```
 
-5) .husky/pre-push (structural; still quick)
+5. .husky/pre-push (structural; still quick)
 
 ```bash
 #!/bin/sh
@@ -94,9 +85,10 @@ else
 fi
 ```
 
-6) Scripts (optional quality-of-life in package.json)
+6. Scripts (optional quality-of-life in package.json)
 
 - Add if missing:
+
 ```json
 {
   "scripts": {
@@ -109,13 +101,12 @@ fi
 }
 ```
 
-
-7) Documentation (1 paragraph in README.md)
+7. Documentation (1 paragraph in README.md)
 
 - Document that Husky runs automatically from the Sidebar Commit/Push.
 - Note: set HUSKY=0 to bypass in emergencies; keep pre-commit fast; heavy checks belong in pre-push/CI.
 
-8) Verify locally
+8. Verify locally
 
 - Make a small change, Commit in Sidebar: pre-commit should format/lint staged files quickly.
 - Push in Sidebar: pre-push should run actionlint + typecheck; see helpful messages if something fails.
@@ -150,5 +141,3 @@ fi
 - [ ] Add format, format:check, lint, lint:quick, typecheck scripts
 - [ ] Document Husky behavior and bypass in README
 - [ ] Test commit/push in Sidebar; confirm hooks run and are fast
-
-

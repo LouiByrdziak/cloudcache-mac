@@ -2,10 +2,12 @@
   "name": "Cloudcache",
   "private": true,
   "scripts": {
-    "build": "tsup src/index.ts --format esm",
+    "build": "tsup",
+    "build:bundle": "tsup",
     "dev": "pnpm build && pnpm exec wrangler dev --port 8788 --inspector-port 9231 --no-bundle"
   },
   "devDependencies": {
-    "tsup": "^8.2.2"
+    "tsup": "^8.2.2",
+    "git-rev-sync": "^3.0.2"
   }
 }

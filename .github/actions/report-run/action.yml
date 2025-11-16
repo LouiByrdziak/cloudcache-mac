@@ -1,11 +1,11 @@
-name: 'Report Run'
-description: 'Publishes a concise job summary and uploads a run-report artifact'
+name: "Report Run"
+description: "Publishes a concise job summary and uploads a run-report artifact"
 inputs:
   job:
-    description: 'Human-friendly job name (CI, Deploy, Secrets Scan, Policy Guards)'
+    description: "Human-friendly job name (CI, Deploy, Secrets Scan, Policy Guards)"
     required: true
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Publish summary
       shell: bash
@@ -32,4 +32,3 @@ runs:
         name: ${{ inputs.job }}-run-${{ github.run_number }}
         path: run-report.txt
         retention-days: 14
-

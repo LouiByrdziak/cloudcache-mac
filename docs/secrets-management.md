@@ -156,4 +156,3 @@ Run `scripts/cloudcache bootstrap` to create the Worker infrastructure.
 ### Local dev not working
 
 Ensure `[dev] remote = true` is set in `wrangler.toml` and you're authenticated with `wrangler login`.
-

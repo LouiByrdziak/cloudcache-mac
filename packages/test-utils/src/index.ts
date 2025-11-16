@@ -1,4 +1,4 @@
-import { Miniflare } from 'miniflare';
+import { Miniflare } from "miniflare";
 
 export interface TestEnv {
   [key: string]: unknown;
@@ -42,26 +42,26 @@ export function mockKV(initialData: Record<string, string> = {}): MockKV {
     async get(key: string): Promise<string | null> {
       const entry = store.get(key);
       if (!entry) return null;
-      
+
       if (entry.expiration && entry.expiration < Date.now()) {
         store.delete(key);
         return null;
       }
-      
+
       return entry.value;
     },
-    
+
     async put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void> {
       const expiration = options?.expirationTtl
         ? Date.now() + options.expirationTtl * 1000
         : undefined;
       store.set(key, { value, expiration });
     },
-    
+
     async delete(key: string): Promise<void> {
       store.delete(key);
     },
-    
+
     async list(): Promise<{ keys: Array<{ name: string }> }> {
       return {
         keys: Array.from(store.keys()).map((name) => ({ name })),
@@ -76,8 +76,10 @@ export function mockKV(initialData: Record<string, string> = {}): MockKV {
 export function mockD1(): MockD1 {
   return {
     prepare(query: string) {
+      void query;
       return {
         bind(...args: unknown[]) {
+          void args;
           return {
             async first(): Promise<unknown> {
               return null;
@@ -98,10 +100,7 @@ export function mockD1(): MockD1 {
 /**
  * Create a test request
  */
-export function createTestRequest(
-  url: string,
-  init: RequestInit = {}
-): Request {
+export function createTestRequest(url: string, init: RequestInit = {}): Request {
   return new Request(url, init as RequestInit);
 }
 
@@ -114,9 +113,8 @@ export function createMiniflare(options: {
   bindings?: Record<string, unknown>;
 }): Miniflare {
   return new Miniflare({
-    script: options.script || '',
+    script: options.script || "",
     modules: options.modules ?? true,
     bindings: options.bindings || {},
   });
 }
-

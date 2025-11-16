@@ -15,6 +15,7 @@
     "@cloudcache/platform-validate": "workspace:*"
   },
   "devDependencies": {
+    "git-rev-sync": "^3.0.2",
     "tsup": "^8.2.2",
     "typescript": "^5.6.0"
   }

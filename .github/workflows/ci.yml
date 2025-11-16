@@ -11,8 +11,8 @@ jobs:
       - name: Setup Node and PNPM
         uses: ./.github/actions/setup-node-pnpm
         with:
-          node-version: '22'
-          pnpm-version: '9'
+          node-version: "22"
+          pnpm-version: "9"
       - run: pnpm install --frozen-lockfile=false
       - run: pnpm run typecheck
       - run: pnpm run lint
@@ -21,4 +21,3 @@ jobs:
         uses: ./.github/actions/report-run
         with:
           job: CI
-

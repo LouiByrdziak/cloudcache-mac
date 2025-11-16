@@ -36,7 +36,7 @@ curl -v -X POST \
 ### Example Failure Output
 
 - **HTTP Status**: `404 Not Found`
-- **CF-RAY from a recent attempt**: `98d4158b4f2c0b43-SJC` *(Please provide this to the support engineer)*
+- **CF-RAY from a recent attempt**: `98d4158b4f2c0b43-SJC` _(Please provide this to the support engineer)_
 
 ---
 
@@ -83,7 +83,7 @@ Based on our extensive testing, we have high confidence that the service auth en
 
 ### Minimal commands to capture AUD and CF-RAY
 
-1) Discover application ID and AUD:
+1. Discover application ID and AUD:
 
 ```bash
 ACC=<account_id>
@@ -98,14 +98,14 @@ AUD=$(curl -sS -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/j
   "$ACCT_BASE/access/apps/$APP_ID" | jq -r '.result.aud')
 ```
 
-2) Get team auth domain:
+2. Get team auth domain:
 
 ```bash
 AUTH_DOMAIN=$(curl -sS -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
   "$ACCT_BASE/access/organizations" | jq -r '.result[0].auth_domain // .result.auth_domain')
 ```
 
-3) Attempt service auth on Team Domain, capture CF-RAY:
+3. Attempt service auth on Team Domain, capture CF-RAY:
 
 ```bash
 CLIENT_ID=<service_token_client_id>
@@ -121,7 +121,7 @@ echo "TEAM_STATUS=$STATUS CF_RAY=$CFRAY"
 cat "$BODY"
 ```
 
-4) Optional: Attempt on Application Domain:
+4. Optional: Attempt on Application Domain:
 
 ```bash
 curl -s -D "$HDR" -o "$BODY" -X POST \

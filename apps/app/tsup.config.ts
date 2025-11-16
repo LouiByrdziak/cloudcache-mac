@@ -1,6 +1,7 @@
 import { defineConfig } from "tsup";
 import { resolve } from "path";
-import { readdirSync, statSync } from "fs";
+import { readFileSync, readdirSync, statSync } from "fs";
+import git from "git-rev-sync";
 
 // Helper to find packages in pnpm's .pnpm structure
 function findPnpmPackage(packageName: string, rootDir: string): string | null {
@@ -15,7 +16,9 @@ function findPnpmPackage(packageName: string, rootDir: string): string | null {
         }
       }
     }
-  } catch {}
+  } catch {
+    // ignore errors
+  }
   return null;
 }
 
@@ -46,7 +49,7 @@ export default defineConfig({
         // Try to find the actual entry point
         const pkgJsonPath = resolve(depPath, "package.json");
         try {
-          const pkgJson = require(pkgJsonPath);
+          const pkgJson = JSON.parse(readFileSync(pkgJsonPath, "utf-8"));
           const entry = pkgJson.module || pkgJson.main || "index.js";
           aliases[dep] = resolve(depPath, entry);
         } catch {
@@ -58,6 +61,12 @@ export default defineConfig({
     if (Object.keys(aliases).length > 0) {
       options.alias = { ...options.alias, ...aliases };
     }
+
+    // Define __VERSION__ to be Git commit hash
+    options.define = {
+      ...options.define,
+      __VERSION__: JSON.stringify(git.short()),
+    };
 
     // Alias workspace packages to their source files
     options.alias = {

@@ -32,8 +32,8 @@ export function createErrorResponse(
   return Response.json(body, {
     status,
     headers: {
-      'Content-Type': 'application/json',
-      'X-Correlation-ID': correlationId,
+      "Content-Type": "application/json",
+      "X-Correlation-ID": correlationId,
     },
   });
 }
@@ -42,17 +42,17 @@ export function createErrorResponse(
  * CORS headers for API responses
  */
 export const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Correlation-ID',
-  'Access-Control-Max-Age': '86400',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Correlation-ID",
+  "Access-Control-Max-Age": "86400",
 } as const;
 
 /**
  * Handle CORS preflight requests
  */
 export function handleCORS(request: Request): Response | null {
-  if (request.method === 'OPTIONS') {
+  if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
       headers: CORS_HEADERS,
@@ -98,8 +98,8 @@ export function createMethodNotAllowedResponse(
   correlationId: string
 ): Response {
   return createErrorResponse(
-    'METHOD_NOT_ALLOWED',
-    `Method ${request.method} not allowed. Allowed methods: ${allowedMethods.join(', ')}`,
+    "METHOD_NOT_ALLOWED",
+    `Method ${request.method} not allowed. Allowed methods: ${allowedMethods.join(", ")}`,
     correlationId,
     405
   );
@@ -110,7 +110,7 @@ export function createMethodNotAllowedResponse(
  */
 export function canonicalizePath(pathname: string): string {
   // Remove trailing slash except for root
-  if (pathname !== '/' && pathname.endsWith('/')) {
+  if (pathname !== "/" && pathname.endsWith("/")) {
     return pathname.slice(0, -1);
   }
   return pathname;
@@ -158,11 +158,11 @@ export function getAPIVersion(pathname: string): string | null {
  * Security headers to add to all responses
  */
 export const SECURITY_HEADERS = {
-  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-  'X-Content-Type-Options': 'nosniff',
-  'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'X-Frame-Options': 'DENY',
-  'X-XSS-Protection': '1; mode=block',
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "X-Frame-Options": "DENY",
+  "X-XSS-Protection": "1; mode=block",
 } as const;
 
 /**
@@ -170,15 +170,15 @@ export const SECURITY_HEADERS = {
  */
 export function addSecurityHeaders(response: Response, correlationId?: string): Response {
   const newResponse = response.clone();
-  
+
   Object.entries(SECURITY_HEADERS).forEach(([key, value]) => {
     newResponse.headers.set(key, value);
   });
-  
+
   if (correlationId) {
-    newResponse.headers.set('X-Correlation-ID', correlationId);
+    newResponse.headers.set("X-Correlation-ID", correlationId);
   }
-  
+
   return newResponse;
 }
 
@@ -193,4 +193,3 @@ export function createJSONResponse(
   const response = Response.json(data, { status });
   return addSecurityHeaders(response, correlationId);
 }
-

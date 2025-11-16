@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * OAuth callback query parameters schema
  */
 export const OAuthCallbackSchema = z.object({
-  code: z.string().min(1, 'Authorization code is required'),
-  state: z.string().min(1, 'State parameter is required'),
+  code: z.string().min(1, "Authorization code is required"),
+  state: z.string().min(1, "State parameter is required"),
   shop: z.string().optional(),
   hmac: z.string().optional(),
   timestamp: z.string().optional(),
@@ -21,7 +21,7 @@ export function validateOAuthCallback(params: unknown): OAuthCallback {
     return OAuthCallbackSchema.parse(params);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const details = error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ');
+      const details = error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ");
       throw new Error(`OAuth callback validation failed: ${details}`);
     }
     throw error;
@@ -48,7 +48,7 @@ export function validateWebhookPayload(payload: unknown): ShopifyWebhook {
     return ShopifyWebhookSchema.parse(payload);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const details = error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ');
+      const details = error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ");
       throw new Error(`Webhook payload validation failed: ${details}`);
     }
     throw error;
@@ -63,10 +63,9 @@ export function validate<T>(schema: z.ZodSchema<T>, data: unknown): T {
     return schema.parse(data);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const details = error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ');
+      const details = error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ");
       throw new Error(`Validation failed: ${details}`);
     }
     throw error;
   }
 }
-

@@ -28,3 +28,4 @@ Thumbs.db
 **/deploy.yml
 .github/workflows/deploy.yml
 .cursor/plans/
+.pnpm-store/

@@ -33,17 +33,17 @@ function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
-      'content-type': 'application/json; charset=utf-8',
-      'cache-control': 'no-store',
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store",
     },
   });
 }
 
 function now(): number {
   try {
-    // @ts-ignore
+    // @ts-expect-error Cloudflare Workers expose performance API
     return performance.now();
-  } catch (_) {
+  } catch {
     return Date.now();
   }
 }
@@ -51,40 +51,55 @@ function now(): number {
 async function withTimeout<T>(p: Promise<T>, timeoutMs: number): Promise<T> {
   return await Promise.race([
     p,
-    new Promise<T>((_, rej) => setTimeout(() => rej(new Error('TIMEOUT')), timeoutMs)),
+    new Promise<T>((_, rej) => setTimeout(() => rej(new Error("TIMEOUT")), timeoutMs)),
   ]);
 }
 
 async function checkKV(ns: KVNamespace | undefined, timeoutMs: number) {
   const start = now();
   try {
-    if (!ns) throw new Error('MISSING');
-    await withTimeout(ns.get('__cc_health_probe__', 'text'), timeoutMs);
+    if (!ns) throw new Error("MISSING");
+    await withTimeout(ns.get("__cc_health_probe__", "text"), timeoutMs);
     return { ok: true, latency_ms: Math.round(now() - start) };
-  } catch (e: any) {
-    return { ok: false, latency_ms: Math.round(now() - start), error_code: e?.message || 'ERROR' };
+  } catch (e) {
+    const error = e as Error;
+    return {
+      ok: false,
+      latency_ms: Math.round(now() - start),
+      error_code: error?.message || "ERROR",
+    };
   }
 }
 
 async function checkD1(db: D1Database | undefined, timeoutMs: number) {
   const start = now();
   try {
-    if (!db) throw new Error('MISSING');
-    await withTimeout(db.prepare('PRAGMA user_version;').first(), timeoutMs);
+    if (!db) throw new Error("MISSING");
+    await withTimeout(db.prepare("PRAGMA user_version;").first(), timeoutMs);
     return { ok: true, latency_ms: Math.round(now() - start) };
-  } catch (e: any) {
-    return { ok: false, latency_ms: Math.round(now() - start), error_code: e?.message || 'ERROR' };
+  } catch (e) {
+    const error = e as Error;
+    return {
+      ok: false,
+      latency_ms: Math.round(now() - start),
+      error_code: error?.message || "ERROR",
+    };
   }
 }
 
 async function checkR2(bucket: R2Bucket | undefined, timeoutMs: number) {
   const start = now();
   try {
-    if (!bucket) throw new Error('MISSING');
-    await withTimeout(bucket.head('__cc_health_probe__'), timeoutMs);
+    if (!bucket) throw new Error("MISSING");
+    await withTimeout(bucket.head("__cc_health_probe__"), timeoutMs);
     return { ok: true, latency_ms: Math.round(now() - start) };
-  } catch (e: any) {
-    return { ok: false, latency_ms: Math.round(now() - start), error_code: e?.message || 'ERROR' };
+  } catch (e) {
+    const error = e as Error;
+    return {
+      ok: false,
+      latency_ms: Math.round(now() - start),
+      error_code: error?.message || "ERROR",
+    };
   }
 }
 
@@ -95,9 +110,9 @@ function getBinding<T>(env: EnvLike, name?: string): T | undefined {
 
 function isAuthorized(request: Request, env: EnvLike, opts: ReadyzOptions): boolean {
   if (!opts.requireAuth) return true;
-  const hdr = (opts.tokenHeader || 'X-Ready-Token').toLowerCase();
-  const provided = request.headers.get(hdr) || '';
-  const expected = (env[opts.tokenEnvKey || 'READYZ_TOKEN'] as string | undefined) || '';
+  const hdr = (opts.tokenHeader || "X-Ready-Token").toLowerCase();
+  const provided = request.headers.get(hdr) || "";
+  const expected = (env[opts.tokenEnvKey || "READYZ_TOKEN"] as string | undefined) || "";
   return Boolean(provided) && provided === expected;
 }
 
@@ -110,20 +125,21 @@ export function createHealthHandler(cfg: HealthConfig) {
       const url = new URL(request.url);
       const path = url.pathname;
 
-      if (path === '/healthz') {
+      if (path === "/healthz") {
         const body = {
           service: cfg.service,
-          env: cfg.envName || 'unknown',
+          env: cfg.envName || "unknown",
+          version: typeof __VERSION__ !== "undefined" ? __VERSION__ : "local",
           ok: true,
           ts: new Date().toISOString(),
         };
         return jsonResponse(body, 200);
       }
 
-      if (path === '/readyz') {
+      if (path === "/readyz") {
         const opts = cfg.readyz ?? {};
         if (!isAuthorized(request, env, { ...opts, requireAuth: opts.requireAuth !== false })) {
-          return jsonResponse({ ok: false, error: 'UNAUTHORIZED' }, 401);
+          return jsonResponse({ ok: false, error: "UNAUTHORIZED" }, 401);
         }
 
         const cacheKey = `${cfg.service}:readyz`;
@@ -145,7 +161,7 @@ export function createHealthHandler(cfg: HealthConfig) {
 
         const body = {
           service: cfg.service,
-          env: cfg.envName || 'unknown',
+          env: cfg.envName || "unknown",
           ok: kvRes.ok && d1Res.ok && r2Res.ok,
           checks: {
             kv: kvRes,
@@ -159,9 +175,7 @@ export function createHealthHandler(cfg: HealthConfig) {
         return jsonResponse(body, status);
       }
 
-      return new Response('NOT_FOUND', { status: 404 });
+      return new Response("NOT_FOUND", { status: 404 });
     },
   };
 }
-
-

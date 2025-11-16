@@ -4,18 +4,18 @@
  */
 function randomUUID(): string {
   // @ts-expect-error - crypto.randomUUID is available in Cloudflare Workers
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
     return crypto.randomUUID();
   }
   // Fallback for environments without randomUUID
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
 
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+export type LogLevel = "debug" | "info" | "warn" | "error";
 
 export interface LogContext {
   correlationId?: string;
@@ -41,9 +41,10 @@ export function generateCorrelationId(): string {
  * Extract correlation ID from request headers
  */
 export function getCorrelationId(request: Request): string {
-  const header = request.headers.get('x-correlation-id') || 
-                 request.headers.get('x-request-id') ||
-                 generateCorrelationId();
+  const header =
+    request.headers.get("x-correlation-id") ||
+    request.headers.get("x-request-id") ||
+    generateCorrelationId();
   return header;
 }
 
@@ -62,29 +63,29 @@ export function createLogger(correlationId: string) {
 
     // Format for Cloudflare Workers (structured JSON)
     const json = JSON.stringify(entry);
-    
+
     // Use console methods for different levels
     switch (level) {
-      case 'debug':
+      case "debug":
         console.debug(json);
         break;
-      case 'info':
+      case "info":
         console.info(json);
         break;
-      case 'warn':
+      case "warn":
         console.warn(json);
         break;
-      case 'error':
+      case "error":
         console.error(json);
         break;
     }
   };
 
   return {
-    debug: (message: string, context?: Record<string, unknown>) => log('debug', message, context),
-    info: (message: string, context?: Record<string, unknown>) => log('info', message, context),
-    warn: (message: string, context?: Record<string, unknown>) => log('warn', message, context),
-    error: (message: string, context?: Record<string, unknown>) => log('error', message, context),
+    debug: (message: string, context?: Record<string, unknown>) => log("debug", message, context),
+    info: (message: string, context?: Record<string, unknown>) => log("info", message, context),
+    warn: (message: string, context?: Record<string, unknown>) => log("warn", message, context),
+    error: (message: string, context?: Record<string, unknown>) => log("error", message, context),
     correlationId,
   };
 }
@@ -96,4 +97,3 @@ export function createLoggerFromRequest(request: Request) {
   const correlationId = getCorrelationId(request);
   return createLogger(correlationId);
 }
-

@@ -12,6 +12,7 @@ Each module exposes health endpoints:
 - **Deep check**: `GET /readyz` - Verifies environment and dependencies
 
 **Endpoints**:
+
 - APP: `https://app.cloudcache.ai/healthz`
 - ADMIN: `https://admin.cloudcache.ai/healthz`
 - APEX: `https://cloudcache.ai/healthz`
@@ -42,17 +43,20 @@ wrangler tail --name app-worker --status error
 ### Service Down
 
 1. **Check health endpoints**:
+
    ```bash
    curl https://app.cloudcache.ai/healthz
    curl https://app.cloudcache.ai/readyz
    ```
 
 2. **Check logs**:
+
    ```bash
    wrangler tail --name app-worker --status error
    ```
 
 3. **Verify secrets**:
+
    ```bash
    scripts/cloudcache verify app prod
    ```
@@ -62,6 +66,7 @@ wrangler tail --name app-worker --status error
 ### High Error Rate
 
 1. **Tail error logs**:
+
    ```bash
    wrangler tail --name app-worker --status error --format pretty
    ```
@@ -69,6 +74,7 @@ wrangler tail --name app-worker --status error
 2. **Look for correlation IDs** in error responses
 
 3. **Check for missing secrets**:
+
    ```bash
    scripts/cloudcache verify app prod
    ```
@@ -81,6 +87,7 @@ wrangler tail --name app-worker --status error
 ### Authentication Issues
 
 1. **Verify Access credentials**:
+
    ```bash
    scripts/cloudcache verify <module> <env>
    ```
@@ -92,6 +99,7 @@ wrangler tail --name app-worker --status error
 ### Webhook Failures
 
 1. **Check webhook logs**:
+
    ```bash
    wrangler tail --name app-worker | grep webhook
    ```
@@ -175,6 +183,7 @@ scripts/cloudcache verify <module> <env>
 ### Response Times
 
 Check Cloudflare Analytics dashboard for:
+
 - Request latency
 - Error rates
 - Request volume
@@ -182,6 +191,7 @@ Check Cloudflare Analytics dashboard for:
 ### Worker Metrics
 
 Available in Cloudflare dashboard:
+
 - CPU time
 - Request count
 - Error count
@@ -232,6 +242,7 @@ Available in Cloudflare dashboard:
 ### Zero-Downtime Deployments
 
 Workers support zero-downtime deployments:
+
 - New deployment is created
 - Traffic gradually shifts to new version
 - Old version remains available for rollback
@@ -258,4 +269,3 @@ Workers support zero-downtime deployments:
 2. Review Access logs
 3. Check for unauthorized access
 4. Follow security incident response plan
-
