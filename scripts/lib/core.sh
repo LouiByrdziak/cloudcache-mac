@@ -144,6 +144,70 @@ cf_post() { cf_api_call "POST" "$1" "${2:-}"; }
 cf_put() { cf_api_call "PUT" "$1" "${2:-}"; }
 cf_delete() { cf_api_call "DELETE" "$1"; }
 
+# --- Process Management ---
+
+# Robust function to kill process on a port with retry logic
+# Usage: kill_port <port_number>
+# Returns: 0 if process was killed or port is free, 1 on failure
+kill_port() {
+  local port="$1"
+  local max_attempts=3
+  local attempt=0
+  
+  # Check if port is already free
+  if ! lsof -ti:"$port" >/dev/null 2>&1; then
+    log "Port $port is already free"
+    return 0
+  fi
+  
+  while [[ $attempt -lt $max_attempts ]]; do
+    local pid
+    pid=$(lsof -ti:"$port" 2>/dev/null || echo "")
+    
+    if [[ -z "$pid" ]]; then
+      log "✅ Port $port is now free"
+      return 0
+    fi
+    
+    if [[ $attempt -eq 0 ]]; then
+      log "Stopping process on port $port (PID: $pid) with SIGTERM..."
+      kill "$pid" 2>/dev/null || true
+      sleep 2
+    elif [[ $attempt -eq 1 ]]; then
+      log "Process still alive, trying SIGTERM again..."
+      kill "$pid" 2>/dev/null || true
+      sleep 3
+    else
+      log "Process still alive, using SIGKILL (-9)..."
+      kill -9 "$pid" 2>/dev/null || true
+      sleep 1
+    fi
+    
+    ((attempt++))
+  done
+  
+  # Final check
+  if lsof -ti:"$port" >/dev/null 2>&1; then
+    msg "❌ Failed to kill process on port $port after $max_attempts attempts"
+    return 1
+  fi
+  
+  log "✅ Port $port is now free"
+  return 0
+}
+
+# Kill multiple ports with a single call
+# Usage: kill_ports <port1> <port2> <port3> ...
+kill_ports() {
+  local failed=0
+  for port in "$@"; do
+    if ! kill_port "$port"; then
+      failed=1
+    fi
+  done
+  return $failed
+}
+
 # --- Cloudflare / Wrangler Helpers ---
 
 # Check for wrangler and authentication

@@ -9,6 +9,7 @@
     "typecheck": "pnpm -r typecheck",
     "format:check": "pnpm exec prettier -c .",
     "lint:quick": "pnpm exec eslint .",
+    "lint:shell": "bash scripts/lib/validate-no-duplication.sh",
     "prepare": "husky",
     "predev": "bash scripts/dev-stop.sh",
     "dev": "pnpm exec concurrently -n admin,apex,app -c blue,green,yellow \"pnpm --filter ./apps/admin dev\" \"pnpm --filter ./apps/apex dev\" \"pnpm --filter ./apps/app dev\"",
@@ -32,7 +33,8 @@
     ],
     "*.sh": [
       "bash scripts/lint-staged-shfmt.sh",
-      "bash scripts/lint-staged-shellcheck.sh"
+      "bash scripts/lint-staged-shellcheck.sh",
+      "bash scripts/lib/validate-no-duplication.sh"
     ],
     ".husky/_/*.sh": []
   },

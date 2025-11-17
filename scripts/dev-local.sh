@@ -12,28 +12,12 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 source "$SCRIPT_DIR/lib/core.sh"
 
-# Function to kill process on a port
-kill_port() {
-  local port="$1"
-  local pid
-  pid=$(lsof -ti:"$port" 2>/dev/null || echo "")
-  if [[ -n "$pid" ]]; then
-    log "Killing stale process on port $port (PID: $pid)"
-    kill "$pid" 2>/dev/null || true
-    sleep 1
-  fi
-}
-
-# Clean up any stale processes on dev ports
+# Clean up any stale processes on dev ports using centralized kill_ports function
 step "Checking for stale processes on dev ports..."
-kill_port 8789
-kill_port 8787
-kill_port 8788
-# Also check for Node.js inspector ports (used by wrangler)
-# APP uses 9229, ADMIN uses 9230, APEX uses 9231
-kill_port 9229
-kill_port 9230
-kill_port 9231
+# APP: 8789 (dev) + 9229 (inspector)
+# ADMIN: 8787 (dev) + 9230 (inspector)  
+# APEX: 8788 (dev) + 9231 (inspector)
+kill_ports 8789 8787 8788 9229 9230 9231 || true
 
 # Colors for output
 GREEN='\033[0;32m'
