@@ -15,6 +15,11 @@
 **/.wrangler/
 .wrangler/
 **/.wrangler/tmp
+
+# Validation reports (local only, auto-generated)
+docs/reports/validation/validation-report-*.md
+.last-validation-timestamp
+
 ## Yarn artifacts (ensure PNPM-only)
 .pnp.cjs
 .yarn/

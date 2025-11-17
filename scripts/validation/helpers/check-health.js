@@ -26,7 +26,30 @@ async function checkHealth(url, expectedVersion) {
       }
 
       if (data.version !== expectedVersion) {
-        errors.push(`Version mismatch. Expected: ${expectedVersion}, Got: ${data.version}`);
+        const isPreviewWorker = url.includes(".cloudcache.workers.dev");
+        const isStagingDomain = url.includes("staging-") && url.includes("cloudcache.ai");
+        const isProductionDomain =
+          url.includes("cloudcache.ai") &&
+          !url.includes("staging-") &&
+          !url.includes(".workers.dev");
+        const isLocalhost = url.includes("localhost");
+
+        let suggestion = "";
+        if (isPreviewWorker) {
+          suggestion =
+            " 🔧 FIX: Your Cloudflare preview deployment is stale. Run: pnpm deploy:preview";
+        } else if (isStagingDomain) {
+          suggestion =
+            " 🔧 FIX: Your staging deployment is stale. Run: bash scripts/deploy-module.sh <module> staging";
+        } else if (isProductionDomain) {
+          suggestion =
+            " ⚠️  CAUTION: Production deployment is out of sync. Verify before deploying to production.";
+        } else if (isLocalhost) {
+          suggestion = " 🔧 FIX: Your local dev server is stale. Restart: pnpm dev";
+        }
+
+        const errorMessage = `Version mismatch. Expected: ${expectedVersion}, Got: ${data.version}`;
+        errors.push(suggestion ? `${errorMessage}.${suggestion}` : errorMessage);
       }
     }
   } catch (e) {
