@@ -50,11 +50,12 @@ rm -rf .wrangler
 ### Step 4: Restart Dev Server
 
 ```bash
-# Find the process
-lsof -ti:[port]
+# Stop all dev servers cleanly
+bash scripts/dev-stop.sh
 
-# Kill the old process (if needed)
-kill [PID]
+# Or for a specific port, use the centralized kill_port function:
+# source scripts/lib/core.sh
+# kill_port [port]
 
 # Restart the dev server
 cd apps/[module-name]
@@ -81,10 +82,13 @@ curl -s http://localhost:[port]/ | grep "Your text"
 ```bash
 # Full reset process for a module
 MODULE=apex
-PORT=8788
 cd apps/$MODULE
 rm -rf .wrangler
-lsof -ti:$PORT | xargs kill 2>/dev/null
+
+# Stop all dev servers cleanly
+bash scripts/dev-stop.sh
+
+# Then restart
 pnpm dev
 ```
 
@@ -103,7 +107,7 @@ return new Response(html, {
 
 ## Common Issues
 
-1. **Multiple processes on same port**: Use `lsof -ti:[port]` to find all PIDs, kill the correct one
+1. **Multiple processes on same port**: Use `bash scripts/dev-stop.sh` to cleanly stop all dev servers
 2. **Browser cache**: Use hard refresh (Cmd+Shift+R) or incognito mode
 3. **File not saved**: Verify file timestamp with `ls -la src/index.ts`
 4. **Wrong file edited**: Verify `wrangler.toml` points to correct `main` entry

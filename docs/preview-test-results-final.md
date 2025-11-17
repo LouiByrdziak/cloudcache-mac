@@ -357,13 +357,14 @@ pnpm dev
 
 ```bash
 # If you see "Address already in use" errors:
-# Option 1: Use the stop script
+# Use the stop script (recommended)
 bash scripts/dev-stop.sh
 
-# Option 2: Manually kill processes
-lsof -ti:8789 | xargs kill 2>/dev/null
-lsof -ti:8787 | xargs kill 2>/dev/null
-lsof -ti:8788 | xargs kill 2>/dev/null
+# Or use the centralized kill_port function from core.sh:
+source scripts/lib/core.sh
+kill_port 8789
+kill_port 8787
+kill_port 8788
 ```
 
 **Other Issues:**
