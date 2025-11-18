@@ -62,3 +62,5 @@ echo "You can now commit:"
 echo -e "${BLUE}  git commit -m \"Your commit message\"${RESET}"
 echo ""
 
+
+

@@ -11,7 +11,6 @@ import {
   addSecurityHeaders,
   createJSONResponse,
 } from "@cloudcache/platform-http";
-import { getCloudcacheValidatedBadge } from "@cloudcache/worker-utils";
 
 declare const __VERSION__: string;
 
@@ -58,9 +57,32 @@ export default {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cloudcache ADMIN</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: white;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    h1 {
+      color: red;
+    }
+    h1 .admin {
+      color: black;
+    }
+  </style>
 </head>
 <body>
-  ${getCloudcacheValidatedBadge()}
+  <h1>Hello World I am Cloudcache <span class="admin">Admin</span></h1>
 </body>
 </html>
       `.trim();
