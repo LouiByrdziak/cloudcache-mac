@@ -4,10 +4,14 @@ import { z } from "zod";
  * Environment schema for APP module (Hono Worker)
  */
 export const AppEnvSchema = z.object({
+  APP_KV: z.any(), // KV Namespace binding
   SHOPIFY_API_KEY: z.string().min(1, "SHOPIFY_API_KEY is required"),
   SHOPIFY_API_SECRET: z.string().min(1, "SHOPIFY_API_SECRET is required"),
   CF_ACCESS_CLIENT_ID: z.string().min(1, "CF_ACCESS_CLIENT_ID is required"),
   CF_ACCESS_CLIENT_SECRET: z.string().min(1, "CF_ACCESS_CLIENT_SECRET is required"),
+  CF_API_TOKEN: z.string().optional(),
+  CF_ACCOUNT_ID: z.string().optional(),
+  CF_ZONE_ID: z.string().optional(),
 });
 
 export type AppEnv = z.infer<typeof AppEnvSchema>;

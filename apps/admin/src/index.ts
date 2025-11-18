@@ -67,11 +67,51 @@ export default {
       width: 100%;
       height: 100%;
       background: white;
+      margin: 0;
+      padding: 0;
     }
     body {
       display: flex;
-      justify-content: center;
-      align-items: center;
+      flex-direction: row;
+      position: relative;
+    }
+    .nav {
+      width: 250px;
+      min-width: 250px;
+      background: #f5f5f5;
+      border-right: 1px solid #ddd;
+      padding: 20px 0;
+      height: 100vh;
+      overflow-y: auto;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+    }
+    .nav-item {
+      padding: 15px 20px;
+      border-bottom: 1px solid #e0e0e0;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .nav-item:hover {
+      background-color: #e8e8e8;
+    }
+    .nav-item-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    .nav-item-subtext {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      margin-left: 250px;
+      width: calc(100% - 250px);
     }
     h1 {
       color: red;
@@ -82,14 +122,44 @@ export default {
   </style>
 </head>
 <body>
-  <h1>Hello World I am Cloudcache <span class="admin">Admin</span></h1>
+  <nav class="nav">
+    <div class="nav-item">
+      <div class="nav-item-title">Free</div>
+      <div class="nav-item-subtext">5 free optimizations</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-item-title">Section A</div>
+      <div class="nav-item-subtext">10 website optimizations 1-click instant</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-item-title">Section B</div>
+      <div class="nav-item-subtext">10 webpage optimizations</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-item-title">Section C</div>
+      <div class="nav-item-subtext">10 website optimizations</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-item-title">Section D</div>
+      <div class="nav-item-subtext">10 webpage optimizations</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-item-title">Section E</div>
+      <div class="nav-item-subtext">10 websi</div>
+    </div>
+  </nav>
+  <div class="main-content">
+    <h1>Hello World I am Cloudcache <span class="admin">Admin</span></h1>
+  </div>
 </body>
 </html>
       `.trim();
       const response = new Response(html, {
         headers: {
           "Content-Type": "text/html; charset=utf-8",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+          "Pragma": "no-cache",
+          "Expires": "0",
         },
       });
       return addSecurityHeaders(response, correlationId);

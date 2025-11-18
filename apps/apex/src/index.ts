@@ -56,30 +56,45 @@ export default {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background: #000000;
       color: #ffffff;
+      display: flex;
+      margin: 0;
+      padding: 0;
     }
     .nav {
+      width: 250px;
+      min-width: 250px;
+      background: #000000;
+      padding: 0;
+      height: 100vh;
+      overflow-y: auto;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
       display: flex;
-      gap: 20px;
-      padding: 20px;
-      border-bottom: 1px solid #333;
-      flex-wrap: wrap;
+      flex-direction: column;
     }
     .nav-item {
       color: #ffffff;
       text-decoration: none;
-      padding: 8px 16px;
-      border-radius: 20px;
+      padding: 15px 20px;
+      background: #000000;
       transition: background 0.2s;
+      border-radius: 8px;
+      margin: 0;
+      display: block;
     }
-    .nav-item.free {
+    .nav-item.active {
       background: #F48120;
       color: #000000;
     }
-    .nav-item:hover {
-      background: #333;
+    .nav-item:not(.active) {
+      background: #000000;
+      color: #ffffff;
     }
-    .nav-item.free:hover {
-      background: #FC7C1E;
+    .nav-item:not(.active):hover {
+      background: #F48120;
+      color: #000000;
     }
     .nav-item-text {
       font-size: 14px;
@@ -90,9 +105,13 @@ export default {
       margin-top: 4px;
       opacity: 0.8;
     }
+    .nav-item.active .nav-item-subtext {
+      opacity: 0.7;
+    }
     .container {
-      max-width: 1200px;
-      margin: 0 auto;
+      flex: 1;
+      margin-left: 250px;
+      max-width: calc(100% - 250px);
       padding: 40px 20px;
     }
     h1 {
@@ -198,7 +217,7 @@ export default {
 </head>
 <body>
   <nav class="nav">
-    <a href="#" class="nav-item free">
+    <a href="#" class="nav-item active">
       <div class="nav-item-text">Free</div>
       <div class="nav-item-subtext">5 free optimizations</div>
     </a>
@@ -220,10 +239,7 @@ export default {
     </a>
     <a href="#" class="nav-item">
       <div class="nav-item-text">Section E</div>
-      <div class="nav-item-subtext">10 website security</div>
-    </a>
-    <a href="#" class="nav-item">
-      <div class="nav-item-text">Pricing</div>
+      <div class="nav-item-subtext">10 websi</div>
     </a>
   </nav>
   <div class="container">
