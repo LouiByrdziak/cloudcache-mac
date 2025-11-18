@@ -180,6 +180,3 @@ If it still fails, check:
 1. Are there new unstaged changes?
 2. Are validation reports still staged?
 3. Run: `git status` to verify
-
-
-
