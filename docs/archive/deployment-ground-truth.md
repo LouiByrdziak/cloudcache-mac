@@ -1,5 +1,13 @@
 # Deployment Ground Truth
 
+**DEPRECATED**: This file has been consolidated.
+**See**: `docs/all-deployment-truth.md` for current documentation.
+
+**Migration Date**: 2025-11-19
+**Archived On**: 2025-11-19 13:44:00
+
+---
+
 This document contains the verified, correct URLs and status for our Cloudflare Preview deployments. It serves as the single source of truth for all subsequent reporting and validation scripts.
 
 This document was generated and verified on **November 16, 2025**.

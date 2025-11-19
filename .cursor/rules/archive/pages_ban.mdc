@@ -1,0 +1,17 @@
+---
+scope: ["**/*"]
+enforce: false
+---
+# Pages.dev Ban
+
+**DEPRECATED**: This rule has been consolidated.
+**See**: `.cursor/rules/all-code-truth.mdc` for current rules.
+
+**Migration Date**: 2025-11-19
+**Archived On**: 2025-11-19 13:18:03
+
+---
+
+# Pages.dev Ban
+- Do not introduce `pages.dev` references or `wrangler pages` commands.
+- Prefer staging subdomains for previews: `staging-apex|app|admin.cloudcache.ai`.

@@ -85,7 +85,7 @@ LINT_STAGED_EXIT=$?
 if [ $LINT_STAGED_EXIT -ne 0 ]; then
   echo "Common fixes:"
   echo "  1. Run: pnpm install (to fix node_modules permissions)"
-  echo "  2. Run: bash scripts/pre-commit-check.sh (manual check)"
+  echo "  2. Run: bash scripts/all-git-truth.sh --pre-commit (manual check)"
   echo "  3. If urgent: git commit --no-verify (skip hooks)"
 fi
 ```
@@ -129,7 +129,7 @@ The hardened hooks will:
 2. **Manual pre-commit check:**
 
    ```bash
-   bash scripts/pre-commit-check.sh
+   bash scripts/all-git-truth.sh --pre-commit
    git commit -m "Your message"
    ```
 
@@ -160,7 +160,7 @@ To avoid EPERM errors in the future:
 
 3. **Use the manual check script before committing:**
    ```bash
-   bash scripts/pre-commit-check.sh
+   bash scripts/all-git-truth.sh --pre-commit
    ```
 
 ## Technical Details
@@ -237,7 +237,7 @@ If you see these warnings:
 - `.husky/pre-commit` - Main pre-commit hook
 - `package.json` - lint-staged configuration
 - `scripts/lint-staged-eslint.sh` - ESLint wrapper with EPERM handling
-- `scripts/pre-commit-check.sh` - Manual pre-commit validation
+- `scripts/all-git-truth.sh` - Manual pre-commit validation
 
 ## Success Criteria
 

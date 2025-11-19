@@ -1,5 +1,13 @@
 # Preview Testing Guide - Step-by-Step Instructions
 
+**DEPRECATED**: This file has been consolidated.  
+**See**: `docs/all-deployment-truth.md`
+
+**Migration Date**: 2025-11-19
+**Archived On**: 2025-11-19 13:50:00
+
+---
+
 ## Quick Start: How to Test Preview Deployments
 
 ### Automated Testing (No Manual Clicks Required)

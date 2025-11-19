@@ -427,7 +427,7 @@ cmd_status() {
     case "$env" in
       prod) domain="https://cloudcache.ai" ;;
       staging) domain="https://staging-apex.cloudcache.ai" ;;
-      preview) domain="https://apex-cloudcache.pages.dev" ;;
+      preview) domain="https://apex-worker-preview.cloudcache.workers.dev" ;;
     esac
     
     if [[ -n "$domain" ]]; then

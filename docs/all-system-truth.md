@@ -1,4 +1,8 @@
-# System of Record: The Golden Path
+# System Truth
+
+**Last Updated**: 2025-11-19
+**Rule Reference**: `.cursor/rules/all-code-truth.mdc`
+**Related**: `docs/all-git-truth.md`
 
 This document is the **single source of truth** for all deployment and validation procedures for the Cloudcache project. It is the definitive entry point for any developer, new or experienced, and its guidance trumps any conflicting information found in archived files or legacy documentation.
 
@@ -52,7 +56,7 @@ This is the definitive list of primary scripts that power our pipeline.
 
 ## Hierarchy of Truth
 
-1.  **This Document (`00_SYSTEM_OF_RECORD.md`)**: Defines the process and points to the correct tools.
+1.  **This Document (`docs/all-system-truth.md`)**: Defines the process and points to the correct tools.
 2.  **Git Truth (`docs/all-git-truth.md`)**: The canonical source for git operations, pre-commit hooks, and documentation standards.
 3.  **Core Scripts (listed above)**: Contain the implementation of the process.
 4.  **Supporting Documentation (`docs/deployment-ground-truth.md`, etc.)**: Provide supplementary, verified information.

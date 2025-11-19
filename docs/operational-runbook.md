@@ -1,5 +1,11 @@
 # Operational Runbook
 
+**Last Updated**: 2025-11-19
+**Rule Reference**: `.cursor/rules/all-code-truth.mdc`
+**Canonical Source**: `docs/all-deployment-truth.md`
+
+---
+
 This runbook provides procedures for on-call operations, monitoring, and incident response.
 
 ## Monitoring

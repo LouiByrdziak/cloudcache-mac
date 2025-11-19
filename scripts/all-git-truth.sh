@@ -171,7 +171,12 @@ case "${1:-}" in
     pre_commit_check
     ;;
   --validate-md)
-    validate_md_structure "$2"
+    if [[ -z "${2:-}" ]]; then
+      echo "Validating all markdown files..."
+      find docs -name "*.md" -not -path "*/archive/*" -not -path "*/reports/*" -print0 | xargs -0 -n1 bash "$0" --validate-md
+    else
+      validate_md_structure "$2"
+    fi
     ;;
   --git-safe)
     shift

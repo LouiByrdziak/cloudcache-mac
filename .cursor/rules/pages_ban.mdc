@@ -1,7 +1,0 @@
----
-scope: ["**/*"]
-enforce: true
----
-# Pages.dev Ban
-- Do not introduce `pages.dev` references or `wrangler pages` commands.
-- Prefer staging subdomains for previews: `staging-apex|app|admin.cloudcache.ai`.

@@ -1,5 +1,13 @@
 # Preview Deployment Summary Report
 
+**DEPRECATED**: This file has been consolidated.
+**See**: `docs/all-deployment-truth.md` for current documentation.
+
+**Migration Date**: 2025-11-19
+**Archived On**: 2025-11-19 13:44:00
+
+---
+
 **Last Updated:** 2025-11-15 12:22:59
 
 ---

@@ -1,3 +1,17 @@
+---
+scope: ["**/*"]
+enforce: false
+---
+# Plans location and naming
+
+**DEPRECATED**: This rule has been consolidated.
+**See**: `.cursor/rules/all-code-truth.mdc` for current rules.
+
+**Migration Date**: 2025-11-19
+**Archived On**: 2025-11-19 13:18:03
+
+---
+
 RULE: Plans location and naming
 
 - All new plans must be created under docs/plans/ using the user-provided filename.

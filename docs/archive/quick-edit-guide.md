@@ -1,5 +1,13 @@
 # Quick Edit Guide: Updating Worker HTML Content
 
+**DEPRECATED**: This file has been consolidated.  
+**See**: `docs/all-local-dev-truth.md`
+
+**Migration Date**: 2025-11-19
+**Archived On**: 2025-11-19 13:50:00
+
+---
+
 ## Problem Summary
 
 When editing HTML content in Cloudflare Workers (wrangler dev), changes to source files may not appear in the browser even after:

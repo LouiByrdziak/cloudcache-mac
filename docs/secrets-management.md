@@ -1,5 +1,11 @@
 # Secrets Management Guide
 
+**Last Updated**: 2025-11-19
+**Rule Reference**: `.cursor/rules/all-code-truth.mdc`
+**Canonical Source**: `docs/all-local-dev-truth.md`
+
+---
+
 This document explains how secrets are managed in Cloudcache using a **no-local-secrets** approach.
 
 ## Overview
@@ -8,7 +14,7 @@ All runtime secrets are stored in Cloudflare (Workers secrets or Pages environme
 
 ## Secret Placement
 
-### Workers (APP & ADMIN modules)
+### Workers (APP, ADMIN, & APEX modules)
 
 Secrets are stored per Worker and per environment using `wrangler secret put`:
 
@@ -18,14 +24,9 @@ Secrets are stored per Worker and per environment using `wrangler secret put`:
 - **admin-worker** (production): `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`
 - **admin-worker-staging**: Same secrets, different values
 - **admin-worker-preview**: Same secrets, different values
-
-### Pages (APEX module)
-
-Environment variables are stored per environment via Cloudflare API:
-
-- **apex-cloudcache** (production): `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`
-- **apex-cloudcache** (staging): Same vars, different values
-- **apex-cloudcache** (preview): Same vars, different values
+- **apex-worker** (production): `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`
+- **apex-worker-staging**: Same secrets, different values
+- **apex-worker-preview**: Same secrets, different values
 
 ### CI/CD
 
@@ -86,9 +87,6 @@ wrangler secret put SHOPIFY_API_KEY --name app-worker --env staging
 wrangler secret list --name app-worker --env staging
 ```
 
-#### Pages
-
-Pages environment variables are managed via Cloudflare dashboard or API. Use `scripts/cloudcache bind` for interactive setup.
 
 ## Local Development
 
@@ -103,9 +101,6 @@ pnpm dev  # Uses wrangler dev --remote automatically
 
 No `.dev.vars` file needed - secrets are fetched from Cloudflare.
 
-### Pages
-
-For APEX (Astro Pages), use Preview Deployments when features need secrets. For static work, use `astro dev` locally.
 
 ## Break-Glass Procedures
 

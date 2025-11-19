@@ -1,5 +1,11 @@
 # ADR 001: Build Strategy for Workspace Dependencies
 
+**Last Updated**: 2025-11-19
+**Rule Reference**: `.cursor/rules/all-code-truth.mdc`
+**Canonical Source**: `docs/all-system-truth.md`
+
+---
+
 **Status:** Accepted  
 **Date:** 2025-11-14  
 **Deciders:** Lead Architect, CTO

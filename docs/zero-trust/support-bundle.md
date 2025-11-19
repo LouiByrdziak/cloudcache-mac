@@ -1,5 +1,11 @@
 # Cloudflare Support Ticket: Service Auth JWT Endpoint (`/cdn-cgi/access/service/auth`) Consistently Returns 404
 
+**Last Updated**: 2025-11-19
+**Rule Reference**: `.cursor/rules/all-code-truth.mdc`
+**Canonical Source**: `docs/all-system-truth.md`
+
+---
+
 ## Summary
 
 - **Goal**: Protect a Cloudflare Worker with a Zero Trust Access Application and authenticate using a Service Token exchanged for a JWT.

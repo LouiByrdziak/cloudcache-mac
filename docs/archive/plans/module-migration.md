@@ -46,6 +46,11 @@ Agent understands **verification mandatory after every sub-step** (not just step
 
 # Cloudcache Module Migration Plan (Executable, History-Preserving)
 
+> **⚠️ DISCLAIMER: FUTURE PLAN**
+> This document outlines a proposed migration to a modular architecture.
+> It does **NOT** reflect the current state of the codebase (`apps/` vs `modules/`).
+> Do not execute these steps unless explicitly authorized to begin the migration.
+
 Checksum: 8855Rlb#
 
 ## 1.0 — Scaffold Modules

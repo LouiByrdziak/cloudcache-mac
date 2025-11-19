@@ -71,6 +71,17 @@ git commit --no-verify -m "wip: saving work, hooks bypassed"
 
 _Note: CI will still fail if issues persist._
 
+### EPERM Errors on macOS
+
+**Error**: `Error: EPERM: operation not permitted` during pre-commit.
+
+**Cause**: macOS file system security + pnpm nested node_modules + ESLint cache.
+
+**Fix**:
+1. The pre-commit hook automatically handles this by retrying ESLint with `--no-cache`.
+2. If it still fails, run: `pnpm install` to fix permissions.
+3. Use `bash scripts/all-git-truth.sh --pre-commit` for a manual check.
+
 ## Rules for MD File Creation
 
 All markdown files in this repository must follow these standards to ensure consistency, discoverability, and maintainability.

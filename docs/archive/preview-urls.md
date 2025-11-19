@@ -1,5 +1,13 @@
 # Preview Deployment URLs
 
+**DEPRECATED**: This file has been consolidated.  
+**See**: `docs/all-deployment-truth.md`
+
+**Migration Date**: 2025-11-19
+**Archived On**: 2025-11-19 13:50:00
+
+---
+
 ## Clickable Preview URLs
 
 ### APP Module
@@ -98,8 +106,8 @@ When you click each URL, verify:
 
 ### APEX Module
 
-- Health: `https://{hash}-apex-cloudcache.pages.dev/healthz`
-- Ready: `https://{hash}-apex-cloudcache.pages.dev/readyz`
+- Health: `https://apex-worker-preview.cloudcache.workers.dev/healthz`
+- Ready: `https://apex-worker-preview.cloudcache.workers.dev/readyz`
 
 ---
 

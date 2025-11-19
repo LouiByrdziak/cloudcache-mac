@@ -1,5 +1,13 @@
 # Cloudflare Deployment Guide and Rules
 
+**DEPRECATED**: This file has been consolidated.
+**See**: `docs/all-deployment-truth.md` for current documentation.
+
+**Migration Date**: 2025-11-19
+**Archived On**: 2025-11-19 13:44:00
+
+---
+
 ## Overview
 
 This document provides standardized procedures and rules for deploying Cloudflare Workers and Pages across all environments. All agents must follow these rules when deploying.

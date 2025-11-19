@@ -5,12 +5,22 @@ enforce: true
 # All Code Truth
 
 ## Documentation Truth
-- Reference: `docs/all-git-truth.md`
-- All git/commit/hook operations follow this canonical source
+- **System Truth**: `docs/all-system-truth.md` - Entry point, script manifest, and golden path.
+- **Git Truth**: `docs/all-git-truth.md` - Git operations, pre-commit hooks, MD governance.
+- **Deployment Truth**: `docs/all-deployment-truth.md` - Preview/staging operations, URL verification.
+- **Local Dev Truth**: `docs/all-local-dev-truth.md` - Ports, remote bindings, troubleshooting.
 
 ## Script Truth  
-- Reference: `scripts/all-git-truth.sh`
-- All git operations use this unified script
+- **Git Operations**: `scripts/all-git-truth.sh` - Unified git wrapper and pre-commit hook.
+- **Deployment**: `scripts/deploy-module.sh` - Master script for single-module deployment.
+- **Preview**: `scripts/deploy-preview.sh` - Wrapper to deploy all modules to preview.
+- **Validation**: `scripts/validation/run-validation.sh` - Automated deployment testing suite.
+
+## Supporting Guides
+- `docs/operational-runbook.md` - Monitoring, incident response, secrets.
+- `docs/secrets-management.md` - Secret rotation, bindings, bootstrap.
+- `docs/shopify-oauth-setup.md` - OAuth configuration for App module.
+- `docs/zero-trust/support-bundle.md` - Support ticket templates.
 
 ## File Naming Convention (ENFORCED)
 - **Lowercase only**: no uppercase letters allowed
@@ -27,14 +37,37 @@ enforce: true
 - **Truth Files**: `docs/all-<domain>-truth.md`
 - **Archives**: `docs/archive/` (never delete, always archive)
 
-### Required Headers
-Every MD file must include:
+### Required Headers (Templates)
+
+**1. Truth File Template** (`docs/all-*-truth.md`)
 ```markdown
-# <Title> Truth
+# <Domain> Truth
 
 **Last Updated**: YYYY-MM-DD  
 **Rule Reference**: `.cursor/rules/all-code-truth.mdc`  
-**Related**: `docs/all-<domain>-truth.md` (if applicable)
+**Related**: `docs/all-system-truth.md`
+```
+
+**2. Supporting Guide Template** (`docs/operational-runbook.md`, etc.)
+```markdown
+# <Guide Title>
+
+**Last Updated**: YYYY-MM-DD  
+**Rule Reference**: `.cursor/rules/all-code-truth.mdc`  
+**Canonical Source**: `docs/all-<domain>-truth.md`
+```
+
+**3. Archive Header**
+```markdown
+# [Original Title]
+
+**DEPRECATED**: This file has been consolidated.  
+**See**: `docs/all-<domain>-truth.md`
+
+**Migration Date**: YYYY-MM-DD
+**Archived On**: YYYY-MM-DD HH:MM:SS
+
+---
 ```
 
 ### Interlinking
@@ -45,23 +78,20 @@ Every MD file must include:
 ### Grouping
 - **Domain Truth**: One `all-<domain>-truth.md` per major area (Git, Deployment, API)
 - **Child Files**: Specific guides link UP to the domain truth file
-- **Index**: `docs/00_DOCUMENTATION_INDEX.md` lists all truth files
+- **Index**: `docs/all-system-truth.md` lists all truth files
 
 ### Archiving Protocol
 When deprecating a file:
 1. Move to `docs/archive/` (or `scripts/archive/`)
-2. Add redirect header with deprecation timestamp:
-```markdown
-# [Original Title]
+2. Add redirect header with deprecation timestamp.
 
-**DEPRECATED**: This file has been consolidated.  
-**See**: `docs/all-<domain>-truth.md` for current documentation.
-
-**Migration Date**: YYYY-MM-DD
-**Archived On**: YYYY-MM-DD HH:MM:SS
-
----
-```
+## Plan File Rules
+- **Location**: All new plans must be created under `docs/plans/`.
+- **Naming**: Use user-provided filename (lowercase, hyphen-separated).
+- **Prohibited**: 
+  - Never create or use `one.plan.md`.
+  - Do not write plans to repository root or `.cursor/`.
+- **Correction**: If a plan is accidentally generated elsewhere, move it to `docs/plans/<name>.md` immediately.
 
 ## MDC (Rule) File Creation Rules
 
@@ -78,13 +108,9 @@ When deprecating a file:
 - **Content**: Clear, actionable rules (no fluff)
 - **References**: Must link to corresponding `docs/all-<domain>-truth.md`
 
-### Interlinking
-- **Central Rule**: `all-code-truth.mdc` is the master rule file
-- **Domain Rules**: Must reference `all-code-truth.mdc`
-- **Documentation**: Must reference the specific MDC file that governs it
-
 ## Deprecated Patterns (BANNED)
 - `one.plan.md` - never create or use
 - Uppercase in filenames - convert to lowercase
 - Underscore separators - convert to hyphens (except DB migrations)
 - Multiple truth files per domain - consolidate to one
+- **Pages.dev**: Do not introduce `pages.dev` references or `wrangler pages` commands. Prefer staging subdomains (`staging-apex|app|admin.cloudcache.ai`).

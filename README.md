@@ -12,7 +12,7 @@ This repository contains the full source code for the Cloudcache suite of applic
 
 For all deployment, validation, and standard operational procedures, refer to our single source of truth:
 
-➡️ **[docs/00_SYSTEM_OF_RECORD.md](docs/00_SYSTEM_OF_RECORD.md)**
+➡️ **[docs/all-system-truth.md](docs/all-system-truth.md)**
 
 This document contains the "Golden Path" for all pipeline activities and is the definitive entry point for understanding how to build, deploy, and validate our software. Its guidance trumps all other documentation.
 
