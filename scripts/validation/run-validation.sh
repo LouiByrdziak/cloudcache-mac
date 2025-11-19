@@ -87,6 +87,15 @@ start_local_servers() {
   local attempt=0
   
   while [[ $attempt -lt $max_attempts ]]; do
+    # Fail fast: Check if the dev startup script has exited unexpectedly
+    if ! kill -0 "$dev_pid" 2>/dev/null; then
+       log "❌ Dev startup script exited prematurely. Checking logs..."
+       if [[ -f "/tmp/cloudcache-dev.log" ]]; then
+         cat "/tmp/cloudcache-dev.log"
+       fi
+       return 1
+    fi
+
     # Check if servers are ready
     local all_ready=true
     for port in 8787 8788 8789; do
