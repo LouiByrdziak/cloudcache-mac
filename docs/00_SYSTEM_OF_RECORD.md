@@ -1,4 +1,4 @@
-#  System of Record: The Golden Path
+# System of Record: The Golden Path
 
 This document is the **single source of truth** for all deployment and validation procedures for the Cloudcache project. It is the definitive entry point for any developer, new or experienced, and its guidance trumps any conflicting information found in archived files or legacy documentation.
 
@@ -18,6 +18,7 @@ We use a single, master script for all deployments. It is parameterized to targe
 `bash scripts/deploy-module.sh <module> <environment>`
 
 **Usage Examples:**
+
 - Deploy `app` to preview: `bash scripts/deploy-module.sh app preview`
 - Deploy `apex` to staging: `bash scripts/deploy-module.sh apex staging`
 
@@ -41,11 +42,11 @@ We use a single, master script for validating all environments.
 
 This is the definitive list of primary scripts that power our pipeline.
 
--   **`scripts/deploy-module.sh`**: The master script for all deployments. Contains all build and `wrangler` logic. **This is the source of truth for deployment.**
--   **`scripts/deploy-preview.sh`**: A simple wrapper that calls `deploy-module.sh` for all three modules to the preview environment.
--   **`scripts/validation/run-validation.sh`**: The master script for our automated validation suite. It iterates through all modules and environments, running our two-factor checks.
--   **`scripts/lib/core.sh`**: A shared library of shell functions used by our primary scripts.
--   **`scripts/all-git-truth.sh`**: The unified script for all git operations, pre-commit checks, and validation.
+- **`scripts/deploy-module.sh`**: The master script for all deployments. Contains all build and `wrangler` logic. **This is the source of truth for deployment.**
+- **`scripts/deploy-preview.sh`**: A simple wrapper that calls `deploy-module.sh` for all three modules to the preview environment.
+- **`scripts/validation/run-validation.sh`**: The master script for our automated validation suite. It iterates through all modules and environments, running our two-factor checks.
+- **`scripts/lib/core.sh`**: A shared library of shell functions used by our primary scripts.
+- **`scripts/all-git-truth.sh`**: The unified script for all git operations, pre-commit checks, and validation.
 
 ---
 
