@@ -5,10 +5,25 @@ enforce: true
 # All Code Truth
 
 ## Documentation Truth
-- **System Truth**: `docs/all-system-truth.md` - Entry point, script manifest, and golden path.
-- **Git Truth**: `docs/all-git-truth.md` - Git operations, pre-commit hooks, MD governance.
-- **Deployment Truth**: `docs/all-deployment-truth.md` - Preview/staging operations, URL verification.
-- **Local Dev Truth**: `docs/all-local-dev-truth.md` - Ports, remote bindings, troubleshooting.
+
+Each truth file must stay in lock‑step with the code and scripts listed below. When any process or script changes, update the corresponding truth doc and add an entry to this MDC file.
+
+- **`docs/all-system-truth.md`** – Defines the Golden Path, ownership model, and script manifest. Includes a table that maps every active shell script to its purpose and authoritative documentation.
+- **`docs/all-git-truth.md`** – Covers commit policies, hook behavior, the `scripts/all-git-truth.sh` utility (`--pre-commit`, `--validate-md`, `--git-safe`), and mitigation steps for EPERM or lint-staged failures.
+- **`docs/all-deployment-truth.md`** – Canonical reference for deploying individual modules or the full stack. Documents preview/staging URLs, health endpoints, and validation/verification commands.
+- **`docs/all-local-dev-truth.md`** – Explains remote bindings, local ports, `pnpm dev:*` flows, and troubleshooting steps (cache resets, `scripts/dev-local.sh`, etc.).
+
+### Supporting Guides (link up to the truth docs)
+
+- **`docs/operational-runbook.md`** – Monitoring, incident response, and alert flows (canonical: deployment truth).
+- **`docs/secrets-management.md`** – Secret rotation strategy, Wrangler bindings, and disaster-recovery steps (canonical: local-dev truth).
+- **`docs/shopify-oauth-setup.md`** – OAuth scopes, callback configuration, and validation for the App worker (canonical: deployment truth).
+- **`docs/zero-trust/support-bundle.md`** – Template for Cloudflare support tickets with required evidence (canonical: system truth).
+- **`docs/zero-trust/tokens.md`** – Procedures for creating, rotating, and auditing Zero Trust tokens (canonical: system truth).
+
+Every supporting guide must include:
+1. The standard header block (Last Updated, Rule Reference, Canonical Source).
+2. A short “When to use this guide” blurb linking back up to the relevant truth file.
 
 ## Script Truth  
 - **Git Operations**: `scripts/all-git-truth.sh` - Unified git wrapper and pre-commit hook.
@@ -16,11 +31,13 @@ enforce: true
 - **Preview**: `scripts/deploy-preview.sh` - Wrapper to deploy all modules to preview.
 - **Validation**: `scripts/validation/run-validation.sh` - Automated deployment testing suite.
 
-## Supporting Guides
-- `docs/operational-runbook.md` - Monitoring, incident response, secrets.
-- `docs/secrets-management.md` - Secret rotation, bindings, bootstrap.
-- `docs/shopify-oauth-setup.md` - OAuth configuration for App module.
-- `docs/zero-trust/support-bundle.md` - Support ticket templates.
+## Script Truth  
+- **`scripts/all-git-truth.sh`** – Unified git wrapper (pre-commit formatting/validation, markdown structure validation, credential-safe git commands). This script is the enforcement point for documentation rules (`--validate-md`).
+- **`scripts/deploy-module.sh`** – Master script for single-module deployments (respects retries/backoff and environment validation).
+- **`scripts/deploy-preview.sh`** – Orchestrates preview deployments for all modules; wraps `deploy-module.sh`.
+- **`scripts/validation/run-validation.sh`** – Automated deployment test suite (local + remote health checks).
+- **`scripts/dev-local.sh` / `scripts/dev-stop.sh`** – Sequential local server startup with health checks and cleanup.
+Each script referenced above must be documented in `docs/all-system-truth.md`’s manifest section.
 
 ## File Naming Convention (ENFORCED)
 - **Lowercase only**: no uppercase letters allowed
@@ -80,10 +97,13 @@ enforce: true
 - **Child Files**: Specific guides link UP to the domain truth file
 - **Index**: `docs/all-system-truth.md` lists all truth files
 
-### Archiving Protocol
-When deprecating a file:
-1. Move to `docs/archive/` (or `scripts/archive/`)
-2. Add redirect header with deprecation timestamp.
+### Generated Content & Archives
+- **Auto-generated reports** under `docs/reports/validation/` are exempt from header requirements but must never be committed manually. The pre-commit check unstages them automatically.
+- **Archives** (`docs/archive/**`, `scripts/archive/**`) must use the archive header template above. Each archived file has to specify the migration date and the active replacement document.
+- When deprecating a file:
+  1. Move it under `docs/archive/` (or `scripts/archive/`).
+  2. Add the archive header block with migration metadata and the pointer to the replacement truth doc.
+  3. Update the relevant truth doc to mention the archive if historical knowledge is still useful.
 
 ## Plan File Rules
 - **Location**: All new plans must be created under `docs/plans/`.
@@ -107,6 +127,12 @@ When deprecating a file:
 - **Frontmatter**: Must include `scope` and `enforce` fields
 - **Content**: Clear, actionable rules (no fluff)
 - **References**: Must link to corresponding `docs/all-<domain>-truth.md`
+
+## Governance & Drift Prevention
+- Run `bash scripts/all-git-truth.sh --pre-commit` before every commit (already wired into Husky).
+- Run `bash scripts/all-git-truth.sh --validate-md` after editing documentation to ensure filenames, headers, and references follow this MDC.
+- Files flagged by `--validate-md` must be corrected in the same change that introduced the regression.
+- Automated or temporary files (validation reports, logs) must never be staged; rely on the pre-commit script to enforce this.
 
 ## Deprecated Patterns (BANNED)
 - `one.plan.md` - never create or use

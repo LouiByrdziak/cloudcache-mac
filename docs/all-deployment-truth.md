@@ -12,6 +12,16 @@ This document is the canonical source for all deployment, preview, and verificat
 2. **No Pages**: We do not use Cloudflare Pages. All modules (App, Admin, Apex) are Workers.
 3. **Staging Previews**: We use `staging-*.cloudcache.ai` or `*-worker-preview.cloudcache.workers.dev`.
 
+## Script Reference
+
+| Script                                                          | Purpose                                                           |
+| --------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `scripts/deploy-module.sh <module> <env>`                       | Builds and deploys one module with retries and health checks.     |
+| `scripts/deploy-preview.sh` / `pnpm deploy:preview`             | Deploys all modules to preview sequentially.                      |
+| `scripts/validation/run-validation.sh` / `pnpm test:validation` | Automated validation (local + remote).                            |
+| `scripts/cloudcache test-preview <module>`                      | Targeted preview validation for a module.                         |
+| `scripts/lib/preview-urls.sh`                                   | Helper used by automation to print the current preview endpoints. |
+
 ## Deployment Procedures
 
 ### Deploy All to Preview

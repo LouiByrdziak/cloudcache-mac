@@ -1,6 +1,6 @@
 # Git Operations Truth
 
-**Last Updated**: 2025-11-17  
+**Last Updated**: 2025-11-19  
 **Rule Reference**: `.cursor/rules/all-code-truth.mdc`  
 **Script Reference**: `scripts/all-git-truth.sh`
 
@@ -34,17 +34,17 @@ The pre-commit hook (`scripts/all-git-truth.sh --pre-commit`) automatically:
 
 ### Manual Checklist
 
-Before committing complex changes:
+Before committing complex changes run:
 
 ```bash
-# 1. Format everything
-pnpm exec prettier --write .
+# Format & lint staged changes (same as hook)
+bash scripts/all-git-truth.sh --pre-commit
 
-# 2. Validate shell scripts
-bash scripts/all-git-truth.sh --validate-sh
-
-# 3. Check MD structure
+# Validate documentation headers/naming
 bash scripts/all-git-truth.sh --validate-md docs/my-new-file.md
+
+# Run targeted git commands without credential helper issues
+bash scripts/all-git-truth.sh --git-safe status
 ```
 
 ## Troubleshooting
@@ -186,12 +186,11 @@ When deprecating an MD file:
 Run automated checks:
 
 ```bash
-# Validate specific file
+# Validate one file
 bash scripts/all-git-truth.sh --validate-md docs/your-file.md
 
-# Validate all docs (in CI)
-find docs -name "*.md" -not -path "*/archive/*" | \
-  xargs -I {} bash scripts/all-git-truth.sh --validate-md {}
+# Validate all docs (skips archives/reports)
+bash scripts/all-git-truth.sh --validate-md
 ```
 
 Validator checks:

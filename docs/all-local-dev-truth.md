@@ -22,29 +22,16 @@ Local development uses **remote bindings** to fetch secrets from Cloudflare, eli
 
 ## Running Workers Locally
 
-### APP Module
-```bash
-pnpm dev:app
-# or
-cd apps/app && pnpm dev
-```
-Runs on port **8789**.
+| Module | Root Command     | Module Command              | Port |
+| ------ | ---------------- | --------------------------- | ---- |
+| APP    | `pnpm dev:app`   | `cd apps/app && pnpm dev`   | 8789 |
+| ADMIN  | `pnpm dev:admin` | `cd apps/admin && pnpm dev` | 8787 |
+| APEX   | `pnpm dev:apex`  | `cd apps/apex && pnpm dev`  | 8788 |
 
-### ADMIN Module
-```bash
-pnpm dev:admin
-# or
-cd apps/admin && pnpm dev
-```
-Runs on port **8787**.
-
-### APEX Module
-```bash
-pnpm dev:apex
-# or
-cd apps/apex && pnpm dev
-```
-Runs on port **8788**.
+> **Start/stop helpers**
+>
+> - `bash scripts/dev-local.sh` builds all modules, clears stale ports, and starts servers sequentially with health checks.
+> - `bash scripts/dev-stop.sh` stops every dev server (or press `Ctrl+C` inside the `dev-local.sh` terminal).
 
 ## Remote Bindings Configuration
 
@@ -56,6 +43,7 @@ remote = true
 ```
 
 This tells Wrangler to:
+
 - Fetch secrets from Cloudflare (not local files)
 - Use remote Workers runtime for accurate testing
 - Avoid exposing secrets locally
@@ -63,7 +51,9 @@ This tells Wrangler to:
 ## Environment Variables
 
 ### Required for Local Dev
+
 Only these config values are needed locally (can be in `.env`):
+
 - `CF_API_TOKEN`: For Wrangler CLI operations
 - `CF_ACCOUNT_ID`: For Wrangler CLI operations
 - `CF_ZONE_ID`: For DNS/routing operations (if needed)
@@ -71,11 +61,13 @@ Only these config values are needed locally (can be in `.env`):
 **Note**: Runtime secrets (`SHOPIFY_API_KEY`, `CF_ACCESS_CLIENT_ID`, etc.) are **not** needed locally - they're fetched from Cloudflare.
 
 ### Optional Local Config
+
 You can create `.env.local` for local-only overrides (not committed).
 
 ## Testing
 
 ### Unit Tests
+
 ```bash
 # Run tests for a specific module
 pnpm --filter @cloudcache/app test
@@ -85,9 +77,11 @@ pnpm test
 ```
 
 ### Integration Tests
+
 Use Miniflare for local integration testing (see `packages/test-utils`).
 
 ### Manual Testing
+
 1. Start local dev server: `pnpm dev:app`
 2. Make requests: `curl http://localhost:8789/healthz`
 3. Check logs in terminal
@@ -95,9 +89,11 @@ Use Miniflare for local integration testing (see `packages/test-utils`).
 ## Troubleshooting & Quick Edits
 
 ### Updating Worker HTML Content
+
 When editing HTML content in Cloudflare Workers (wrangler dev), changes may not appear immediately due to caching.
 
 **Solution Process:**
+
 1. **Verify File Change**: Check `src/index.ts`.
 2. **Clear Cache**: `rm -rf .wrangler` in the module directory.
 3. **Restart Dev Server**:
@@ -108,6 +104,7 @@ When editing HTML content in Cloudflare Workers (wrangler dev), changes may not 
 4. **Hard Refresh**: Cmd+Shift+R in browser.
 
 **Prevention**: Add cache-control headers to responses.
+
 ```typescript
 return new Response(html, {
   headers: {
@@ -120,15 +117,18 @@ return new Response(html, {
 ### Common Issues
 
 **"Missing environment variable"**
+
 - Run `scripts/cloudcache verify` to check secrets
 - Ensure you're authenticated: `wrangler login`
 - Check `wrangler.toml` has `[dev] remote = true`
 
 **"Worker not found"**
+
 - Run `scripts/cloudcache bootstrap` to create infrastructure
 - Verify Worker name matches `wrangler.toml`
 
 **"Authentication failed"**
+
 - Run `wrangler login` to re-authenticate
 - Check `CF_API_TOKEN` is set (for CLI operations)
 
