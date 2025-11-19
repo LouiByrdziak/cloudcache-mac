@@ -35,24 +35,27 @@ bash scripts/deploy-module.sh <module> <environment>
 
 The following URLs have been manually verified to be correct and functional after a successful deployment:
 
-| Module | Verified Preview URL | Status | Notes |
-| :--- | :--- | :--- | :--- |
-| `app` | `https://app-worker-preview.cloudcache.workers.dev` | ✅ Verified | Displays "I love Cloudcache APP" message and validation badge. |
+| Module  | Verified Preview URL                                  | Status      | Notes                                                            |
+| :------ | :---------------------------------------------------- | :---------- | :--------------------------------------------------------------- |
+| `app`   | `https://app-worker-preview.cloudcache.workers.dev`   | ✅ Verified | Displays "I love Cloudcache APP" message and validation badge.   |
 | `admin` | `https://admin-worker-preview.cloudcache.workers.dev` | ✅ Verified | Displays "I love Cloudcache ADMIN" message and validation badge. |
-| `apex` | `https://apex-worker-preview.cloudcache.workers.dev` | ✅ Verified | Displays the main dashboard and validation badge. |
+| `apex`  | `https://apex-worker-preview.cloudcache.workers.dev`  | ✅ Verified | Displays the main dashboard and validation badge.                |
 
 ### Health Endpoints
 
 **APP Module**
+
 - Health: `https://app-worker-preview.cloudcache.workers.dev/healthz`
 - Ready: `https://app-worker-preview.cloudcache.workers.dev/readyz`
 - Ping: `https://app-worker-preview.cloudcache.workers.dev/api/v1/ping`
 
 **ADMIN Module**
+
 - Health: `https://admin-worker-preview.cloudcache.workers.dev/healthz`
 - Ready: `https://admin-worker-preview.cloudcache.workers.dev/readyz`
 
 **APEX Module**
+
 - Health: `https://apex-worker-preview.cloudcache.workers.dev/healthz`
 - Ready: `https://apex-worker-preview.cloudcache.workers.dev/readyz`
 
@@ -73,6 +76,7 @@ scripts/cloudcache test-preview apex
 ```
 
 **What this does automatically:**
+
 - ✅ Verifies the preview URL is accessible
 - ✅ Tests `/healthz` endpoint
 - ✅ Tests `/readyz` endpoint
@@ -104,17 +108,19 @@ If you want to **visually see** the green markers in your browser:
 ## Troubleshooting
 
 ### "Preview URL not found"
+
 - **Verify deployment**: `wrangler deployments list --env preview`
 - **Check URL**: Ensure you are using the `*-worker-preview.cloudcache.workers.dev` format.
 
 ### "Health check failed"
+
 1. Verify deployment completed: `scripts/cloudcache status {module} preview`
 2. Check secrets are set: `scripts/cloudcache verify {module} preview`
 3. Check Worker logs: `wrangler tail --env preview`
 
 ### "Visual marker not visible"
+
 1. Clear browser cache (Cmd+Shift+R / Ctrl+Shift+R)
 2. Verify deployment includes latest code
 3. Check HTML source for `.validation-marker` class
 4. Verify CSS is loading (check browser DevTools)
-

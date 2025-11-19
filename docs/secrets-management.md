@@ -87,7 +87,6 @@ wrangler secret put SHOPIFY_API_KEY --name app-worker --env staging
 wrangler secret list --name app-worker --env staging
 ```
 
-
 ## Local Development
 
 ### Workers
@@ -100,7 +99,6 @@ pnpm dev  # Uses wrangler dev --remote automatically
 ```
 
 No `.dev.vars` file needed - secrets are fetched from Cloudflare.
-
 
 ## Break-Glass Procedures
 

@@ -20,13 +20,13 @@ This document contains the "Golden Path" for all pipeline activities and is the 
 
 ## Project Structure
 
--   `apps/`: Contains the source code for each of our three main modules:
-    -   `app`: The main customer-facing application.
--   `admin`: The internal administration dashboard.
--   `apex`: The primary marketing and landing page.
--   `packages/`: Shared libraries and utilities used across the monorepo.
--   `scripts/`: Contains all operational scripts for deployment, validation, etc.
--   `docs/`: All project documentation, including our System of Record.
+- `apps/`: Contains the source code for each of our three main modules:
+  - `app`: The main customer-facing application.
+- `admin`: The internal administration dashboard.
+- `apex`: The primary marketing and landing page.
+- `packages/`: Shared libraries and utilities used across the monorepo.
+- `scripts/`: Contains all operational scripts for deployment, validation, etc.
+- `docs/`: All project documentation, including our System of Record.
 
 ## Development
 
