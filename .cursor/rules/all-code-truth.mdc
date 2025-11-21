@@ -26,18 +26,13 @@ Every supporting guide must include:
 2. A short “When to use this guide” blurb linking back up to the relevant truth file.
 
 ## Script Truth  
-- **Git Operations**: `scripts/all-git-truth.sh` - Unified git wrapper and pre-commit hook.
-- **Deployment**: `scripts/deploy-module.sh` - Master script for single-module deployment.
-- **Preview**: `scripts/deploy-preview.sh` - Wrapper to deploy all modules to preview.
-- **Validation**: `scripts/validation/run-validation.sh` - Automated deployment testing suite.
-
-## Script Truth  
 - **`scripts/all-git-truth.sh`** – Unified git wrapper (pre-commit formatting/validation, markdown structure validation, credential-safe git commands). This script is the enforcement point for documentation rules (`--validate-md`).
-- **`scripts/deploy-module.sh`** – Master script for single-module deployments (respects retries/backoff and environment validation).
-- **`scripts/deploy-preview.sh`** – Orchestrates preview deployments for all modules; wraps `deploy-module.sh`.
-- **`scripts/validation/run-validation.sh`** – Automated deployment test suite (local + remote health checks).
-- **`scripts/dev-local.sh` / `scripts/dev-stop.sh`** – Sequential local server startup with health checks and cleanup.
-Each script referenced above must be documented in `docs/all-system-truth.md`’s manifest section.
+- **`scripts/deploy-module.sh`** – Master script for single-module deployments with 5-attempt retry logic and exponential backoff (5s, 10s, 20s, 40s). Handles transient Cloudflare API failures gracefully.
+- **`scripts/deploy-preview.sh`** – Orchestrates preview deployments for all modules sequentially with 5-second API settling pauses between deployments. Wraps `deploy-module.sh`.
+- **`scripts/validation/run-validation.sh`** – Automated deployment test suite (local + remote health checks). Validates 12 deployment targets (3 modules × 2 environments × 2 checks = 24 total checks).
+- **`scripts/dev-local.sh` / `scripts/dev-stop.sh`** – Sequential local server startup with health checks and graceful cleanup.
+
+Each script referenced above must be documented in `docs/all-system-truth.md`'s manifest section.
 
 ## File Naming Convention (ENFORCED)
 - **Lowercase only**: no uppercase letters allowed
@@ -134,9 +129,19 @@ Each script referenced above must be documented in `docs/all-system-truth.md`’
 - Files flagged by `--validate-md` must be corrected in the same change that introduced the regression.
 - Automated or temporary files (validation reports, logs) must never be staged; rely on the pre-commit script to enforce this.
 
+## Deployment Resilience Patterns (ENFORCED)
+- **Non-Interactive Mode**: All deployment scripts MUST set `CI=true` and `WRANGLER_SEND_METRICS=false` to disable interactive prompts.
+- **Retry Logic**: All deployment scripts must retry failed operations 5 times with exponential backoff (5s → 10s → 20s → 40s).
+- **API Settling**: Sequential deployments must pause 5 seconds between modules to allow Cloudflare API propagation.
+- **Bundle Sizes**: Expected sizes documented in `docs/all-deployment-truth.md`. Monitor for unexpected growth (>20% increase signals review needed).
+- **Health Validation**: Every deployment must verify `/healthz` endpoint returns version hash before considering deployment successful.
+- **Transient Failures**: "fetch failed" errors during deployment are expected and handled by retry logic. Document all new error patterns in deployment truth.
+- **No User Interaction**: Deployment scripts must NEVER require user input. All prompts must be disabled.
+
 ## Deprecated Patterns (BANNED)
 - `one.plan.md` - never create or use
 - Uppercase in filenames - convert to lowercase
 - Underscore separators - convert to hyphens (except DB migrations)
 - Multiple truth files per domain - consolidate to one
 - **Pages.dev**: Do not introduce `pages.dev` references or `wrangler pages` commands. Prefer staging subdomains (`staging-apex|app|admin.cloudcache.ai`).
+- **Deployment without retries**: Never call `wrangler deploy` directly. Always use `scripts/deploy-module.sh` which handles transient failures.
