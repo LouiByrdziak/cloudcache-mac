@@ -12,7 +12,13 @@ import {
   createJSONResponse,
 } from "@cloudcache/platform-http";
 import { renderPage } from "./templates/page";
-import { NAV_ITEMS, PAGE_CONFIGS, getPageConfig, getAllToggleConfigs, type ToggleConfig } from "./config/pages";
+import {
+  NAV_ITEMS,
+  PAGE_CONFIGS,
+  getPageConfig,
+  getAllToggleConfigs,
+  type ToggleConfig,
+} from "./config/pages";
 
 declare const __VERSION__: string;
 
@@ -36,7 +42,7 @@ async function getSettingState(
   logger: ReturnType<typeof createLoggerFromRequest>
 ): Promise<boolean> {
   const kvKey = `${SETTINGS_KV_PREFIX}${settingId}`;
-  
+
   // 1. Try to get from KV first
   try {
     const kvState = await kv.get(kvKey);
@@ -49,39 +55,42 @@ async function getSettingState(
   // 2. If not in KV, fetch from Cloudflare API
   logger.info(`${settingId} state not in KV, fetching from API`);
   let apiStateEnabled = false;
-  
+
   try {
     const cfApiUrl = `https://api.cloudflare.com/client/v4/zones/${env.CF_ZONE_ID}/settings/${cfSettingName}`;
     const cfResponse = await fetch(cfApiUrl, {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${env.CF_API_TOKEN}`,
+        Authorization: `Bearer ${env.CF_API_TOKEN}`,
         "Content-Type": "application/json",
       },
     });
 
     if (cfResponse.ok) {
-      const data = await cfResponse.json() as { success: boolean; result: CFSettingValue };
+      const data = (await cfResponse.json()) as { success: boolean; result: CFSettingValue };
       if (data.success && data.result) {
         const value = data.result.value;
-        
+
         // Handle different value types
         if (typeof value === "string") {
-          apiStateEnabled = value === "on" || value === "under_attack" || value === "aggressive" || value === "1.2";
+          apiStateEnabled =
+            value === "on" || value === "under_attack" || value === "aggressive" || value === "1.2";
         } else if (typeof value === "boolean") {
           apiStateEnabled = value;
         } else if (typeof value === "object" && value !== null) {
           // For minify settings which have {css, html, js}
-          apiStateEnabled = Object.values(value).some(v => v === "on");
+          apiStateEnabled = Object.values(value).some((v) => v === "on");
         }
-        
+
         logger.info(`Fetched ${settingId} state from API`, { enabled: apiStateEnabled });
-        
+
         // 3. Store in KV for next time
         await kv.put(kvKey, apiStateEnabled ? "on" : "off");
       }
     } else {
-      logger.error(`Failed to fetch ${settingId} state from Cloudflare API`, { status: cfResponse.status });
+      logger.error(`Failed to fetch ${settingId} state from Cloudflare API`, {
+        status: cfResponse.status,
+      });
     }
   } catch (apiError) {
     logger.error(`Error calling Cloudflare API for ${settingId} state`, { error: apiError });
@@ -101,7 +110,7 @@ async function getPageSettingsStates(
   if (!pageConfig) return {};
 
   const states: Record<string, boolean> = {};
-  
+
   // Fetch all toggle states in parallel
   const promises = pageConfig.toggles.map(async (toggle) => {
     const enabled = await getSettingState(toggle.id, toggle.cfSettingName, env, kv, logger);
@@ -293,7 +302,7 @@ async function handleSettingToggle(
   // Find the toggle config
   const allConfigs = getAllToggleConfigs();
   const toggleConfig = allConfigs.get(settingId);
-  
+
   if (!toggleConfig) {
     return createErrorResponse(
       "INVALID_SETTING",
@@ -344,10 +353,10 @@ async function handleSettingToggle(
     }
 
     const enabled = body.enabled;
-    
+
     // Build the API value based on toggle config
     let apiValue: string | number | boolean | object;
-    
+
     switch (toggleConfig.valueType) {
       case "on_off":
         apiValue = enabled ? "on" : "off";
@@ -385,20 +394,24 @@ async function handleSettingToggle(
 
     // Toggle setting via Cloudflare API
     const cfApiUrl = `https://api.cloudflare.com/client/v4/zones/${env.CF_ZONE_ID}/settings/${cfSettingName}`;
-    
+
     logger.info("Calling Cloudflare API", { url: cfApiUrl, settingId, enabled, apiValue });
-    
+
     const cfResponse = await fetch(cfApiUrl, {
       method: "PATCH",
       headers: {
-        "Authorization": `Bearer ${env.CF_API_TOKEN}`,
+        Authorization: `Bearer ${env.CF_API_TOKEN}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ value: apiValue }),
     });
 
     const responseText = await cfResponse.text();
-    let cfData: { success?: boolean; errors?: Array<{ message?: string; code?: string }>; message?: string };
+    let cfData: {
+      success?: boolean;
+      errors?: Array<{ message?: string; code?: string }>;
+      message?: string;
+    };
     try {
       cfData = JSON.parse(responseText);
     } catch {
@@ -411,10 +424,11 @@ async function handleSettingToggle(
         statusText: cfResponse.statusText,
         error: cfData,
       });
-      
-      const errorMessage = cfData.errors && Array.isArray(cfData.errors) && cfData.errors.length > 0
-        ? cfData.errors.map((e) => e.message || e.code).join("; ")
-        : cfData.message || `Cloudflare API returned ${cfResponse.status}`;
+
+      const errorMessage =
+        cfData.errors && Array.isArray(cfData.errors) && cfData.errors.length > 0
+          ? cfData.errors.map((e) => e.message || e.code).join("; ")
+          : cfData.message || `Cloudflare API returned ${cfResponse.status}`;
 
       return createErrorResponse(
         "CLOUDFLARE_API_ERROR",
@@ -447,7 +461,7 @@ async function handleSettingToggle(
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error(`Error toggling ${settingId}`, { 
+    logger.error(`Error toggling ${settingId}`, {
       error: errorMessage,
       stack: error instanceof Error ? error.stack : undefined,
     });
