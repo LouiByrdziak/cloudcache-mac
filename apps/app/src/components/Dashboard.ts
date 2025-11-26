@@ -3,6 +3,7 @@ import { ToggleSection, type Optimization } from './ToggleSection';
 export interface DashboardProps {
   content?: string;
   title?: string;
+  subtitle?: string;
   storeName?: string;
   planName?: string;
   connectButtonText?: string;
@@ -13,6 +14,7 @@ export function Dashboard(props: DashboardProps = {}): string {
   const { 
     content,
     title,
+    subtitle,
     storeName,
     planName,
     connectButtonText,
@@ -38,12 +40,19 @@ export function Dashboard(props: DashboardProps = {}): string {
       .replace(/'/g, '&#039;');
   };
 
-  // Otherwise build from props
-  const parts: string[] = [];
-  
-  if (title) {
-    parts.push(`<h1>${escapeHtml(title)}</h1>`);
+  // Build page header
+  let headerHtml = '';
+  if (title || subtitle) {
+    headerHtml = `
+      <div class="page-header">
+        ${title ? `<h1 class="page-title">${escapeHtml(title)}</h1>` : ''}
+        ${subtitle ? `<p class="page-subtitle">${escapeHtml(subtitle)}</p>` : ''}
+      </div>
+    `;
   }
+
+  // Build other parts
+  const parts: string[] = [];
   
   if (storeName) {
     parts.push(`<div class="store-info">Store: ${escapeHtml(storeName)}</div>`);
@@ -61,6 +70,7 @@ export function Dashboard(props: DashboardProps = {}): string {
   
   return `
     <div class="container">
+      ${headerHtml}
       ${parts.join('')}
       ${toggleSection}
     </div>

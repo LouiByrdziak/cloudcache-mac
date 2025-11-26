@@ -12,6 +12,7 @@ export interface PageProps {
   navItems?: NavItem[];
   dashboardContent?: string;
   dashboardTitle?: string;
+  dashboardSubtitle?: string;
   storeName?: string;
   planName?: string;
   connectButtonText?: string;
@@ -39,6 +40,7 @@ export function renderPage(props: PageProps = {}): string {
     navItems = [],
     dashboardContent,
     dashboardTitle,
+    dashboardSubtitle,
     storeName,
     planName,
     connectButtonText,
@@ -95,6 +97,7 @@ export function renderPage(props: PageProps = {}): string {
     } else {
       dashboardHtml = Dashboard({
         title: dashboardTitle,
+        subtitle: dashboardSubtitle,
         storeName,
         planName,
         connectButtonText,
@@ -128,7 +131,38 @@ export function renderPage(props: PageProps = {}): string {
   ${navHtml}
   ${dashboardHtml}
   ${footerHtml}
+  
+  <!-- Theme Toggle - Bottom Right -->
+  <div class="theme-toggle">
+    <label class="toggle-container">
+      <input type="checkbox" class="toggle-input" id="theme-toggle-input">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  
   <script>
+    // Theme toggle functionality
+    (function() {
+      const themeToggle = document.getElementById('theme-toggle-input');
+      const savedTheme = localStorage.getItem('cloudcache-theme');
+      
+      // Apply saved theme on load
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        themeToggle.checked = true;
+      }
+      
+      themeToggle.addEventListener('change', function() {
+        if (this.checked) {
+          document.body.classList.add('light-theme');
+          localStorage.setItem('cloudcache-theme', 'light');
+        } else {
+          document.body.classList.remove('light-theme');
+          localStorage.setItem('cloudcache-theme', 'dark');
+        }
+      });
+    })();
+    
     // Handle optimization toggle switches
     document.addEventListener('DOMContentLoaded', function() {
       const toggleInputs = document.querySelectorAll('.toggle-input[data-optimization-id]');

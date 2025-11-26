@@ -117,15 +117,52 @@ export default {
 
       const html = renderPage({
         faviconBase64: FAVICON_BASE64,
-        dashboardTitle: "Cloudcache Dashboard",
-        storeName: "Your Store",
-        planName: "Free Plan",
+        dashboardTitle: "Quick Switches",
+        dashboardSubtitle: "Toggle Cloudflare performance and security features with one click.",
+        activeNavItem: "quick-switches",
+        navItems: [
+          { id: "quick-switches", text: "Quick Switches", icon: "⚡", href: "/", subtext: "Performance & Speed" },
+          { id: "security", text: "Security", icon: "🛡️", href: "#", subtext: "Protection Rules" },
+          { id: "caching", text: "Caching", icon: "💾", href: "#", subtext: "Cache Rules" },
+          { id: "analytics", text: "Analytics", icon: "📊", href: "#", subtext: "Traffic Insights" },
+          { id: "settings", text: "Settings", icon: "⚙️", href: "#", subtext: "Configuration" },
+        ],
         optimizations: [
           {
             id: "rocket-loader",
-            title: "Rocket Loader™",
-            description: "Improve paint times for pages that include JavaScript.",
+            title: "Rocket Loader",
+            description: "Improve paint times for pages that include JavaScript by deferring their loading until after rendering.",
             enabled: rocketLoaderEnabled,
+          },
+          {
+            id: "auto-minify",
+            title: "Auto Minify",
+            description: "Reduce file sizes by removing unnecessary characters from HTML, CSS, and JavaScript files.",
+            enabled: false,
+          },
+          {
+            id: "browser-cache-ttl",
+            title: "Browser Cache TTL",
+            description: "Control how long browsers cache static resources to reduce repeat load times.",
+            enabled: false,
+          },
+          {
+            id: "always-https",
+            title: "Always Use HTTPS",
+            description: "Redirect all HTTP requests to HTTPS for improved security and SEO.",
+            enabled: false,
+          },
+          {
+            id: "email-obfuscation",
+            title: "Email Obfuscation",
+            description: "Protect email addresses on your site from bots and scrapers.",
+            enabled: false,
+          },
+          {
+            id: "hotlink-protection",
+            title: "Hotlink Protection",
+            description: "Prevent other websites from linking directly to your images and consuming bandwidth.",
+            enabled: false,
           },
         ],
         footer: {
