@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloudcache Performance - Version 2</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      /* Dark theme (default) */
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #080808;
+      --bg-card: #0f0f0f;
+      --bg-card-hover: #141414;
+      --bg-panel: #111111;
+      --border-color: #1a1a1a;
+      --border-card: #1f1f1f;
+      --border-card-hover: #2a2a2a;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --text-description: #888888;
+      --shadow-color: rgba(0, 0, 0, 0.5);
+      
+      /* Accent colors (stay same in both themes) */
+      --accent-primary: #F48120;
+      --accent-glow: rgba(244, 129, 32, 0.3);
+      --accent-light: rgba(244, 129, 32, 0.15);
+      --success-color: #22c55e;
+      --error-color: #ef4444;
+      --warning-color: #eab308;
+      
+      /* Toggle colors */
+      --toggle-off-bg: #2a2a2a;
+      --toggle-off-border: #3a3a3a;
+      --toggle-knob: #ffffff;
+      --toggle-knob-on: #000000;
+    }
+    
+    /* Light theme */
+    body.light-theme {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #fafafa;
+      --bg-panel: #ffffff;
+      --border-color: #e5e5e5;
+      --border-card: #e0e0e0;
+      --border-card-hover: #d0d0d0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #4a4a4a;
+      --text-muted: #6a6a6a;
+      --text-description: #5a5a5a;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --toggle-off-bg: #d0d0d0;
+      --toggle-off-border: #c0c0c0;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--bg-primary);
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text-primary);
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 32px;
+    }
+    
+    /* Page Header */
+    .page-header {
+      margin-bottom: 48px;
+    }
+    .page-title {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -1.5px;
+      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .page-subtitle {
+      color: var(--text-muted);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    /* Version badge */
+    .version-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: var(--accent-primary);
+      color: #000;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ===== TOGGLE LIST ===== */
+    .toggle-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Toggle Item */
+    .toggle-item {
+      background: var(--bg-card);
+      border-radius: 20px;
+      border: 1px solid var(--border-card);
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: default;
+    }
+    .toggle-item:hover {
+      border-color: var(--border-card-hover);
+      background: var(--bg-card-hover);
+      transform: translateX(4px);
+    }
+    .toggle-item.active {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    /* Feature Icon */
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--accent-light), transparent);
+      border: 1px solid var(--accent-primary);
+      border-radius: 14px;
+      color: var(--accent-primary);
+      font-size: 24px;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+    .toggle-item:hover .feature-icon,
+    .toggle-item.active .feature-icon {
+      background: var(--accent-primary);
+      color: #000;
+      transform: scale(1.1) rotate(-5deg);
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+
+    /* Content */
+    .toggle-content {
+      flex: 1;
+    }
+    .toggle-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+      transition: color 0.3s ease;
+    }
+    .toggle-description {
+      font-size: 14px;
+      color: var(--text-description);
+      line-height: 1.5;
+      transition: color 0.3s ease;
+    }
+
+    /* Learn More Button */
+    .learn-more-btn {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 2px solid var(--border-card);
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+    .learn-more-btn:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      transform: scale(1.1);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .toggle-item.active .learn-more-btn {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #000;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 68px;
+      height: 38px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--toggle-off-bg);
+      border: 2px solid var(--toggle-off-border);
+      border-radius: 38px;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .toggle-slider::before {
+      content: "";
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      left: 3px;
+      bottom: 3px;
+      background: var(--toggle-knob);
+      border-radius: 50%;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 24px var(--accent-glow);
+    }
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(30px);
+      background: var(--toggle-knob-on);
+    }
+
+    /* ===== THEME TOGGLE (Special bottom item) ===== */
+    .theme-toggle-item {
+      margin-top: 8px;
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+      border-style: dashed;
+    }
+    .theme-toggle-item .feature-icon {
+      background: linear-gradient(135deg, #1a1a1a, #333);
+      border-color: var(--border-card-hover);
+      font-size: 20px;
+    }
+    body.light-theme .theme-toggle-item .feature-icon {
+      background: linear-gradient(135deg, #fff, #f0f0f0);
+    }
+    .theme-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ===== SLIDE-OUT PANEL ===== */
+    .panel-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+      z-index: 1000;
+    }
+    .panel-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .slide-panel {
+      position: fixed;
+      top: 0;
+      right: -600px;
+      width: 580px;
+      max-width: 95vw;
+      height: 100vh;
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border-color);
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: -20px 0 60px var(--shadow-color);
+    }
+    .slide-panel.active {
+      right: 0;
+    }
+
+    /* Panel Header */
+    .panel-header {
+      padding: 24px 28px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: linear-gradient(135deg, var(--accent-light), transparent);
+    }
+    .panel-icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-primary);
+      border-radius: 12px;
+      font-size: 24px;
+    }
+    .panel-title {
+      flex: 1;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .panel-close {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .panel-close:hover {
+      background: var(--error-color);
+      border-color: var(--error-color);
+      color: #fff;
+    }
+
+    /* Panel Content - Side by Side */
+    .panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px;
+    }
+    
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      min-height: 100%;
+    }
+    
+    @media (max-width: 560px) {
+      .panel-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Column - Description */
+    .panel-description {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .panel-description h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .panel-description p {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+    .panel-description strong {
+      color: var(--text-primary);
+    }
+    .panel-description em {
+      color: var(--accent-primary);
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .magic-box {
+      background: linear-gradient(135deg, var(--accent-light), transparent);
+      border: 1px solid var(--accent-primary);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: auto;
+    }
+    .magic-box-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-primary);
+      margin-bottom: 8px;
+    }
+    .magic-box p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    /* Right Column - Visualization */
+    .panel-visualization {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .viz-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    /* ===== ROCKET LOADER VISUALIZATION ===== */
+    .rocket-viz {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Animated Browser Window */
+    .browser-window {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .browser-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .browser-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .browser-dots span {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .browser-dots span:nth-child(1) { background: #ef4444; }
+    .browser-dots span:nth-child(2) { background: #eab308; }
+    .browser-dots span:nth-child(3) { background: #22c55e; }
+    .browser-url {
+      flex: 1;
+      background: var(--bg-secondary);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+    .browser-body {
+      padding: 16px;
+      min-height: 140px;
+      position: relative;
+    }
+
+    /* Content Loading Animation */
+    .content-skeleton {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .skeleton-block {
+      border-radius: 6px;
+      background: var(--border-card);
+      position: relative;
+      overflow: hidden;
+    }
+    .skeleton-block::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      animation: shimmer 1.5s infinite;
+    }
+    .skeleton-header {
+      width: 40%;
+      height: 20px;
+      background: var(--accent-primary);
+    }
+    .skeleton-header::after { display: none; }
+    .skeleton-nav { width: 70%; height: 12px; }
+    .skeleton-hero { width: 100%; height: 50px; }
+    .skeleton-text { width: 85%; height: 10px; }
+    .skeleton-text-short { width: 60%; height: 10px; }
+
+    /* Rocket Animation Overlay */
+    .rocket-overlay {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      animation: rocketLaunch 3s ease-in-out infinite;
+    }
+    .rocket-emoji {
+      font-size: 32px;
+      filter: drop-shadow(0 4px 12px var(--accent-glow));
+    }
+    .rocket-trail {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 30px;
+      background: linear-gradient(to bottom, var(--accent-primary), transparent);
+      border-radius: 4px;
+      animation: trailPulse 0.3s ease-in-out infinite;
+    }
+
+    /* Status Indicator */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid var(--success-color);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--success-color);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success-color);
+      border-radius: 50%;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    /* Timeline Comparison */
+    .timeline-comparison {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .timeline-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .timeline-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .timeline-bar {
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+    .timeline-segment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: #fff;
+      transition: all 0.5s ease;
+    }
+    
+    /* Without Rocket Loader */
+    .timeline-without .js-segment {
+      width: 70%;
+      background: linear-gradient(90deg, #dc2626, #ef4444);
+      animation: segmentPulse 2s ease-in-out infinite;
+    }
+    .timeline-without .content-segment {
+      width: 30%;
+      background: var(--border-card);
+      color: var(--text-muted);
+    }
+    
+    /* With Rocket Loader */
+    .timeline-with .content-segment {
+      width: 25%;
+      background: linear-gradient(90deg, var(--accent-primary), #ff9a3c);
+      animation: segmentGlow 1.5s ease-in-out infinite;
+    }
+    .timeline-with .js-segment {
+      width: 75%;
+      background: rgba(244, 129, 32, 0.2);
+      color: var(--accent-primary);
+      font-style: italic;
+    }
+
+    .timeline-time {
+      font-size: 12px;
+      font-weight: 700;
+      text-align: right;
+      margin-top: 4px;
+    }
+    .timeline-without .timeline-time { color: var(--error-color); }
+    .timeline-with .timeline-time { color: var(--success-color); }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent-primary);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    @keyframes rocketLaunch {
+      0%, 100% { 
+        transform: translateY(0) rotate(-45deg); 
+        opacity: 1;
+      }
+      50% { 
+        transform: translateY(-15px) rotate(-45deg); 
+        opacity: 0.8;
+      }
+    }
+    
+    @keyframes trailPulse {
+      0%, 100% { opacity: 0.5; height: 25px; }
+      50% { opacity: 1; height: 35px; }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    
+    @keyframes segmentPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    @keyframes segmentGlow {
+      0%, 100% { box-shadow: 0 0 10px var(--accent-glow); }
+      50% { box-shadow: 0 0 25px var(--accent-glow); }
+    }
+
+    @keyframes floatIn {
+      from { 
+        opacity: 0; 
+        transform: translateX(30px); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateX(0); 
+      }
+    }
+    
+    .slide-panel.active .panel-description > * {
+      animation: floatIn 0.5s ease-out backwards;
+    }
+    .slide-panel.active .panel-description > *:nth-child(1) { animation-delay: 0.1s; }
+    .slide-panel.active .panel-description > *:nth-child(2) { animation-delay: 0.2s; }
+    .slide-panel.active .panel-description > *:nth-child(3) { animation-delay: 0.3s; }
+    .slide-panel.active .panel-description > *:nth-child(4) { animation-delay: 0.4s; }
+    
+    .slide-panel.active .panel-visualization > * {
+      animation: floatIn 0.5s ease-out backwards;
+    }
+    .slide-panel.active .panel-visualization > *:nth-child(1) { animation-delay: 0.2s; }
+    .slide-panel.active .panel-visualization > *:nth-child(2) { animation-delay: 0.3s; }
+    .slide-panel.active .panel-visualization > *:nth-child(3) { animation-delay: 0.4s; }
+    .slide-panel.active .panel-visualization > *:nth-child(4) { animation-delay: 0.5s; }
+
+    /* Focus states for accessibility */
+    .learn-more-btn:focus,
+    .panel-close:focus,
+    .toggle-switch input:focus + .toggle-slider {
+      outline: 2px solid var(--accent-primary);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="version-badge">Version 2 — Slide Panel</span>
+    
+    <div class="page-header">
+      <h1 class="page-title">⚡ Performance</h1>
+      <p class="page-subtitle">Optimize your site's speed and loading times with these Cloudflare settings.</p>
+    </div>
+
+    <div class="toggle-list">
+      <!-- Rocket Loader -->
+      <div class="toggle-item" data-panel="rocket-loader">
+        <div class="feature-icon">🚀</div>
+        <div class="toggle-content">
+          <div class="toggle-title">Rocket Loader</div>
+          <div class="toggle-description">Improve paint times for pages that include JavaScript by deferring their loading until after rendering.</div>
+        </div>
+        <button class="learn-more-btn" aria-label="Learn more about Rocket Loader">❓</button>
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Placeholder toggles (not interactive yet) -->
+      <div class="toggle-item" style="opacity: 0.5;">
+        <div class="feature-icon">📦</div>
+        <div class="toggle-content">
+          <div class="toggle-title">Minify JavaScript</div>
+          <div class="toggle-description">Reduce JavaScript file sizes by removing unnecessary characters and whitespace.</div>
+        </div>
+        <button class="learn-more-btn" disabled>❓</button>
+        <label class="toggle-switch">
+          <input type="checkbox">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-item" style="opacity: 0.5;">
+        <div class="feature-icon">🎨</div>
+        <div class="toggle-content">
+          <div class="toggle-title">Minify CSS</div>
+          <div class="toggle-description">Reduce CSS file sizes by removing unnecessary characters and whitespace.</div>
+        </div>
+        <button class="learn-more-btn" disabled>❓</button>
+        <label class="toggle-switch">
+          <input type="checkbox">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-item" style="opacity: 0.5;">
+        <div class="feature-icon">🗜️</div>
+        <div class="toggle-content">
+          <div class="toggle-title">Brotli Compression</div>
+          <div class="toggle-description">Enable Brotli compression to reduce file sizes and improve load times.</div>
+        </div>
+        <button class="learn-more-btn" disabled>❓</button>
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-item" style="opacity: 0.5;">
+        <div class="feature-icon">⏰</div>
+        <div class="toggle-content">
+          <div class="toggle-title">Early Hints</div>
+          <div class="toggle-description">Send 103 Early Hints responses to preload resources before the main response arrives.</div>
+        </div>
+        <button class="learn-more-btn" disabled>❓</button>
+        <label class="toggle-switch">
+          <input type="checkbox">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Theme Toggle -->
+      <div class="toggle-item theme-toggle-item">
+        <div class="feature-icon">🌓</div>
+        <div class="toggle-content">
+          <div class="toggle-title">Dashboard Theme</div>
+          <div class="toggle-description">Switch between dark and light mode for the dashboard interface.</div>
+          <div class="theme-label">Currently: <strong id="theme-status">Dark Mode</strong></div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="theme-toggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel Overlay -->
+  <div class="panel-overlay" id="panel-overlay"></div>
+
+  <!-- Rocket Loader Slide Panel -->
+  <div class="slide-panel" id="rocket-loader-panel">
+    <div class="panel-header">
+      <div class="panel-icon">🚀</div>
+      <h2 class="panel-title">Rocket Loader</h2>
+      <button class="panel-close" aria-label="Close panel">×</button>
+    </div>
+    
+    <div class="panel-content">
+      <div class="panel-grid">
+        <!-- Left: Description -->
+        <div class="panel-description">
+          <div>
+            <h3>The Problem</h3>
+            <p><strong>Imagine your webpage as a race car.</strong> Without Rocket Loader, your car has to wait at the starting line while all the complex engine parts (JavaScript) get assembled.</p>
+            <p>Visitors stare at a <em>blank white screen</em> while they wait. Frustrating, right?</p>
+          </div>
+          
+          <div>
+            <h3>The Solution</h3>
+            <p>With Rocket Loader, your car <em>rockets off immediately</em>—showing your beautiful content to visitors while the engine quietly assembles in the background.</p>
+            <p>The page feels instant because people see what matters first: <strong>your text, images, and design</strong>.</p>
+          </div>
+          
+          <div class="magic-box">
+            <div class="magic-box-title">✨ The Magic</div>
+            <p>JavaScript is deferred until after visual content renders, making your <strong>First Contentful Paint</strong> dramatically faster.</p>
+          </div>
+        </div>
+        
+        <!-- Right: Visualization -->
+        <div class="panel-visualization">
+          <div class="viz-title">Live Demo</div>
+          
+          <!-- Animated Browser -->
+          <div class="browser-window">
+            <div class="browser-toolbar">
+              <div class="browser-dots">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="browser-url">yoursite.com</div>
+            </div>
+            <div class="browser-body">
+              <div class="content-skeleton">
+                <div class="skeleton-block skeleton-header"></div>
+                <div class="skeleton-block skeleton-nav"></div>
+                <div class="skeleton-block skeleton-hero"></div>
+                <div class="skeleton-block skeleton-text"></div>
+                <div class="skeleton-block skeleton-text-short"></div>
+              </div>
+              <div class="rocket-overlay">
+                <div class="rocket-emoji">🚀</div>
+                <div class="rocket-trail"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="status-bar">
+            <span class="status-dot"></span>
+            Content visible instantly!
+          </div>
+          
+          <!-- Timeline Comparison -->
+          <div class="timeline-comparison">
+            <div class="timeline-row">
+              <div class="timeline-label">❌ Without Rocket Loader</div>
+              <div class="timeline-bar timeline-without">
+                <div class="timeline-segment js-segment">⏳ JS Loading...</div>
+                <div class="timeline-segment content-segment">Content</div>
+              </div>
+              <div class="timeline-time">~3.2s to see content</div>
+            </div>
+            
+            <div class="timeline-row">
+              <div class="timeline-label">✅ With Rocket Loader</div>
+              <div class="timeline-bar timeline-with">
+                <div class="timeline-segment content-segment">Content</div>
+                <div class="timeline-segment js-segment">JS (deferred)</div>
+              </div>
+              <div class="timeline-time">~0.8s to see content</div>
+            </div>
+          </div>
+          
+          <!-- Stats -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value">75%</div>
+              <div class="stat-label">Faster Paint</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">4x</div>
+              <div class="stat-label">Quicker Load</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Panel functionality
+    const overlay = document.getElementById('panel-overlay');
+    const rocketPanel = document.getElementById('rocket-loader-panel');
+    const rocketItem = document.querySelector('[data-panel="rocket-loader"]');
+    const learnMoreBtn = rocketItem.querySelector('.learn-more-btn');
+    
+    function openPanel() {
+      overlay.classList.add('active');
+      rocketPanel.classList.add('active');
+      rocketItem.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closePanel() {
+      overlay.classList.remove('active');
+      rocketPanel.classList.remove('active');
+      rocketItem.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    
+    learnMoreBtn.addEventListener('click', openPanel);
+    overlay.addEventListener('click', closePanel);
+    document.querySelector('.panel-close').addEventListener('click', closePanel);
+    
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closePanel();
+    });
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeStatus = document.getElementById('theme-status');
+    
+    themeToggle.addEventListener('change', function() {
+      if (this.checked) {
+        document.body.classList.add('light-theme');
+        themeStatus.textContent = 'Light Mode';
+      } else {
+        document.body.classList.remove('light-theme');
+        themeStatus.textContent = 'Dark Mode';
+      }
+    });
+    
+    // Load saved theme
+    const savedTheme = localStorage.getItem('cloudcache-v2-theme');
+    if (savedTheme === 'light') {
+      themeToggle.checked = true;
+      document.body.classList.add('light-theme');
+      themeStatus.textContent = 'Light Mode';
+    }
+    
+    // Save theme preference
+    themeToggle.addEventListener('change', function() {
+      localStorage.setItem('cloudcache-v2-theme', this.checked ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>
