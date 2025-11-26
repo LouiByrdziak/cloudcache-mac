@@ -69,11 +69,11 @@ export function Dashboard(props: DashboardProps = {}): string {
     parts.push(`<button class="connect-button">${escapeHtml(connectButtonText)}</button>`);
   }
 
-  // Use enhanced toggle section for performance page, regular for others
-  const toggleSection =
-    pageId === "performance"
-      ? EnhancedToggleSection({ optimizations })
-      : ToggleSection({ optimizations });
+  // Use enhanced toggle section for all main pages with toggles
+  const enhancedPages = ["performance", "security", "network", "caching", "ssl"];
+  const toggleSection = enhancedPages.includes(pageId || "")
+    ? EnhancedToggleSection({ optimizations })
+    : ToggleSection({ optimizations });
 
   return `
     <div class="container">

@@ -1328,6 +1328,65 @@ export const enhancedStyles = `
     95% { transform: scale(1.05); }
   }
 
+  /* ===== SIMPLE VISUALIZATION (for non-Performance pages) ===== */
+  .simple-viz .viz-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 32px;
+    text-align: center;
+  }
+
+  .viz-emoji {
+    font-size: 64px;
+    line-height: 1;
+    animation: emojiPulse 2s ease-in-out infinite;
+  }
+
+  .viz-stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .viz-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .viz-stat-value {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--accent-primary);
+    line-height: 1;
+  }
+
+  .viz-stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .viz-bottom-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    background: var(--bg-card);
+    padding: 16px 24px;
+    border-radius: 12px;
+    max-width: 500px;
+    line-height: 1.6;
+  }
+
+  @keyframes emojiPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
   /* ===== RESPONSIVE ===== */
   @media (max-width: 768px) {
     .optimization-main-row {

@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloudcache - All Pages Preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #080808;
+      --bg-card: #0f0f0f;
+      --bg-card-hover: #141414;
+      --border-color: #1a1a1a;
+      --border-card: #1f1f1f;
+      --border-card-hover: #2a2a2a;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666;
+      --text-description: #888;
+      --toggle-off-bg: #2a2a2a;
+      --toggle-off-border: #3a3a3a;
+      --toggle-knob: #ffffff;
+      --toggle-knob-on: #000000;
+      --accent-primary: #F48120;
+      --accent-glow: rgba(244, 129, 32, 0.3);
+      --success-color: #22c55e;
+      --error-color: #ef4444;
+    }
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--bg-primary);
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text-primary);
+    }
+    
+    /* Navigation */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 16px 32px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-tab {
+      padding: 12px 24px;
+      background: transparent;
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .nav-tab:hover {
+      border-color: var(--accent-primary);
+      color: var(--text-primary);
+    }
+    .nav-tab.active {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #000;
+    }
+    
+    /* Page sections */
+    .page-section {
+      display: none;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 32px;
+    }
+    .page-section.active {
+      display: block;
+    }
+    
+    .page-header {
+      margin-bottom: 32px;
+    }
+    .page-title {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+    }
+    .page-subtitle {
+      color: var(--text-muted);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    /* Instruction banner */
+    .instruction-banner {
+      background: linear-gradient(135deg, rgba(244, 129, 32, 0.2), rgba(244, 129, 32, 0.05));
+      border: 1px solid var(--accent-primary);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .instruction-banner p {
+      color: var(--accent-primary);
+      font-size: 14px;
+    }
+    .instruction-banner strong {
+      color: var(--text-primary);
+    }
+
+    /* Toggle items */
+    .enhanced-optimization-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .enhanced-optimization-item {
+      background: var(--bg-card);
+      border-radius: 20px;
+      border: 1px solid var(--border-card);
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .enhanced-optimization-item:hover {
+      border-color: var(--border-card-hover);
+      background: var(--bg-card-hover);
+    }
+    .enhanced-optimization-item.expanded {
+      border-color: var(--accent-primary);
+      box-shadow: 0 8px 32px rgba(244, 129, 32, 0.15);
+    }
+    .optimization-main-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 24px 28px;
+    }
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(244, 129, 32, 0.15), rgba(244, 129, 32, 0.05));
+      border-radius: 12px;
+      color: var(--accent-primary);
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .enhanced-optimization-item.expanded .feature-icon {
+      background: var(--accent-primary);
+      color: #000;
+      transform: scale(1.1);
+    }
+    .optimization-content { flex: 1; }
+    .optimization-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+    .optimization-description {
+      color: var(--text-description);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .expand-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      flex-shrink: 0;
+    }
+    .expand-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+    .enhanced-optimization-item.expanded .expand-btn {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #000;
+      transform: rotate(180deg);
+    }
+    
+    /* Toggle */
+    .toggle-container {
+      position: relative;
+      width: 68px;
+      height: 38px;
+      flex-shrink: 0;
+    }
+    .toggle-input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--toggle-off-bg);
+      border: 2px solid var(--toggle-off-border);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 38px;
+    }
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 28px;
+      width: 28px;
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--toggle-knob);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+    .toggle-input:checked + .toggle-slider {
+      background-color: var(--accent-primary);
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .toggle-input:checked + .toggle-slider:before {
+      transform: translateX(30px);
+      background-color: var(--toggle-knob-on);
+    }
+
+    /* Accordion */
+    .optimization-accordion {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .enhanced-optimization-item.expanded .optimization-accordion {
+      max-height: 2000px;
+    }
+    .accordion-inner {
+      padding: 0 28px 28px 28px;
+      border-top: 1px solid var(--border-card);
+      padding-top: 24px;
+    }
+    .detailed-description {
+      margin-bottom: 28px;
+    }
+    .detailed-description p {
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 14px;
+    }
+    .detailed-description strong {
+      color: var(--text-primary);
+    }
+    .detailed-description em {
+      color: var(--accent-primary);
+      font-style: normal;
+      font-weight: 500;
+    }
+    .detailed-description code {
+      background: rgba(244, 129, 32, 0.1);
+      color: var(--accent-primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+    .detail-highlight {
+      background: linear-gradient(135deg, rgba(244, 129, 32, 0.1), rgba(244, 129, 32, 0.05));
+      padding: 14px 18px;
+      border-radius: 12px;
+      border-left: 3px solid var(--accent-primary);
+    }
+    
+    /* Visualization */
+    .aha-visualization {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+    .viz-header {
+      padding: 14px 20px;
+      background: linear-gradient(135deg, rgba(244, 129, 32, 0.1), transparent);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .viz-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .viz-content {
+      padding: 32px;
+      text-align: center;
+    }
+    .viz-emoji {
+      font-size: 64px;
+      margin-bottom: 24px;
+      animation: emojiPulse 2s ease-in-out infinite;
+    }
+    .viz-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .viz-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .viz-stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
+    .viz-stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .viz-bottom-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      padding: 16px 24px;
+      border-radius: 12px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    @keyframes emojiPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-page="performance">⚡ Performance</button>
+    <button class="nav-tab" data-page="security">🛡️ Security</button>
+    <button class="nav-tab" data-page="network">🌐 Network</button>
+    <button class="nav-tab" data-page="caching">💾 Caching</button>
+    <button class="nav-tab" data-page="ssl">🔒 SSL/TLS</button>
+  </div>
+
+  <!-- PERFORMANCE PAGE -->
+  <div class="page-section active" id="page-performance">
+    <div class="page-header">
+      <h1 class="page-title">⚡ Performance</h1>
+      <p class="page-subtitle">Optimize your site's speed and loading times with these Cloudflare settings.</p>
+    </div>
+    <div class="instruction-banner">
+      <p>👆 <strong>Click the question mark icon</strong> (or the title) to see the "AHA moment" explanation!</p>
+    </div>
+    <div class="enhanced-optimization-list">
+      <!-- Rocket Loader -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">🚀</div>
+          <div class="optimization-content">
+            <div class="optimization-title">Rocket Loader</div>
+            <div class="optimization-description">Improve paint times by deferring JavaScript loading until after rendering.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Imagine your webpage as a race car.</strong> Without Rocket Loader, your car has to wait at the starting line while all the complex engine parts (JavaScript) get assembled. Visitors stare at a blank screen.</p>
+              <p>With Rocket Loader, your car <em>rockets off immediately</em>—showing your beautiful content to visitors while the engine quietly assembles in the background.</p>
+              <p class="detail-highlight">✨ <strong>The magic:</strong> JavaScript is deferred until after the visual content renders, making your First Contentful Paint dramatically faster.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">🚀</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">75%</span><span class="viz-stat-label">Faster Paint</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">0.8s</span><span class="viz-stat-label">vs 3.2s</span></div>
+                </div>
+                <div class="viz-bottom-text">Content appears instantly → JavaScript loads in background → User sees page immediately</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Minify JS -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">📦</div>
+          <div class="optimization-content">
+            <div class="optimization-title">Minify JavaScript</div>
+            <div class="optimization-description">Reduce JavaScript file sizes by removing unnecessary characters.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Think of JavaScript files like a book with excessive whitespace.</strong> Every unnecessary space and comment is like blank pages—they add weight without value.</p>
+              <p>Minification condenses your book while keeping every word intact. The story stays the same, but it becomes <em>significantly lighter</em> to download.</p>
+              <p class="detail-highlight">📦 <strong>The magic:</strong> Files shrink by 20-60%, meaning faster downloads and less bandwidth.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">📦</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">-62%</span><span class="viz-stat-label">File Size</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">2x</span><span class="viz-stat-label">Faster Load</span></div>
+                </div>
+                <div class="viz-bottom-text">2.4 KB → 0.9 KB | Same functionality, smaller package</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Brotli -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">🗜️</div>
+          <div class="optimization-content">
+            <div class="optimization-title">Brotli Compression</div>
+            <div class="optimization-description">Enable Brotli compression to reduce file sizes for supported browsers.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Imagine shipping an IKEA wardrobe fully assembled versus flat-packed.</strong> Brotli is like the world's best flat-pack engineer—squeezing files into the smallest possible package.</p>
+              <p>Brotli is <em>15-25% more efficient</em> than Gzip. It's like fitting three wardrobes into the space of two.</p>
+              <p class="detail-highlight">🗜️ <strong>The magic:</strong> Files travel compressed, then expand instantly in the browser. Less data = faster loads.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">🗜️</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">78%</span><span class="viz-stat-label">Compression</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">4x</span><span class="viz-stat-label">Faster Transfer</span></div>
+                </div>
+                <div class="viz-bottom-text">100 KB → 22 KB | Compressed in transit, expanded on arrival</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECURITY PAGE -->
+  <div class="page-section" id="page-security">
+    <div class="page-header">
+      <h1 class="page-title">🛡️ Security</h1>
+      <p class="page-subtitle">Protect your site from attacks and malicious traffic.</p>
+    </div>
+    <div class="enhanced-optimization-list">
+      <!-- Under Attack Mode -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">🛡️</div>
+          <div class="optimization-content">
+            <div class="optimization-title">I'm Under Attack Mode</div>
+            <div class="optimization-description">Display an interstitial page while analyzing traffic to stop DDoS attacks.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Think of your website as a nightclub.</strong> Normally, the bouncer checks IDs quickly. But when there's a riot outside (a DDoS attack), you need to slow everyone down.</p>
+              <p>"I'm Under Attack" mode adds <em>a full security screening</em> at the door. Every visitor waits while Cloudflare checks if they're real or malicious.</p>
+              <p class="detail-highlight">🛡️ <strong>The magic:</strong> Legitimate visitors see a brief check, attack traffic gets blocked. Your site stays online.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">🛡️</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">5sec</span><span class="viz-stat-label">Challenge</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">99.9%</span><span class="viz-stat-label">Bots Blocked</span></div>
+                </div>
+                <div class="viz-bottom-text">Visitors see brief check → Bots get blocked → Your site stays online during attacks</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email Obfuscation -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">📧</div>
+          <div class="optimization-content">
+            <div class="optimization-title">Email Obfuscation</div>
+            <div class="optimization-description">Protect email addresses from bots and scrapers by obfuscating them.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Leaving your email visible is like writing your phone number on a bathroom wall.</strong> Spam bots constantly crawl the web, harvesting any email addresses they find.</p>
+              <p>Email obfuscation scrambles your email in HTML—<em>humans see it normally</em>, but bots see gibberish. Invisible ink only humans can read.</p>
+              <p class="detail-highlight">📧 <strong>The magic:</strong> Your inbox stays clean. Bots can't harvest what they can't read.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">📧</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">0</span><span class="viz-stat-label">Harvested</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">100%</span><span class="viz-stat-label">Human Readable</span></div>
+                </div>
+                <div class="viz-bottom-text">Bots see: j&#x61;ne&#64;... → Humans see: jane@example.com</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hotlink Protection -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">🔐</div>
+          <div class="optimization-content">
+            <div class="optimization-title">Hotlink Protection</div>
+            <div class="optimization-description">Prevent other websites from linking directly to your images.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Imagine someone photocopying your menu and handing it out</strong>—but with THEIR phone number. They get the business; you pay for printing.</p>
+              <p>Hotlink protection stops other sites from <em>embedding your images directly</em>. They see nothing—or a placeholder you choose.</p>
+              <p class="detail-highlight">🔐 <strong>The magic:</strong> Your bandwidth is protected. Only YOUR visitors see your images.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">🔐</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">100%</span><span class="viz-stat-label">Bandwidth Saved</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">0</span><span class="viz-stat-label">Stolen Images</span></div>
+                </div>
+                <div class="viz-bottom-text">Your images → Your bandwidth → Your visitors only</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NETWORK PAGE -->
+  <div class="page-section" id="page-network">
+    <div class="page-header">
+      <h1 class="page-title">🌐 Network</h1>
+      <p class="page-subtitle">Configure network protocols and connection settings.</p>
+    </div>
+    <div class="enhanced-optimization-list">
+      <!-- HTTP/3 -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">⚡</div>
+          <div class="optimization-content">
+            <div class="optimization-title">HTTP/3 (QUIC)</div>
+            <div class="optimization-description">Enable HTTP/3 with QUIC protocol for faster, more reliable connections.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>HTTP/3 is like upgrading from a dirt road to a superhighway.</strong> HTTP/2 uses TCP—reliable but slow to recover. HTTP/3 uses QUIC—faster and smarter.</p>
+              <p>On mobile or spotty WiFi, HTTP/3 <em>keeps data flowing</em> even when packets get lost. No more waiting.</p>
+              <p class="detail-highlight">⚡ <strong>The magic:</strong> Pages load faster, especially on mobile. Connection setup is quicker.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">⚡</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">0-RTT</span><span class="viz-stat-label">Connection</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">30%</span><span class="viz-stat-label">Faster Mobile</span></div>
+                </div>
+                <div class="viz-bottom-text">HTTP/2: Stalls on packet loss → HTTP/3: Streams independently</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WebSockets -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">🔌</div>
+          <div class="optimization-content">
+            <div class="optimization-title">WebSockets</div>
+            <div class="optimization-description">Allow WebSocket connections for real-time communication.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Normal requests are like sending letters.</strong> Send one, wait for reply, repeat. WebSockets are like picking up the phone—<em>a constant open line</em>.</p>
+              <p>This powers live chat, multiplayer games, stock tickers. Without it, these features would be slow and clunky.</p>
+              <p class="detail-highlight">🔌 <strong>The magic:</strong> Real-time communication flows through Cloudflare with full protection.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">🔌</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">< 1ms</span><span class="viz-stat-label">Latency</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">∞</span><span class="viz-stat-label">Messages/sec</span></div>
+                </div>
+                <div class="viz-bottom-text">HTTP: Request → Wait → Response | WebSocket: Instant two-way</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IP Geolocation -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">📍</div>
+          <div class="optimization-content">
+            <div class="optimization-title">IP Geolocation</div>
+            <div class="optimization-description">Add a header with visitor's country code to all requests.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Imagine knowing every customer's country the moment they walk in.</strong> IP Geolocation adds a header telling you exactly where visitors are.</p>
+              <p>Show local currency, language, or content. Redirect EU visitors to GDPR pages. Block countries—<em>all automatically</em>.</p>
+              <p class="detail-highlight">📍 <strong>The magic:</strong> CF-IPCountry header with every request. Personalize without complex services.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">📍</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">195+</span><span class="viz-stat-label">Countries</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">100%</span><span class="viz-stat-label">Accuracy</span></div>
+                </div>
+                <div class="viz-bottom-text">Every request includes: CF-IPCountry: US, GB, DE, JP...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CACHING PAGE -->
+  <div class="page-section" id="page-caching">
+    <div class="page-header">
+      <h1 class="page-title">💾 Caching</h1>
+      <p class="page-subtitle">Control how Cloudflare caches your content for faster delivery.</p>
+    </div>
+    <div class="enhanced-optimization-list">
+      <!-- Development Mode -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">🔧</div>
+          <div class="optimization-content">
+            <div class="optimization-title">Development Mode</div>
+            <div class="optimization-description">Temporarily bypass cache to see changes immediately.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Caching is normally your best friend</strong>—but when making changes, it's annoying. You update, refresh, and see the OLD version.</p>
+              <p>Development Mode <em>bypasses all caching</em> for 3 hours. Every refresh shows your latest changes instantly.</p>
+              <p class="detail-highlight">🔧 <strong>The magic:</strong> See changes immediately. After 3 hours, caching auto-resumes.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">🔧</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">3hrs</span><span class="viz-stat-label">Duration</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">0%</span><span class="viz-stat-label">Cache Used</span></div>
+                </div>
+                <div class="viz-bottom-text">Cache bypassed → See changes instantly → Auto-resumes</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Always Online -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">🌟</div>
+          <div class="optimization-content">
+            <div class="optimization-title">Always Online</div>
+            <div class="optimization-description">Serve cached pages when your origin server is unavailable.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>What happens when your server crashes at 3 AM?</strong> Normally, visitors see an ugly error. With Always Online, they see a <em>cached version</em> instead.</p>
+              <p>Maybe slightly outdated, but infinitely better than "503 Service Unavailable."</p>
+              <p class="detail-highlight">🌟 <strong>The magic:</strong> Your site never truly goes offline. Problems become invisible while you fix things.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">🌟</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">100%</span><span class="viz-stat-label">Uptime Look</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">0</span><span class="viz-stat-label">Error Pages</span></div>
+                </div>
+                <div class="viz-bottom-text">Server down → Cached version served → Visitors happy</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prefetch -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">🔮</div>
+          <div class="optimization-content">
+            <div class="optimization-title">Prefetch & Preload</div>
+            <div class="optimization-description">Preload resources before they're needed to speed up navigation.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>What if your site could predict the future?</strong> Prefetch analyzes pages and <em>starts loading the next resources</em> before visitors click.</p>
+              <p>Hover over a link? Already loading. Click and it appears instantly. Like a psychic assistant.</p>
+              <p class="detail-highlight">🔮 <strong>The magic:</strong> Navigation feels telepathic. Pages load in zero time.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">🔮</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">0ms</span><span class="viz-stat-label">Perceived Load</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">100%</span><span class="viz-stat-label">Pre-fetched</span></div>
+                </div>
+                <div class="viz-bottom-text">Hover → Already loading → Click → Instant appearance</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SSL/TLS PAGE -->
+  <div class="page-section" id="page-ssl">
+    <div class="page-header">
+      <h1 class="page-title">🔒 SSL/TLS</h1>
+      <p class="page-subtitle">Configure encryption settings to secure connections.</p>
+    </div>
+    <div class="enhanced-optimization-list">
+      <!-- Always HTTPS -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">🔒</div>
+          <div class="optimization-content">
+            <div class="optimization-title">Always Use HTTPS</div>
+            <div class="optimization-description">Redirect all HTTP requests to HTTPS for improved security.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>HTTP is like sending postcards—anyone can read them.</strong> HTTPS is sealed letters. This ensures ALL visitors use the sealed version.</p>
+              <p>Anyone typing "http://" is <em>automatically redirected</em> to "https://". No mixed signals, no eavesdropping.</p>
+              <p class="detail-highlight">🔒 <strong>The magic:</strong> Every connection encrypted. Google ranks higher. Browsers show the padlock.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">🔒</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">100%</span><span class="viz-stat-label">Encrypted</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">A+</span><span class="viz-stat-label">SSL Rating</span></div>
+                </div>
+                <div class="viz-bottom-text">http://site.com → Redirects → https://site.com 🔒</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TLS 1.3 -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">🚀</div>
+          <div class="optimization-content">
+            <div class="optimization-title">TLS 1.3</div>
+            <div class="optimization-description">Enable the latest TLS protocol for faster and more secure connections.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>TLS 1.3 is like upgrading from combination lock to fingerprint.</strong> Newest, fastest, most secure—and quicker to establish.</p>
+              <p>Handshake takes <em>one round trip instead of two</em>. Plus, removes old vulnerable features hackers could exploit.</p>
+              <p class="detail-highlight">🚀 <strong>The magic:</strong> Faster secure connections. Stronger encryption. Gold standard security.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">🚀</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">1-RTT</span><span class="viz-stat-label">Handshake</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">100%</span><span class="viz-stat-label">Forward Secrecy</span></div>
+                </div>
+                <div class="viz-bottom-text">TLS 1.2: 2 round trips → TLS 1.3: 1 round trip (or 0-RTT!)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto HTTPS Rewrites -->
+      <div class="enhanced-optimization-item">
+        <div class="optimization-main-row">
+          <div class="feature-icon">✨</div>
+          <div class="optimization-content">
+            <div class="optimization-title">Automatic HTTPS Rewrites</div>
+            <div class="optimization-description">Automatically rewrite HTTP links to HTTPS to prevent mixed content.</div>
+          </div>
+          <button class="expand-btn">❓</button>
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>"Mixed content" is a bank vault with a screen door.</strong> The https page is secure, but that http image creates a hole.</p>
+              <p>Automatic HTTPS Rewrites <em>fixes links on the fly</em>. http://image.jpg becomes https:// automatically.</p>
+              <p class="detail-highlight">✨ <strong>The magic:</strong> No mixed content warnings. No broken padlocks. Fully secure, even with legacy content.</p>
+            </div>
+            <div class="aha-visualization">
+              <div class="viz-header"><span class="viz-label">✨ Visual Explanation</span></div>
+              <div class="viz-content">
+                <div class="viz-emoji">✨</div>
+                <div class="viz-stats">
+                  <div class="viz-stat"><span class="viz-stat-value">0</span><span class="viz-stat-label">Mixed Content</span></div>
+                  <div class="viz-stat"><span class="viz-stat-value">100%</span><span class="viz-stat-label">Links Fixed</span></div>
+                </div>
+                <div class="viz-bottom-text">http://img.jpg → https://img.jpg (automatic)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab navigation
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('page-' + this.dataset.page).classList.add('active');
+      });
+    });
+
+    // Accordion functionality
+    document.querySelectorAll('.expand-btn, .feature-icon, .optimization-title').forEach(el => {
+      el.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const item = this.closest('.enhanced-optimization-item');
+        if (!item) return;
+        
+        // Close others in same section
+        item.closest('.enhanced-optimization-list').querySelectorAll('.enhanced-optimization-item.expanded').forEach(other => {
+          if (other !== item) other.classList.remove('expanded');
+        });
+        
+        item.classList.toggle('expanded');
+      });
+    });
+  </script>
+</body>
+</html>
