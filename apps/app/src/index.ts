@@ -33,7 +33,7 @@ interface CFSettingValue {
   value: string | number | boolean | { css?: string; html?: string; js?: string };
 }
 
-// Get setting state from KV or Cloudflare API
+// Get setting state from Cloudflare API (with KV as fallback)
 async function getSettingState(
   settingId: string,
   cfSettingName: string,
@@ -42,20 +42,10 @@ async function getSettingState(
   logger: ReturnType<typeof createLoggerFromRequest>
 ): Promise<boolean> {
   const kvKey = `${SETTINGS_KV_PREFIX}${settingId}`;
-
-  // 1. Try to get from KV first
-  try {
-    const kvState = await kv.get(kvKey);
-    if (kvState === "on" || kvState === "true") return true;
-    if (kvState === "off" || kvState === "false") return false;
-  } catch (kvError) {
-    logger.error(`Failed to read ${settingId} state from KV`, { error: kvError });
-  }
-
-  // 2. If not in KV, fetch from Cloudflare API
-  logger.info(`${settingId} state not in KV, fetching from API`);
   let apiStateEnabled = false;
+  let fetchedFromApi = false;
 
+  // 1. Always try to fetch from Cloudflare API first (for bidirectional sync)
   try {
     const cfApiUrl = `https://api.cloudflare.com/client/v4/zones/${env.CF_ZONE_ID}/settings/${cfSettingName}`;
     const cfResponse = await fetch(cfApiUrl, {
@@ -82,21 +72,86 @@ async function getSettingState(
           apiStateEnabled = Object.values(value).some((v) => v === "on");
         }
 
-        logger.info(`Fetched ${settingId} state from API`, { enabled: apiStateEnabled });
+        fetchedFromApi = true;
+        logger.info(`Fetched ${settingId} state from API`, {
+          enabled: apiStateEnabled,
+          rawValue: value,
+        });
 
-        // 3. Store in KV for next time
-        await kv.put(kvKey, apiStateEnabled ? "on" : "off");
+        // Update KV cache with latest value
+        try {
+          await kv.put(kvKey, apiStateEnabled ? "on" : "off");
+        } catch (kvWriteError) {
+          logger.error(`Failed to update ${settingId} in KV`, { error: kvWriteError });
+        }
       }
     } else {
+      const errorText = await cfResponse.text();
       logger.error(`Failed to fetch ${settingId} state from Cloudflare API`, {
         status: cfResponse.status,
+        error: errorText,
       });
     }
   } catch (apiError) {
     logger.error(`Error calling Cloudflare API for ${settingId} state`, { error: apiError });
   }
 
+  // 2. Fallback to KV if API failed
+  if (!fetchedFromApi) {
+    try {
+      const kvState = await kv.get(kvKey);
+      if (kvState === "on" || kvState === "true") {
+        apiStateEnabled = true;
+        logger.info(`Using ${settingId} state from KV fallback`, { enabled: true });
+      } else if (kvState === "off" || kvState === "false") {
+        apiStateEnabled = false;
+        logger.info(`Using ${settingId} state from KV fallback`, { enabled: false });
+      }
+    } catch (kvError) {
+      logger.error(`Failed to read ${settingId} state from KV fallback`, { error: kvError });
+    }
+  }
+
   return apiStateEnabled;
+}
+
+// Get raw setting value from Cloudflare API (for TTL and other numeric values)
+async function getSettingRawValue(
+  settingId: string,
+  cfSettingName: string,
+  env: AppEnv,
+  logger: ReturnType<typeof createLoggerFromRequest>
+): Promise<number | string | null> {
+  try {
+    const cfApiUrl = `https://api.cloudflare.com/client/v4/zones/${env.CF_ZONE_ID}/settings/${cfSettingName}`;
+    const cfResponse = await fetch(cfApiUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${env.CF_API_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (cfResponse.ok) {
+      const data = (await cfResponse.json()) as { success: boolean; result: CFSettingValue };
+      if (data.success && data.result) {
+        const value = data.result.value;
+        logger.info(`Fetched ${settingId} raw value from API`, { value });
+        if (typeof value === "number" || typeof value === "string") {
+          return value;
+        }
+      }
+    }
+  } catch (apiError) {
+    logger.error(`Error calling Cloudflare API for ${settingId} raw value`, { error: apiError });
+  }
+  return null;
+}
+
+// Result type for page settings
+interface PageSettingsResult {
+  states: Record<string, boolean>;
+  rawValues: Record<string, number | string | null>;
 }
 
 // Get all settings states for a page
@@ -105,24 +160,33 @@ async function getPageSettingsStates(
   env: AppEnv,
   kv: KVNamespace,
   logger: ReturnType<typeof createLoggerFromRequest>
-): Promise<Record<string, boolean>> {
+): Promise<PageSettingsResult> {
   const pageConfig = getPageConfig(pathname);
-  if (!pageConfig) return {};
+  if (!pageConfig) return { states: {}, rawValues: {} };
 
   const states: Record<string, boolean> = {};
+  const rawValues: Record<string, number | string | null> = {};
 
   // Fetch all toggle states in parallel
   const promises = pageConfig.toggles.map(async (toggle) => {
-    const enabled = await getSettingState(toggle.id, toggle.cfSettingName, env, kv, logger);
-    return { id: toggle.id, enabled };
+    if (toggle.valueType === "ttl") {
+      // For TTL settings, get the raw value
+      const rawValue = await getSettingRawValue(toggle.id, toggle.cfSettingName, env, logger);
+      return { id: toggle.id, enabled: rawValue !== null && rawValue !== 0, rawValue };
+    } else {
+      // For toggle settings, get the boolean state
+      const enabled = await getSettingState(toggle.id, toggle.cfSettingName, env, kv, logger);
+      return { id: toggle.id, enabled, rawValue: null };
+    }
   });
 
   const results = await Promise.all(promises);
   for (const result of results) {
     states[result.id] = result.enabled;
+    rawValues[result.id] = result.rawValue;
   }
 
-  return states;
+  return { states, rawValues };
 }
 
 export default {
@@ -181,20 +245,43 @@ export default {
     // Page routes - check if pathname matches a page config
     const pageConfig = getPageConfig(pathname);
     if (pageConfig) {
-      const settingsStates = await getPageSettingsStates(
+      const { states: settingsStates, rawValues } = await getPageSettingsStates(
         pathname,
         appEnv,
         appEnv.APP_KV as KVNamespace,
         logger
       );
 
-      // Build optimizations array with current states
-      const optimizations = pageConfig.toggles.map((toggle) => ({
-        id: toggle.id,
-        title: toggle.title,
-        description: toggle.description,
-        enabled: settingsStates[toggle.id] || false,
-      }));
+      // Build optimizations array with current states and slider options
+      const optimizations = pageConfig.toggles.map((toggle) => {
+        const opt: {
+          id: string;
+          title: string;
+          description: string;
+          enabled: boolean;
+          controlType?: "toggle" | "slider";
+          options?: { value: number | string; label: string }[];
+          currentValue?: number | string | null;
+          currentLabel?: string | null;
+        } = {
+          id: toggle.id,
+          title: toggle.title,
+          description: toggle.description,
+          enabled: settingsStates[toggle.id] || false,
+        };
+
+        // Add slider-specific properties
+        if (toggle.controlType === "slider" && toggle.options) {
+          opt.controlType = "slider";
+          opt.options = toggle.options;
+          opt.currentValue = rawValues[toggle.id];
+          // Find the label for the current value
+          const currentOption = toggle.options.find(o => o.value === rawValues[toggle.id]);
+          opt.currentLabel = currentOption?.label || null;
+        }
+
+        return opt;
+      });
 
       const html = renderPage({
         faviconBase64: FAVICON_BASE64,
@@ -330,7 +417,7 @@ async function handleSettingToggle(
 
   try {
     // Validate request body
-    let body: { enabled?: boolean };
+    let body: { enabled?: boolean; value?: number };
     try {
       body = await request.json();
     } catch (parseError) {
@@ -343,7 +430,17 @@ async function handleSettingToggle(
       );
     }
 
-    if (typeof body.enabled !== "boolean") {
+    // For TTL settings, expect a numeric value
+    if (toggleConfig.valueType === "ttl") {
+      if (typeof body.value !== "number") {
+        return createErrorResponse(
+          "INVALID_REQUEST",
+          "Request body must include 'value' as a number for TTL settings",
+          correlationId,
+          400
+        );
+      }
+    } else if (typeof body.enabled !== "boolean") {
       return createErrorResponse(
         "INVALID_REQUEST",
         "Request body must include 'enabled' as a boolean",
@@ -353,6 +450,7 @@ async function handleSettingToggle(
     }
 
     const enabled = body.enabled;
+    const ttlValue = body.value;
 
     // Build the API value based on toggle config
     let apiValue: string | number | boolean | object;
@@ -362,7 +460,11 @@ async function handleSettingToggle(
         apiValue = enabled ? "on" : "off";
         break;
       case "boolean":
-        apiValue = enabled;
+        apiValue = enabled ?? false;
+        break;
+      case "ttl":
+        // TTL value is passed directly as a number
+        apiValue = ttlValue ?? 0;
         break;
       case "string":
         // Handle special cases
@@ -438,22 +540,55 @@ async function handleSettingToggle(
       );
     }
 
-    logger.info(`${settingId} toggled successfully`, { enabled, success: cfData.success });
+    // Verify the setting was actually changed by checking the response
+    const cfDataWithResult = cfData as { success?: boolean; result?: { value?: unknown } };
+    const actualValue = cfDataWithResult.result?.value;
+    logger.info(`${settingId} API response`, {
+      enabled,
+      success: cfData.success,
+      actualValue,
+      expectedValue: apiValue,
+    });
 
-    // Update state in KV
-    const kvKey = `${SETTINGS_KV_PREFIX}${settingId}`;
-    try {
-      await env.APP_KV.put(kvKey, enabled ? "on" : "off");
-      logger.info(`Updated ${settingId} state in KV`, { enabled });
-    } catch (kvError) {
-      logger.error(`Failed to update ${settingId} state in KV`, { error: kvError });
+    // Check if the actual value matches what we requested
+    let valueMatches = false;
+    if (typeof apiValue === "string") {
+      valueMatches = actualValue === apiValue;
+    } else if (typeof apiValue === "boolean") {
+      valueMatches = actualValue === apiValue;
+    } else if (typeof apiValue === "object") {
+      // For complex objects like minify, just check success
+      valueMatches = cfData.success === true;
+    }
+
+    if (!valueMatches && cfData.success !== true) {
+      logger.warn(`${settingId} value mismatch after toggle`, {
+        expected: apiValue,
+        actual: actualValue,
+      });
+    }
+
+    // Update state in KV (for toggle settings only)
+    if (toggleConfig.valueType !== "ttl") {
+      const kvKey = `${SETTINGS_KV_PREFIX}${settingId}`;
+      try {
+        await env.APP_KV.put(kvKey, enabled ? "on" : "off");
+        logger.info(`Updated ${settingId} state in KV`, { enabled });
+      } catch (kvError) {
+        logger.error(`Failed to update ${settingId} state in KV`, { error: kvError });
+      }
     }
 
     return createJSONResponse(
       {
         success: true,
         setting: settingId,
-        enabled,
+        enabled: toggleConfig.valueType === "ttl" ? undefined : enabled,
+        value: toggleConfig.valueType === "ttl" ? ttlValue : undefined,
+        cfResponse: {
+          success: cfData.success,
+          actualValue: cfDataWithResult.result?.value,
+        },
         timestamp: Date.now(),
       },
       200,

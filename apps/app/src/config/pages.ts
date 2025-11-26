@@ -8,7 +8,9 @@ export interface ToggleConfig {
   title: string;
   description: string;
   cfSettingName: string; // Cloudflare API setting name
-  valueType: "on_off" | "boolean" | "string"; // How the value is sent to CF API
+  valueType: "on_off" | "boolean" | "string" | "ttl"; // How the value is sent to CF API
+  controlType?: "toggle" | "slider"; // UI control type (default: toggle)
+  options?: { value: number | string; label: string }[]; // Options for slider control
 }
 
 export interface PageConfig {
@@ -217,9 +219,30 @@ export const PAGE_CONFIGS: Record<string, PageConfig> = {
         id: "browser_cache_ttl",
         title: "Browser Cache TTL",
         description:
-          "Control how long browsers cache static resources (enabled = respect origin headers).",
+          "Control how long browsers cache static resources before requesting them from Cloudflare again.",
         cfSettingName: "browser_cache_ttl",
-        valueType: "on_off",
+        valueType: "ttl",
+        controlType: "slider",
+        options: [
+          { value: 0, label: "Respect Existing Headers" },
+          { value: 1800, label: "30 minutes" },
+          { value: 3600, label: "1 hour" },
+          { value: 7200, label: "2 hours" },
+          { value: 14400, label: "4 hours" },
+          { value: 28800, label: "8 hours" },
+          { value: 57600, label: "16 hours" },
+          { value: 86400, label: "1 day" },
+          { value: 172800, label: "2 days" },
+          { value: 259200, label: "3 days" },
+          { value: 345600, label: "4 days" },
+          { value: 432000, label: "5 days" },
+          { value: 691200, label: "8 days" },
+          { value: 1382400, label: "16 days" },
+          { value: 2678400, label: "1 month" },
+          { value: 5356800, label: "2 months" },
+          { value: 16070400, label: "6 months" },
+          { value: 31536000, label: "1 year" },
+        ],
       },
       {
         id: "cache_level",

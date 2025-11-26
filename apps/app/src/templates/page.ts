@@ -4,6 +4,7 @@ import { Dashboard } from "../components/Dashboard";
 import { Footer } from "../components/Footer";
 import { styles } from "../components/styles";
 import { getCloudcacheValidatedBadge } from "@cloudcache/worker-utils";
+import { generateSliderPanels, type SliderOption } from "../components/ToggleSection";
 
 export interface PageProps {
   faviconBase64?: string;
@@ -21,6 +22,10 @@ export interface PageProps {
     title: string;
     description: string;
     enabled: boolean;
+    controlType?: "toggle" | "slider";
+    options?: SliderOption[];
+    currentValue?: number | string | null;
+    currentLabel?: string | null;
   }>;
   announcement?: {
     message?: string;
@@ -74,6 +79,7 @@ export function renderPage(props: PageProps = {}): string {
   let navHtml = "";
   let dashboardHtml = "";
   let footerHtml = "";
+  let sliderPanelsHtml = "";
 
   try {
     if (hasAnnouncement && announcement) {
@@ -116,6 +122,13 @@ export function renderPage(props: PageProps = {}): string {
     // Silently fail footer
   }
 
+  // Generate slider panels for any slider-type controls
+  try {
+    sliderPanelsHtml = generateSliderPanels(optimizations);
+  } catch {
+    // Silently fail slider panels
+  }
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -131,6 +144,7 @@ export function renderPage(props: PageProps = {}): string {
   ${navHtml}
   ${dashboardHtml}
   ${footerHtml}
+  ${sliderPanelsHtml}
   
   <!-- Theme Toggle - Bottom Right -->
   <div class="theme-toggle">
@@ -173,68 +187,220 @@ export function renderPage(props: PageProps = {}): string {
           const enabled = this.checked;
           const originalState = !enabled;
           
+          // Add loading state
+          const toggleContainer = this.closest('.toggle-container');
+          toggleContainer.classList.add('loading');
+          
           // Disable toggle while processing
           this.disabled = true;
           
           try {
-            // Only handle rocket-loader for now
-            if (optimizationId === 'rocket-loader') {
-              const response = await fetch('/api/v1/optimizations/rocket-loader', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ enabled }),
-              });
-              
-              let errorMessage = 'Failed to toggle Rocket Loader. Please try again.';
-              
-              if (!response.ok) {
-                try {
-                  const errorData = await response.json();
-                  errorMessage = errorData.message || errorData.error || errorMessage;
-                  console.error('Failed to toggle Rocket Loader:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    error: errorData,
-                  });
-                } catch (parseError) {
-                  const errorText = await response.text();
-                  errorMessage = 'Server error (' + response.status + '): ' + (errorText || response.statusText);
-                  console.error('Failed to parse error response:', parseError, 'Raw response:', errorText);
-                }
-                
-                // Revert toggle on error
-                this.checked = originalState;
-                alert(errorMessage);
-              } else {
-                try {
-                  const result = await response.json();
-                  console.log('Rocket Loader toggled successfully:', result);
-                } catch (parseError) {
-                  console.warn('Success response but failed to parse JSON:', parseError);
-                }
+            // Use the generic settings API endpoint
+            const response = await fetch('/api/v1/settings/' + optimizationId, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ enabled }),
+            });
+            
+            let errorMessage = 'Failed to toggle setting. Please try again.';
+            
+            if (!response.ok) {
+              try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+                console.error('Failed to toggle setting:', {
+                  setting: optimizationId,
+                  status: response.status,
+                  statusText: response.statusText,
+                  error: errorData,
+                });
+              } catch (parseError) {
+                const errorText = await response.text();
+                errorMessage = 'Server error (' + response.status + '): ' + (errorText || response.statusText);
+                console.error('Failed to parse error response:', parseError, 'Raw response:', errorText);
               }
-            } else {
-              // For other optimizations, just log (not implemented yet)
-              console.log('Toggle for', optimizationId, 'changed to', enabled);
-              // Revert since not implemented
+              
+              // Revert toggle on error
               this.checked = originalState;
-              alert('This optimization is not yet implemented.');
+              showToast(errorMessage, 'error');
+            } else {
+              try {
+                const result = await response.json();
+                console.log('Setting toggled - Full Response:', JSON.stringify(result, null, 2));
+                console.log('Cloudflare API Response:', result.cfResponse);
+                if (result.cfResponse && result.cfResponse.actualValue !== undefined) {
+                  console.log('Actual value from Cloudflare:', result.cfResponse.actualValue);
+                }
+                showToast(optimizationId.replace(/_/g, ' ') + ' ' + (enabled ? 'enabled' : 'disabled'), 'success');
+              } catch (parseError) {
+                console.warn('Success response but failed to parse JSON:', parseError);
+              }
             }
           } catch (error) {
-            console.error('Error toggling optimization:', error);
+            console.error('Error toggling setting:', error);
             // Revert toggle on error
             this.checked = originalState;
             const errorMsg = error instanceof Error ? error.message : String(error);
-            alert('An error occurred: ' + errorMsg);
+            showToast('An error occurred: ' + errorMsg, 'error');
           } finally {
-            // Re-enable toggle
+            // Re-enable toggle and remove loading state
             this.disabled = false;
+            toggleContainer.classList.remove('loading');
           }
         });
       });
+      
+      // Handle slider panel triggers (toggle clicks)
+      const sliderToggleTriggers = document.querySelectorAll('.toggle-slider-trigger');
+      const overlay = document.getElementById('slider-panel-overlay');
+      
+      sliderToggleTriggers.forEach(trigger => {
+        trigger.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const sliderId = this.getAttribute('data-slider-id');
+          const panel = document.getElementById('slider-panel-' + sliderId);
+          if (panel && overlay) {
+            // Close any other open panels first
+            closeAllPanels();
+            panel.classList.add('active');
+            overlay.classList.add('active');
+          }
+        });
+      });
+      
+      // Also allow clicking on the whole card to open slider
+      const sliderItems = document.querySelectorAll('.optimization-item-slider');
+      sliderItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          // If click was on the toggle, it will handle itself
+          if (e.target.closest('.toggle-slider-trigger')) {
+            return;
+          }
+          
+          const sliderId = this.getAttribute('data-slider-id');
+          const panel = document.getElementById('slider-panel-' + sliderId);
+          if (panel && overlay) {
+            closeAllPanels();
+            panel.classList.add('active');
+            overlay.classList.add('active');
+          }
+        });
+      });
+      
+      // Handle slider panel close button
+      const closeButtons = document.querySelectorAll('.slider-panel-close');
+      closeButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          closeAllPanels();
+        });
+      });
+      
+      // Close panel on overlay click (clicking outside the panel)
+      if (overlay) {
+        overlay.addEventListener('click', closeAllPanels);
+      }
+      
+      // Also close panel when clicking anywhere on the page outside the panel
+      document.addEventListener('click', function(e) {
+        const clickedPanel = e.target.closest('.slider-panel');
+        const clickedTrigger = e.target.closest('.toggle-slider-trigger');
+        const clickedSliderItem = e.target.closest('.optimization-item-slider');
+        
+        // If we clicked outside the panel and outside any trigger
+        if (!clickedPanel && !clickedTrigger && !clickedSliderItem) {
+          closeAllPanels();
+        }
+      });
+      
+      // Handle slider radio selection
+      const sliderRadios = document.querySelectorAll('.slider-radio');
+      sliderRadios.forEach(radio => {
+        radio.addEventListener('change', async function() {
+          const settingId = this.getAttribute('data-setting-id');
+          const value = this.value;
+          const label = this.getAttribute('data-label');
+          
+          // Close the panel immediately
+          closeAllPanels();
+          
+          // Update the value display
+          updateSliderValueDisplay(settingId, label);
+          
+          // Send API request
+          try {
+            const response = await fetch('/api/v1/settings/' + settingId, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ value: parseInt(value, 10) }),
+            });
+            
+            if (!response.ok) {
+              const errorData = await response.json();
+              showToast(errorData.message || 'Failed to update setting', 'error');
+            } else {
+              const result = await response.json();
+              console.log('Setting updated - Full Response:', JSON.stringify(result, null, 2));
+              showToast('Browser Cache TTL set to ' + label, 'success');
+            }
+          } catch (error) {
+            console.error('Error updating setting:', error);
+            showToast('An error occurred', 'error');
+          }
+        });
+      });
+      
+      function closeAllPanels() {
+        document.querySelectorAll('.slider-panel.active').forEach(p => p.classList.remove('active'));
+        if (overlay) overlay.classList.remove('active');
+      }
+      
+      function updateSliderValueDisplay(settingId, label) {
+        const item = document.querySelector('.optimization-item-slider[data-slider-id="' + settingId + '"]');
+        if (item) {
+          let valueEl = item.querySelector('.optimization-value');
+          if (label) {
+            if (!valueEl) {
+              valueEl = document.createElement('div');
+              valueEl.className = 'optimization-value';
+              item.querySelector('.optimization-content').appendChild(valueEl);
+            }
+            valueEl.textContent = label;
+          } else if (valueEl) {
+            valueEl.remove();
+          }
+        }
+      }
     });
+    
+    // Toast notification system
+    function showToast(message, type) {
+      // Remove existing toast
+      const existingToast = document.querySelector('.toast');
+      if (existingToast) {
+        existingToast.remove();
+      }
+      
+      const toast = document.createElement('div');
+      toast.className = 'toast toast-' + type;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      // Trigger animation
+      setTimeout(() => toast.classList.add('show'), 10);
+      
+      // Remove after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
   </script>
   ${getCloudcacheValidatedBadge()}
 </body>
