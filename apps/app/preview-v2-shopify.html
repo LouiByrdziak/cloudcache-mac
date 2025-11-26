@@ -3,1744 +3,1427 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Cloudcache - Performance Settings</title>
+  <title>Cloudcache - Dashboard</title>
   
-  <!-- Shopify's Inter font + JetBrains Mono for code -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <style>
-    /* ============================================
-       DESIGN TOKENS (Polaris + Cloudcache Brand)
-       ============================================ */
-    :root {
-      /* Colors - Dark Theme */
-      --p-color-bg: #0d0d0d;
-      --p-color-bg-surface: #1a1a1a;
-      --p-color-bg-surface-hover: #262626;
-      --p-color-bg-surface-secondary: #141414;
-      --p-color-bg-surface-tertiary: #1f1f1f;
-      --p-color-bg-fill-secondary: #262626;
-      --p-color-bg-fill-secondary-hover: #333333;
-      --p-color-bg-fill-critical: #e51c00;
-      --p-color-border: #333333;
-      --p-color-border-hover: #444444;
-      --p-color-border-focus: #005bd3;
-      --p-color-border-secondary: #262626;
-      --p-color-text: #e3e3e3;
-      --p-color-text-secondary: #b5b5b5;
-      --p-color-text-disabled: #757575;
-      --p-color-text-critical: #ff8a80;
-      --p-color-text-success: #36d399;
-      --p-color-text-on-fill: #ffffff;
-      --p-color-icon: #b5b5b5;
-      --p-color-icon-hover: #e3e3e3;
-      
-      /* Spacing */
-      --p-space-050: 2px;
-      --p-space-100: 4px;
-      --p-space-150: 6px;
-      --p-space-200: 8px;
-      --p-space-300: 12px;
-      --p-space-400: 16px;
-      --p-space-500: 20px;
-      --p-space-600: 24px;
-      --p-space-800: 32px;
-      
-      /* Border Radius */
-      --p-border-radius-100: 4px;
-      --p-border-radius-200: 8px;
-      --p-border-radius-300: 12px;
-      --p-border-radius-full: 9999px;
-      
-      /* Shadows */
-      --p-shadow-100: 0 1px 0 rgba(0, 0, 0, 0.07);
-      --p-shadow-200: 0 3px 1px -1px rgba(0, 0, 0, 0.07);
-      --p-shadow-300: 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-      --p-shadow-600: 0 20px 20px -8px rgba(0, 0, 0, 0.28);
-      
-      /* Typography */
-      --p-font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      --p-font-family-mono: 'JetBrains Mono', monospace;
-      --p-font-size-275: 11px;
-      --p-font-size-300: 12px;
-      --p-font-size-325: 13px;
-      --p-font-size-350: 14px;
-      --p-font-size-400: 16px;
-      --p-font-size-500: 20px;
-      --p-font-size-600: 24px;
-      --p-font-weight-medium: 500;
-      --p-font-weight-semibold: 600;
-      --p-font-weight-bold: 700;
-      
-      /* Layout */
-      --sidebar-width: 240px;
-      --p-motion-duration-150: 150ms;
-      --p-motion-duration-200: 200ms;
-      --p-motion-duration-300: 300ms;
-      --p-motion-ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
-      
-      /* Cloudcache Brand */
-      --cc-brand-primary: #F48120;
-      --cc-brand-secondary: #ff9a3c;
-      --cc-brand-text: #ffa94d;
-    }
-    
-    /* Light Theme */
-    body.light-theme {
-      --p-color-bg: #f1f1f1;
-      --p-color-bg-surface: #ffffff;
-      --p-color-bg-surface-hover: #f6f6f7;
-      --p-color-bg-surface-secondary: #f6f6f7;
-      --p-color-bg-surface-tertiary: #ebebeb;
-      --p-color-bg-fill-secondary: #f1f1f1;
-      --p-color-bg-fill-secondary-hover: #e3e3e3;
-      --p-color-border: #c9cccf;
-      --p-color-border-hover: #8c9196;
-      --p-color-border-secondary: #e1e3e5;
-      --p-color-text: #202223;
-      --p-color-text-secondary: #6d7175;
-      --p-color-text-disabled: #8c9196;
-      --p-color-text-success: #006e52;
-      --p-color-icon: #5c5f62;
-      --p-color-icon-hover: #202223;
-      --cc-brand-text: #b35500;
-    }
+/* ===========================================
+   DESIGN TOKENS
+   =========================================== */
+:root {
+  --bg: #0d0d0d;
+  --bg-surface: #1a1a1a;
+  --bg-surface-hover: #262626;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1f1f1f;
+  --border: #333;
+  --border-hover: #444;
+  --text: #e3e3e3;
+  --text-secondary: #b5b5b5;
+  --text-disabled: #757575;
+  --text-critical: #ff8a80;
+  --icon: #b5b5b5;
+  --brand: #F48120;
+  --brand-light: #ff9a3c;
+  --brand-text: #ffa94d;
+  --sidebar-width: 220px;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --font: 'Inter', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
 
-    /* ============================================
-       BASE STYLES
-       ============================================ */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    body {
-      min-height: 100vh;
-      background: var(--p-color-bg);
-      font-family: var(--p-font-family-sans);
-      font-size: var(--p-font-size-350);
-      color: var(--p-color-text);
-      overflow-x: hidden;
-      transition: background var(--p-motion-duration-200) var(--p-motion-ease-in-out);
-    }
+body.light {
+  --bg: #f1f1f1;
+  --bg-surface: #fff;
+  --bg-surface-hover: #f6f6f7;
+  --bg-secondary: #f6f6f7;
+  --bg-tertiary: #ebebeb;
+  --border: #c9cccf;
+  --border-hover: #8c9196;
+  --text: #202223;
+  --text-secondary: #6d7175;
+  --text-disabled: #8c9196;
+  --icon: #5c5f62;
+  --brand-text: #b35500;
+}
 
-    /* ============================================
-       COMPONENT: App Layout
-       ============================================ */
-    .App-Layout {
-      display: flex;
-      min-height: 100vh;
-    }
+/* ===========================================
+   RESET & BASE
+   =========================================== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  font: 14px/1.5 var(--font);
+  color: var(--text);
+  overflow-x: hidden;
+}
 
-    /* ============================================
-       COMPONENT: Sidebar
-       ============================================ */
-    .Sidebar {
-      width: var(--sidebar-width);
-      background: var(--p-color-bg-surface);
-      border-right: 1px solid var(--p-color-border);
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      z-index: 100;
-      transition: transform var(--p-motion-duration-200) var(--p-motion-ease-in-out);
-    }
-    
-    @media (max-width: 768px) {
-      .Sidebar {
-        transform: translateX(-100%);
-      }
-      .Sidebar.is-open {
-        transform: translateX(0);
-      }
-    }
+/* ===========================================
+   LAYOUT
+   =========================================== */
+.layout { display: flex; min-height: 100vh; }
 
-    /* Sidebar: Logo */
-    .Sidebar__Logo {
-      padding: var(--p-space-500);
-      border-bottom: 1px solid var(--p-color-border);
-      display: flex;
-      align-items: center;
-      gap: var(--p-space-300);
-    }
-    
-    .Sidebar__LogoIcon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--cc-brand-primary), var(--cc-brand-secondary));
-      border-radius: var(--p-border-radius-200);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      box-shadow: 0 2px 8px rgba(244, 129, 32, 0.3);
-    }
-    
-    .Sidebar__LogoText {
-      font-size: var(--p-font-size-400);
-      font-weight: var(--p-font-weight-bold);
-      color: var(--p-color-text);
-    }
+/* ===========================================
+   SIDEBAR
+   =========================================== */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 100;
+}
 
-    /* Sidebar: Navigation
-       Matches Shopify's ui-nav-menu component spacing
-       In production, use <ui-nav-menu> for automatic Shopify integration
-       ============================================ */
-    .Sidebar__Nav {
-      flex: 1;
-      overflow-y: auto;
-      padding: var(--p-space-300) 0;
-      display: flex;
-      flex-direction: column;
-      gap: var(--p-space-050); /* Consistent 2px gap between items */
-    }
-    
-    .Sidebar__NavItem {
-      display: flex;
-      align-items: center;
-      gap: var(--p-space-300);
-      padding: var(--p-space-300) var(--p-space-500);
-      color: var(--p-color-text-secondary);
-      text-decoration: none;
-      font-size: var(--p-font-size-350);
-      font-weight: var(--p-font-weight-medium);
-      transition: all var(--p-motion-duration-150) var(--p-motion-ease-in-out);
-      cursor: pointer;
-      border-left: 3px solid transparent;
-      margin: 0; /* Reset any default margins */
-    }
-    
-    .Sidebar__NavItem:hover {
-      background: var(--p-color-bg-surface-hover);
-      color: var(--p-color-text);
-    }
-    
-    .Sidebar__NavItem.is-active {
-      background: rgba(244, 129, 32, 0.1);
-      color: var(--cc-brand-text);
-      border-left-color: var(--cc-brand-primary);
-    }
-    
-    .Sidebar__NavIcon {
-      font-size: 18px;
-      width: 24px;
-      text-align: center;
-      flex-shrink: 0;
-    }
+.sidebar__logo {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-    /* Sidebar: Footer */
-    .Sidebar__Footer {
-      padding: var(--p-space-400) var(--p-space-500);
-      border-top: 1px solid var(--p-color-border);
-    }
-    
-    .Sidebar__User {
-      display: flex;
-      align-items: center;
-      gap: var(--p-space-300);
-    }
-    
-    .Sidebar__UserAvatar {
-      width: 32px;
-      height: 32px;
-      background: var(--p-color-bg-fill-secondary);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-    }
-    
-    .Sidebar__UserInfo {
-      flex: 1;
-      min-width: 0;
-    }
-    
-    .Sidebar__UserName {
-      font-size: var(--p-font-size-325);
-      font-weight: var(--p-font-weight-medium);
-      color: var(--p-color-text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    .Sidebar__UserRole {
-      font-size: var(--p-font-size-275);
-      color: var(--p-color-text-disabled);
-    }
+.sidebar__logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
 
-    /* ============================================
-       COMPONENT: Main Content
-       ============================================ */
-    .Main-Content {
-      flex: 1;
-      margin-left: var(--sidebar-width);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    @media (max-width: 768px) {
-      .Main-Content {
-        margin-left: 0;
-      }
-    }
+.sidebar__logo-text {
+  font-size: 15px;
+  font-weight: 700;
+}
 
-    /* ============================================
-       COMPONENT: Page Header
-       ============================================ */
-    .Page-Header {
-      padding: var(--p-space-600) var(--p-space-600) var(--p-space-400);
-      border-bottom: 1px solid var(--p-color-border);
-      background: var(--p-color-bg-surface);
-    }
-    
-    .Page-Header__Badge {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--p-space-100);
-      padding: var(--p-space-050) var(--p-space-200);
-      border-radius: var(--p-border-radius-full);
-      font-size: var(--p-font-size-300);
-      font-weight: var(--p-font-weight-medium);
-      background: linear-gradient(135deg, var(--cc-brand-primary), var(--cc-brand-secondary));
-      color: var(--p-color-text-on-fill);
-      margin-bottom: var(--p-space-300);
-    }
-    
-    .Page-Header__Title {
-      font-size: var(--p-font-size-600);
-      font-weight: var(--p-font-weight-semibold);
-      color: var(--p-color-text);
-      margin-bottom: var(--p-space-100);
-    }
-    
-    .Page-Header__Subtitle {
-      font-size: var(--p-font-size-350);
-      color: var(--p-color-text-secondary);
-    }
-    
-    /* Mobile menu button */
-    .Page-Header__MenuBtn {
-      display: none;
-      width: 40px;
-      height: 40px;
-      align-items: center;
-      justify-content: center;
-      background: var(--p-color-bg-fill-secondary);
-      border: 1px solid var(--p-color-border);
-      border-radius: var(--p-border-radius-200);
-      color: var(--p-color-icon);
-      cursor: pointer;
-      margin-bottom: var(--p-space-300);
-    }
-    
-    @media (max-width: 768px) {
-      .Page-Header__MenuBtn {
-        display: flex;
-      }
-    }
+/* Sidebar Navigation */
+.sidebar__nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
 
-    /* ============================================
-       COMPONENT: Page Body
-       ============================================ */
-    .Page-Body {
-      flex: 1;
-      padding: var(--p-space-600);
-      max-width: 800px;
-    }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 150ms var(--ease);
+}
 
-    /* ============================================
-       COMPONENT: Toggle List (Parent)
-       ============================================ */
-    .Toggle-List {
-      display: flex;
-      flex-direction: column;
-      gap: var(--p-space-400);
-    }
+.nav-item:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text);
+}
 
-    /* ============================================
-       COMPONENT: Toggle Card (Child)
-       ============================================ */
-    .Toggle-Card {
-      background: var(--p-color-bg-surface);
-      border-radius: var(--p-border-radius-300);
-      border: 1px solid var(--p-color-border);
-      box-shadow: var(--p-shadow-100);
-      overflow: hidden;
-      transition: box-shadow var(--p-motion-duration-150) var(--p-motion-ease-in-out),
-                  border-color var(--p-motion-duration-150) var(--p-motion-ease-in-out),
-                  transform var(--p-motion-duration-150) var(--p-motion-ease-in-out);
-    }
-    
-    .Toggle-Card:hover {
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-      transform: translateY(-3px) rotate(-0.4deg);
-    }
-    
-    .Toggle-Card.is-active {
-      border-color: var(--cc-brand-primary);
-      box-shadow: 0 0 0 2px var(--cc-brand-primary), 0 4px 20px rgba(244, 129, 32, 0.2);
-    }
-    
-    .Toggle-Card__Inner {
-      padding: var(--p-space-400) var(--p-space-500);
-      display: flex;
-      align-items: flex-start;
-      gap: var(--p-space-400);
-    }
-    
-    .Toggle-Card__Icon {
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, var(--cc-brand-primary), var(--cc-brand-secondary));
-      border-radius: var(--p-border-radius-300);
-      font-size: 24px;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(244, 129, 32, 0.3);
-      transition: transform var(--p-motion-duration-150) var(--p-motion-ease-in-out);
-    }
-    
-    .Toggle-Card:hover .Toggle-Card__Icon {
-      transform: scale(1.08) rotate(-2deg);
-    }
-    
-    .Toggle-Card__Content {
-      flex: 1;
-      min-width: 0;
-    }
-    
-    .Toggle-Card__Title {
-      font-size: var(--p-font-size-350);
-      font-weight: var(--p-font-weight-semibold);
-      color: var(--p-color-text);
-      margin-bottom: var(--p-space-050);
-    }
-    
-    .Toggle-Card__Description {
-      font-size: var(--p-font-size-325);
-      color: var(--p-color-text-secondary);
-      line-height: 1.45;
-    }
-    
-    .Toggle-Card__Actions {
-      display: flex;
-      align-items: center;
-      gap: var(--p-space-300);
-      flex-shrink: 0;
-    }
+.nav-item.active {
+  background: rgba(244, 129, 32, 0.1);
+  color: var(--brand-text);
+  border-left-color: var(--brand);
+}
 
-    /* Toggle Card: Info Button */
-    .Toggle-Card__InfoBtn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 36px;
-      min-height: 36px;
-      padding: var(--p-space-150);
-      background: var(--p-color-bg-fill-secondary);
-      border: 1px solid var(--p-color-border);
-      border-radius: var(--p-border-radius-200);
-      color: var(--p-color-icon);
-      cursor: pointer;
-      transition: all var(--p-motion-duration-150) var(--p-motion-ease-in-out);
-    }
-    
-    .Toggle-Card__InfoBtn:hover {
-      background: var(--p-color-bg-fill-secondary-hover);
-      color: var(--p-color-text);
-    }
-    
-    .Toggle-Card__InfoBtn:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 2px var(--p-color-border-focus);
-    }
-    
-    .Toggle-Card.is-active .Toggle-Card__InfoBtn {
-      background: var(--cc-brand-primary);
-      border-color: var(--cc-brand-primary);
-      color: var(--p-color-text-on-fill);
-    }
+.nav-item__icon { font-size: 16px; width: 20px; text-align: center; }
 
-    /* Toggle Card: Switch */
-    .Toggle-Switch {
-      position: relative;
-      width: 56px;
-      height: 30px;
-      flex-shrink: 0;
-    }
-    
-    .Toggle-Switch__Input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-      position: absolute;
-    }
-    
-    .Toggle-Switch__Slider {
-      position: absolute;
-      inset: 0;
-      background: var(--p-color-border);
-      border-radius: var(--p-border-radius-full);
-      cursor: pointer;
-      transition: background var(--p-motion-duration-150) var(--p-motion-ease-in-out);
-    }
-    
-    .Toggle-Switch__Slider::before {
-      content: '';
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      left: 3px;
-      bottom: 3px;
-      background: #fff;
-      border-radius: 50%;
-      transition: transform var(--p-motion-duration-200) var(--p-motion-ease-in-out);
-      box-shadow: var(--p-shadow-300);
-    }
-    
-    .Toggle-Switch__Input:checked + .Toggle-Switch__Slider {
-      background: var(--cc-brand-primary);
-      box-shadow: 0 0 12px rgba(244, 129, 32, 0.4);
-    }
-    
-    .Toggle-Switch__Input:checked + .Toggle-Switch__Slider::before {
-      transform: translateX(26px);
-    }
-    
-    .Toggle-Switch__Input:focus-visible + .Toggle-Switch__Slider {
-      box-shadow: 0 0 0 3px rgba(244, 129, 32, 0.5);
-    }
-    
-    .Toggle-Switch:hover .Toggle-Switch__Slider {
-      background: var(--p-color-border-hover);
-    }
-    
-    .Toggle-Switch:hover .Toggle-Switch__Input:checked + .Toggle-Switch__Slider {
-      background: var(--cc-brand-secondary);
-    }
+/* Sidebar Footer */
+.sidebar__footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-disabled);
+}
 
-    /* Toggle Card: Theme variant */
-    .Toggle-Card--theme {
-      border-style: dashed;
-    }
+.sidebar__avatar {
+  width: 28px;
+  height: 28px;
+  background: var(--bg-tertiary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    /* ============================================
-       COMPONENT: Page Footer
-       ============================================ */
-    .Page-Footer {
-      padding: var(--p-space-500) var(--p-space-600);
-      border-top: 1px solid var(--p-color-border);
-      background: var(--p-color-bg-surface);
-      margin-top: auto;
-    }
-    
-    .Page-Footer__Inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--p-space-400);
-      flex-wrap: wrap;
-    }
-    
-    .Page-Footer__Copyright {
-      font-size: var(--p-font-size-300);
-      color: var(--p-color-text-disabled);
-    }
-    
-    .Page-Footer__Links {
-      display: flex;
-      gap: var(--p-space-400);
-    }
-    
-    .Page-Footer__Link {
-      font-size: var(--p-font-size-300);
-      color: var(--p-color-text-secondary);
-      text-decoration: none;
-      transition: color var(--p-motion-duration-150) var(--p-motion-ease-in-out);
-    }
-    
-    .Page-Footer__Link:hover {
-      color: var(--cc-brand-text);
-    }
+/* ===========================================
+   MAIN CONTENT
+   =========================================== */
+.main {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
-    /* ============================================
-       COMPONENT: Backdrop (for panels & mobile menu)
-       ============================================ */
-    .Backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity var(--p-motion-duration-200) var(--p-motion-ease-in-out);
-      z-index: 300;
-    }
-    
-    .Backdrop.is-active {
-      opacity: 1;
-      visibility: visible;
-    }
+/* ===========================================
+   PAGE HEADER
+   =========================================== */
+.header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+}
 
-    /* ============================================
-       COMPONENT: Panel (Slide-out sheets)
-       ============================================ */
-    .Panel {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 100%;
-      max-width: 500px;
-      height: 100vh;
-      height: 100dvh;
-      background: var(--p-color-bg-surface);
-      border-left: 1px solid var(--p-color-border);
-      z-index: 400;
-      display: flex;
-      flex-direction: column;
-      transform: translateX(100%);
-      transition: transform var(--p-motion-duration-300) var(--p-motion-ease-in-out);
-      box-shadow: var(--p-shadow-600);
-    }
-    
-    .Panel.is-active {
-      transform: translateX(0);
-    }
-    
-    .Panel__Header {
-      display: flex;
-      align-items: center;
-      gap: var(--p-space-300);
-      padding: var(--p-space-400);
-      border-bottom: 1px solid var(--p-color-border);
-      background: var(--p-color-bg-surface-secondary);
-      flex-shrink: 0;
-    }
-    
-    .Panel__HeaderIcon {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, var(--cc-brand-primary), var(--cc-brand-secondary));
-      border-radius: var(--p-border-radius-200);
-      font-size: 20px;
-      box-shadow: 0 2px 8px rgba(244, 129, 32, 0.3);
-    }
-    
-    .Panel__HeaderTitle {
-      flex: 1;
-      font-size: var(--p-font-size-400);
-      font-weight: var(--p-font-weight-semibold);
-    }
-    
-    .Panel__CloseBtn {
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-      border: none;
-      border-radius: var(--p-border-radius-200);
-      color: var(--p-color-icon);
-      cursor: pointer;
-      transition: all var(--p-motion-duration-150) var(--p-motion-ease-in-out);
-    }
-    
-    .Panel__CloseBtn:hover {
-      background: rgba(229, 28, 0, 0.15);
-      color: var(--p-color-text-critical);
-    }
-    
-    .Panel__Body {
-      flex: 1;
-      overflow-y: auto;
-      padding: var(--p-space-400);
-      -webkit-overflow-scrolling: touch;
-    }
-    
-    .Panel__Stack {
-      display: flex;
-      flex-direction: column;
-      gap: var(--p-space-500);
-    }
+.header__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 500;
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
+  color: #fff;
+  margin-bottom: 8px;
+}
 
-    /* Panel: Text Block */
-    .Panel__TextBlock {
-      display: flex;
-      flex-direction: column;
-      gap: var(--p-space-300);
-    }
-    
-    .Panel__TextHeading {
-      font-size: var(--p-font-size-275);
-      font-weight: var(--p-font-weight-semibold);
-      color: var(--cc-brand-text);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .Panel__TextBlock p {
-      font-size: var(--p-font-size-350);
-      line-height: 1.55;
-      color: var(--p-color-text-secondary);
-    }
-    
-    .Panel__TextBlock strong {
-      color: var(--p-color-text);
-      font-weight: var(--p-font-weight-semibold);
-    }
-    
-    .Panel__TextBlock em {
-      color: var(--p-color-text-success);
-      font-style: normal;
-      font-weight: var(--p-font-weight-medium);
-    }
+.header__title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
 
-    /* Panel: Callout */
-    .Panel__Callout {
-      background: var(--p-color-bg-surface-secondary);
-      border: 1px solid var(--p-color-border);
-      border-left: 4px solid var(--cc-brand-primary);
-      border-radius: var(--p-border-radius-200);
-      padding: var(--p-space-300);
-    }
-    
-    .Panel__CalloutTitle {
-      font-size: var(--p-font-size-325);
-      font-weight: var(--p-font-weight-semibold);
-      color: var(--cc-brand-text);
-      margin-bottom: var(--p-space-100);
-    }
-    
-    .Panel__Callout p {
-      font-size: var(--p-font-size-325);
-      color: var(--p-color-text-secondary);
-      margin: 0;
-    }
+.header__subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
 
-    /* Panel: Visual Box */
-    .Panel__VisualBox {
-      background: var(--p-color-bg-surface-tertiary);
-      border: 1px solid var(--p-color-border-secondary);
-      border-radius: var(--p-border-radius-200);
-      padding: var(--p-space-400);
-      display: flex;
-      flex-direction: column;
-      gap: var(--p-space-300);
-    }
-    
-    .Panel__VisualLabel {
-      font-size: var(--p-font-size-275);
-      font-weight: var(--p-font-weight-medium);
-      color: var(--p-color-text-disabled);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      text-align: center;
-    }
+/* ===========================================
+   PAGE BODY
+   =========================================== */
+.body {
+  flex: 1;
+  padding: 20px 24px;
+  max-width: 780px;
+}
 
-    /* Panel: Stats Grid */
-    .Panel__StatsGrid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--p-space-200);
-    }
-    
-    .Panel__StatCard {
-      background: var(--p-color-bg-surface);
-      border: 1px solid var(--p-color-border);
-      border-radius: var(--p-border-radius-200);
-      padding: var(--p-space-300);
-      text-align: center;
-    }
-    
-    .Panel__StatValue {
-      font-size: var(--p-font-size-500);
-      font-weight: var(--p-font-weight-bold);
-      color: var(--cc-brand-text);
-    }
-    
-    .Panel__StatLabel {
-      font-size: var(--p-font-size-275);
-      color: var(--p-color-text-disabled);
-      text-transform: uppercase;
-      margin-top: var(--p-space-050);
-    }
+/* ===========================================
+   TOGGLE LIST & CARDS
+   
+   To move a card:
+   1. Cut the entire <article class="card"> block
+   2. Paste into desired category section
+   3. Update data-id if needed
+   
+   Cards are self-contained and order-independent.
+   =========================================== */
+.toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-    /* Panel: Timeline */
-    .Panel__Timeline {
-      display: flex;
-      flex-direction: column;
-      gap: var(--p-space-300);
-    }
-    
-    .Panel__TimelineRow {
-      display: flex;
-      flex-direction: column;
-      gap: var(--p-space-050);
-    }
-    
-    .Panel__TimelineLabel {
-      font-size: var(--p-font-size-275);
-      font-weight: var(--p-font-weight-medium);
-      color: var(--p-color-text-disabled);
-    }
-    
-    .Panel__TimelineBar {
-      height: 22px;
-      border-radius: var(--p-border-radius-100);
-      display: flex;
-      overflow: hidden;
-    }
-    
-    .Panel__TimelineSegment {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 9px;
-      font-weight: var(--p-font-weight-semibold);
-      color: #fff;
-    }
-    
-    .Panel__TimelineSegment--blocking { background: var(--p-color-bg-fill-critical); }
-    .Panel__TimelineSegment--delayed { background: var(--p-color-border); color: var(--p-color-text-disabled); }
-    .Panel__TimelineSegment--fast { background: var(--cc-brand-primary); }
-    .Panel__TimelineSegment--deferred { background: rgba(244, 129, 32, 0.2); color: var(--cc-brand-text); }
-    
-    .Panel__TimelineTime {
-      font-size: var(--p-font-size-275);
-      font-weight: var(--p-font-weight-semibold);
-      text-align: right;
-    }
-    
-    .Panel__TimelineTime--slow { color: var(--p-color-text-critical); }
-    .Panel__TimelineTime--fast { color: var(--cc-brand-text); }
+/* --- TOGGLE CARD (self-contained component) --- */
+.card {
+  background: var(--bg-surface);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  transition: all 150ms var(--ease);
+}
 
-    /* Panel: Code Block */
-    .Panel__CodeTransform {
-      display: flex;
-      flex-direction: column;
-      gap: var(--p-space-200);
-    }
-    
-    .Panel__CodeLabel {
-      font-size: var(--p-font-size-275);
-      font-weight: var(--p-font-weight-medium);
-      color: var(--p-color-text-disabled);
-      margin-bottom: var(--p-space-050);
-    }
-    
-    .Panel__CodeBlock {
-      background: var(--p-color-bg-surface);
-      border: 1px solid var(--p-color-border);
-      border-radius: var(--p-border-radius-200);
-      padding: var(--p-space-300);
-      font-family: var(--p-font-family-mono);
-      font-size: 11px;
-      line-height: 1.5;
-      overflow-x: auto;
-    }
-    
-    .Panel__CodeBlock--before { border-left: 3px solid var(--p-color-text-critical); }
-    .Panel__CodeBlock--after { border-left: 3px solid var(--cc-brand-primary); }
-    
-    .Panel__CodeBlock .keyword { color: #c792ea; }
-    .Panel__CodeBlock .string { color: #c3e88d; }
-    .Panel__CodeBlock .comment { color: #546e7a; }
-    .Panel__CodeBlock .property { color: #82aaff; }
-    .Panel__CodeBlock .value { color: #f78c6c; }
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px) rotate(-0.3deg);
+}
 
-    /* Panel: Size Compare */
-    .Panel__SizeCompare {
-      display: flex;
-      flex-direction: column;
-      gap: var(--p-space-300);
-    }
-    
-    .Panel__SizeBarContainer {
-      display: flex;
-      flex-direction: column;
-      gap: var(--p-space-050);
-    }
-    
-    .Panel__SizeBarLabel {
-      font-size: var(--p-font-size-275);
-      color: var(--p-color-text-disabled);
-      display: flex;
-      justify-content: space-between;
-    }
-    
-    .Panel__SizeBar {
-      height: 24px;
-      border-radius: var(--p-border-radius-100);
-      transition: width 0.5s ease;
-    }
-    
-    .Panel__SizeBar--original { background: var(--p-color-border); width: 100%; }
-    .Panel__SizeBar--compressed { background: var(--cc-brand-primary); }
-    .Panel__SizeBar--gzip { background: var(--p-color-text-disabled); }
-    
-    .Panel__SizeSavings {
-      text-align: center;
-      padding: var(--p-space-200);
-      background: rgba(244, 129, 32, 0.1);
-      border-radius: var(--p-border-radius-100);
-      border: 1px solid var(--cc-brand-primary);
-    }
-    
-    .Panel__SizeSavingsValue {
-      font-size: var(--p-font-size-500);
-      font-weight: var(--p-font-weight-bold);
-      color: var(--cc-brand-text);
-    }
-    
-    .Panel__SizeSavingsLabel {
-      font-size: var(--p-font-size-275);
-      color: var(--p-color-text-secondary);
-    }
+.card.active {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 1px var(--brand), 0 4px 16px rgba(244,129,32,0.15);
+}
 
-    /* Panel: Sequence Diagram */
-    .Panel__Sequence {
-      display: flex;
-      flex-direction: column;
-      gap: var(--p-space-200);
-    }
-    
-    .Panel__SequenceRow {
-      display: flex;
-      align-items: center;
-      gap: var(--p-space-200);
-      padding: var(--p-space-200);
-      background: var(--p-color-bg-surface);
-      border-radius: var(--p-border-radius-100);
-      border: 1px solid var(--p-color-border);
-    }
-    
-    .Panel__SequenceRow--highlight {
-      border-color: var(--cc-brand-primary);
-      background: rgba(244, 129, 32, 0.05);
-    }
-    
-    .Panel__SequenceStep {
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--cc-brand-primary);
-      border-radius: 50%;
-      font-size: 11px;
-      font-weight: var(--p-font-weight-bold);
-      color: #fff;
-      flex-shrink: 0;
-    }
-    
-    .Panel__SequenceContent { flex: 1; }
-    .Panel__SequenceTitle { font-size: var(--p-font-size-325); font-weight: var(--p-font-weight-semibold); }
-    .Panel__SequenceDesc { font-size: var(--p-font-size-275); color: var(--p-color-text-secondary); }
-    .Panel__SequenceTime { font-size: var(--p-font-size-275); color: var(--cc-brand-text); font-weight: var(--p-font-weight-medium); }
+.card__inner {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 
-    /* Panel: Browser Mockup */
-    .Panel__Browser {
-      background: var(--p-color-bg-surface);
-      border: 1px solid var(--p-color-border);
-      border-radius: var(--p-border-radius-200);
-      overflow: hidden;
-    }
-    
-    .Panel__BrowserBar {
-      display: flex;
-      align-items: center;
-      gap: var(--p-space-200);
-      padding: var(--p-space-150) var(--p-space-300);
-      background: var(--p-color-bg-surface-secondary);
-      border-bottom: 1px solid var(--p-color-border);
-    }
-    
-    .Panel__BrowserDots { display: flex; gap: var(--p-space-100); }
-    .Panel__BrowserDots span { width: 8px; height: 8px; border-radius: 50%; }
-    .Panel__BrowserDots span:nth-child(1) { background: #ff5f57; }
-    .Panel__BrowserDots span:nth-child(2) { background: #ffbd2e; }
-    .Panel__BrowserDots span:nth-child(3) { background: #28c840; }
-    
-    .Panel__BrowserURL {
-      flex: 1;
-      background: var(--p-color-bg);
-      padding: var(--p-space-050) var(--p-space-200);
-      border-radius: var(--p-border-radius-100);
-      font-size: var(--p-font-size-275);
-      color: var(--p-color-text-disabled);
-      font-family: monospace;
-    }
-    
-    .Panel__BrowserContent {
-      padding: var(--p-space-300);
-      display: flex;
-      flex-direction: column;
-      gap: var(--p-space-200);
-      min-height: 70px;
-    }
-    
-    .Panel__Skeleton {
-      background: var(--p-color-border);
-      border-radius: var(--p-border-radius-100);
-      animation: skeletonPulse 1.5s ease-in-out infinite;
-    }
-    
-    .Panel__Skeleton--header { width: 35%; height: 10px; background: var(--cc-brand-primary); }
-    .Panel__Skeleton--nav { width: 55%; height: 8px; }
-    .Panel__Skeleton--hero { width: 100%; height: 28px; }
-    .Panel__Skeleton--text { width: 75%; height: 6px; }
-    
-    @keyframes skeletonPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+.card__icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
+  border-radius: 10px;
+  font-size: 20px;
+  flex-shrink: 0;
+}
 
-    /* Panel: Banner */
-    .Panel__Banner {
-      display: flex;
-      align-items: center;
-      gap: var(--p-space-200);
-      padding: var(--p-space-200) var(--p-space-300);
-      background: rgba(244, 129, 32, 0.1);
-      border: 1px solid var(--cc-brand-primary);
-      border-radius: var(--p-border-radius-100);
-      font-size: var(--p-font-size-300);
-      font-weight: var(--p-font-weight-medium);
-      color: var(--cc-brand-text);
-    }
-    
-    .Panel__BannerIcon {
-      width: 18px;
-      height: 18px;
-      background: var(--cc-brand-primary);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 10px;
-    }
+.card:hover .card__icon { transform: scale(1.05) rotate(-2deg); }
 
-    /* ============================================
-       UTILITIES
-       ============================================ */
-    .visually-hidden {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      margin: -1px;
-      padding: 0;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      border: 0;
-    }
-    
-    .skip-link {
-      position: absolute;
-      top: -40px;
-      left: 0;
-      background: var(--cc-brand-primary);
-      color: #fff;
-      padding: var(--p-space-200) var(--p-space-400);
-      z-index: 1000;
-    }
-    
-    .skip-link:focus { top: 0; }
+.card__content { flex: 1; min-width: 0; }
+.card__title { font-size: 14px; font-weight: 600; }
+.card__desc { font-size: 13px; color: var(--text-secondary); }
 
-    /* ============================================
-       RESPONSIVE
-       ============================================ */
-    @media (max-width: 600px) {
-      .Toggle-Card__Inner {
-        flex-wrap: wrap;
-      }
-      
-      .Toggle-Card__Content {
-        order: 2;
-        width: calc(100% - 64px);
-      }
-      
-      .Toggle-Card__Actions {
-        order: 3;
-        width: 100%;
-        justify-content: space-between;
-        margin-top: var(--p-space-300);
-        padding-top: var(--p-space-300);
-        border-top: 1px solid var(--p-color-border-secondary);
-      }
-    }
+.card__actions { display: flex; align-items: center; gap: 10px; }
 
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
+/* Info Button */
+.card__info {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--icon);
+  cursor: pointer;
+  transition: all 150ms var(--ease);
+}
+
+.card__info:hover { background: var(--bg-surface-hover); color: var(--text); }
+.card.active .card__info { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+/* Toggle Switch */
+.switch { position: relative; width: 48px; height: 26px; }
+.switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+.switch__slider {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 99px;
+  cursor: pointer;
+  transition: background 150ms var(--ease);
+}
+
+.switch__slider::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 200ms var(--ease);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.switch input:checked + .switch__slider {
+  background: var(--brand);
+  box-shadow: 0 0 10px rgba(244,129,32,0.4);
+}
+
+.switch input:checked + .switch__slider::before { transform: translateX(22px); }
+
+/* --- THEME CARD (variant) --- */
+.card--theme { border-style: dashed; }
+
+/* ===========================================
+   PAGE FOOTER
+   =========================================== */
+.footer {
+  padding: 14px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-surface);
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-disabled);
+}
+
+.footer a { color: var(--text-secondary); text-decoration: none; }
+.footer a:hover { color: var(--brand-text); }
+
+/* ===========================================
+   BACKDROP & PANELS
+   =========================================== */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 200ms var(--ease);
+  z-index: 300;
+}
+
+.backdrop.active { opacity: 1; visibility: visible; }
+
+/* --- PANEL (slide-out sheet) --- */
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 460px;
+  height: 100vh;
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 300ms var(--ease);
+}
+
+.panel.active { transform: translateX(0); }
+
+.panel__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+.panel__icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--brand), var(--brand-light));
+  border-radius: 8px;
+  font-size: 18px;
+}
+
+.panel__title { flex: 1; font-size: 16px; font-weight: 600; }
+
+.panel__close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--icon);
+  cursor: pointer;
+}
+
+.panel__close:hover { background: rgba(229,28,0,0.15); color: var(--text-critical); }
+
+.panel__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.panel__stack { display: flex; flex-direction: column; gap: 16px; }
+
+/* Panel: Text Blocks */
+.panel__label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--brand-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.panel__text { font-size: 14px; line-height: 1.55; color: var(--text-secondary); }
+.panel__text strong { color: var(--text); }
+.panel__text em { color: #36d399; font-style: normal; font-weight: 500; }
+
+/* Panel: Callout */
+.callout {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--brand);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.callout__title { font-size: 13px; font-weight: 600; color: var(--brand-text); margin-bottom: 4px; }
+.callout p { font-size: 13px; color: var(--text-secondary); margin: 0; }
+
+/* Panel: Visual Box */
+.visual {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.visual__label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-disabled);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* Panel: Stats */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.stat {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+}
+
+.stat__value { font-size: 18px; font-weight: 700; color: var(--brand-text); }
+.stat__label { font-size: 10px; color: var(--text-disabled); text-transform: uppercase; }
+
+/* Panel: Timeline */
+.timeline { display: flex; flex-direction: column; gap: 8px; }
+
+.timeline__row { display: flex; flex-direction: column; gap: 2px; }
+.timeline__label { font-size: 11px; color: var(--text-disabled); }
+
+.timeline__bar { height: 20px; border-radius: 4px; display: flex; overflow: hidden; }
+
+.timeline__seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.timeline__seg--block { background: #e51c00; }
+.timeline__seg--delay { background: var(--border); color: var(--text-disabled); }
+.timeline__seg--fast { background: var(--brand); }
+.timeline__seg--defer { background: rgba(244,129,32,0.2); color: var(--brand-text); }
+
+.timeline__time { font-size: 11px; font-weight: 600; text-align: right; margin-top: 2px; }
+.timeline__time--slow { color: var(--text-critical); }
+.timeline__time--fast { color: var(--brand-text); }
+
+/* Panel: Code */
+.code-compare { display: flex; flex-direction: column; gap: 8px; }
+.code-label { font-size: 11px; color: var(--text-disabled); margin-bottom: 2px; }
+
+.code {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  font: 11px/1.5 var(--mono);
+  overflow-x: auto;
+}
+
+.code--before { border-left: 3px solid var(--text-critical); }
+.code--after { border-left: 3px solid var(--brand); }
+.code .kw { color: #c792ea; }
+.code .str { color: #c3e88d; }
+.code .cmt { color: #546e7a; }
+.code .prop { color: #82aaff; }
+.code .val { color: #f78c6c; }
+
+/* Panel: Size Bars */
+.size-bars { display: flex; flex-direction: column; gap: 10px; }
+
+.size-bar__row { display: flex; flex-direction: column; gap: 2px; }
+.size-bar__label { font-size: 11px; color: var(--text-disabled); display: flex; justify-content: space-between; }
+.size-bar { height: 20px; border-radius: 4px; }
+.size-bar--orig { background: var(--border); width: 100%; }
+.size-bar--comp { background: var(--brand); }
+.size-bar--gzip { background: var(--text-disabled); }
+
+.size-savings {
+  text-align: center;
+  padding: 8px;
+  background: rgba(244,129,32,0.1);
+  border: 1px solid var(--brand);
+  border-radius: 4px;
+}
+
+.size-savings__val { font-size: 18px; font-weight: 700; color: var(--brand-text); }
+.size-savings__label { font-size: 11px; color: var(--text-secondary); }
+
+/* Panel: Sequence */
+.sequence { display: flex; flex-direction: column; gap: 6px; }
+
+.seq-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--bg-surface);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.seq-row--hl { border-color: var(--brand); background: rgba(244,129,32,0.05); }
+
+.seq-step {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand);
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.seq-content { flex: 1; }
+.seq-title { font-size: 13px; font-weight: 600; }
+.seq-desc { font-size: 11px; color: var(--text-secondary); }
+.seq-time { font-size: 11px; color: var(--brand-text); font-weight: 500; }
+
+/* Panel: Browser Mock */
+.browser {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.browser__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.browser__dots { display: flex; gap: 4px; }
+.browser__dots span { width: 8px; height: 8px; border-radius: 50%; }
+.browser__dots span:nth-child(1) { background: #ff5f57; }
+.browser__dots span:nth-child(2) { background: #ffbd2e; }
+.browser__dots span:nth-child(3) { background: #28c840; }
+
+.browser__url {
+  flex: 1;
+  background: var(--bg);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font: 10px var(--mono);
+  color: var(--text-disabled);
+}
+
+.browser__content { padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+
+.skel {
+  background: var(--border);
+  border-radius: 3px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skel--h { width: 30%; height: 8px; background: var(--brand); }
+.skel--nav { width: 50%; height: 6px; }
+.skel--hero { width: 100%; height: 24px; }
+.skel--text { width: 70%; height: 5px; }
+
+@keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+/* Panel: Banner */
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(244,129,32,0.1);
+  border: 1px solid var(--brand);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--brand-text);
+}
+
+.banner__icon {
+  width: 16px;
+  height: 16px;
+  background: var(--brand);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 9px;
+}
+
+/* ===========================================
+   UTILITIES
+   =========================================== */
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); }
+.hidden { display: none !important; }
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
   </style>
 </head>
 <body>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-  
-  <!-- ============================================
-       COMPONENT: App Layout
-       ============================================ -->
-  <div class="App-Layout">
-    
-    <!-- ============================================
-         COMPONENT: Sidebar
-         ============================================ -->
-    <aside class="Sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
-      
-      <!-- Sidebar: Logo -->
-      <div class="Sidebar__Logo">
-        <div class="Sidebar__LogoIcon">☁️</div>
-        <span class="Sidebar__LogoText">Cloudcache</span>
-      </div>
-      
-      <!-- Sidebar: Navigation
-           Shopify App Bridge compatible - uses ui-nav-menu pattern
-           See: https://shopify.dev/docs/api/app-bridge-library/web-components/ui-nav-menu
-           ============================================ -->
-      <nav class="Sidebar__Nav" aria-label="App navigation">
-        <a class="Sidebar__NavItem is-active" href="#performance">
-          <span class="Sidebar__NavIcon">⚡</span>
-          Performance
-        </a>
-        <a class="Sidebar__NavItem" href="#security">
-          <span class="Sidebar__NavIcon">🛡️</span>
-          Security
-        </a>
-        <a class="Sidebar__NavItem" href="#network">
-          <span class="Sidebar__NavIcon">🌐</span>
-          Network
-        </a>
-        <a class="Sidebar__NavItem" href="#caching">
-          <span class="Sidebar__NavIcon">📦</span>
-          Caching
-        </a>
-        <a class="Sidebar__NavItem" href="#ssl">
-          <span class="Sidebar__NavIcon">🔒</span>
-          SSL/TLS
-        </a>
-        <a class="Sidebar__NavItem" href="#analytics">
-          <span class="Sidebar__NavIcon">📊</span>
-          Analytics
-        </a>
-      </nav>
-      
-      <!-- Sidebar: Footer -->
-      <div class="Sidebar__Footer">
-        <div class="Sidebar__User">
-          <div class="Sidebar__UserAvatar">👤</div>
-          <div class="Sidebar__UserInfo">
-            <div class="Sidebar__UserName">Store Admin</div>
-            <div class="Sidebar__UserRole">Pro Plan</div>
-          </div>
-        </div>
-      </div>
-      
-    </aside>
 
-    <!-- ============================================
-         COMPONENT: Main Content
-         ============================================ -->
-    <main class="Main-Content" id="main-content">
-      
-      <!-- ============================================
-           COMPONENT: Page Header
-           ============================================ -->
-      <header class="Page-Header">
-        <button class="Page-Header__MenuBtn" id="menu-toggle" aria-label="Toggle menu">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2 4.5h16M2 10h16M2 15.5h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-        </button>
-        <span class="Page-Header__Badge">
-          <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path d="M10 0a10 10 0 1 0 10 10A10 10 0 0 0 10 0zm5.7 7.3-6 6a1 1 0 0 1-1.4 0l-3-3a1 1 0 0 1 1.4-1.4l2.3 2.3 5.3-5.3a1 1 0 0 1 1.4 1.4z"/></svg>
-          Polaris Compliant
-        </span>
-        <h1 class="Page-Header__Title">Performance Settings</h1>
-        <p class="Page-Header__Subtitle">Optimize your store's speed with Cloudflare performance features.</p>
-      </header>
+<div class="layout">
 
-      <!-- ============================================
-           COMPONENT: Page Body
-           ============================================ -->
-      <div class="Page-Body">
-        
-        <!-- ============================================
-             COMPONENT: Toggle List (Parent)
-             Contains all Toggle Card children
-             ============================================ -->
-        <div class="Toggle-List" role="list" aria-label="Performance settings">
-          
-          <!-- COMPONENT: Toggle Card - Rocket Loader -->
-          <article class="Toggle-Card" data-setting="rocket-loader" role="listitem">
-            <div class="Toggle-Card__Inner">
-              <div class="Toggle-Card__Icon">🚀</div>
-              <div class="Toggle-Card__Content">
-                <h2 class="Toggle-Card__Title">Rocket Loader</h2>
-                <p class="Toggle-Card__Description">Defer JavaScript loading until after page content renders.</p>
-              </div>
-              <div class="Toggle-Card__Actions">
-                <button class="Toggle-Card__InfoBtn" aria-label="Learn more about Rocket Loader" data-panel="rocket-loader">
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
-                </button>
-                <label class="Toggle-Switch">
-                  <input type="checkbox" class="Toggle-Switch__Input" checked>
-                  <span class="Toggle-Switch__Slider"></span>
-                  <span class="visually-hidden">Toggle Rocket Loader</span>
-                </label>
-              </div>
-            </div>
-          </article>
+  <!-- =============================================
+       SIDEBAR
+       ============================================= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <div class="sidebar__logo-icon">☁️</div>
+      <span class="sidebar__logo-text">Cloudcache</span>
+    </div>
 
-          <!-- COMPONENT: Toggle Card - Minify JS -->
-          <article class="Toggle-Card" data-setting="minify-js" role="listitem">
-            <div class="Toggle-Card__Inner">
-              <div class="Toggle-Card__Icon">📦</div>
-              <div class="Toggle-Card__Content">
-                <h2 class="Toggle-Card__Title">Minify JavaScript</h2>
-                <p class="Toggle-Card__Description">Remove unnecessary characters to reduce file sizes.</p>
-              </div>
-              <div class="Toggle-Card__Actions">
-                <button class="Toggle-Card__InfoBtn" aria-label="Learn more about Minify JavaScript" data-panel="minify-js">
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
-                </button>
-                <label class="Toggle-Switch">
-                  <input type="checkbox" class="Toggle-Switch__Input" checked>
-                  <span class="Toggle-Switch__Slider"></span>
-                  <span class="visually-hidden">Toggle Minify JavaScript</span>
-                </label>
-              </div>
-            </div>
-          </article>
+    <nav class="sidebar__nav">
+      <a class="nav-item active" data-page="performance"><span class="nav-item__icon">⚡</span>Performance</a>
+      <a class="nav-item" data-page="security"><span class="nav-item__icon">🛡️</span>Security</a>
+      <a class="nav-item" data-page="network"><span class="nav-item__icon">🌐</span>Network</a>
+      <a class="nav-item" data-page="caching"><span class="nav-item__icon">📦</span>Caching</a>
+      <a class="nav-item" data-page="ssl"><span class="nav-item__icon">🔒</span>SSL/TLS</a>
+      <a class="nav-item" data-page="analytics"><span class="nav-item__icon">📊</span>Analytics</a>
+    </nav>
 
-          <!-- COMPONENT: Toggle Card - Minify CSS -->
-          <article class="Toggle-Card" data-setting="minify-css" role="listitem">
-            <div class="Toggle-Card__Inner">
-              <div class="Toggle-Card__Icon">🎨</div>
-              <div class="Toggle-Card__Content">
-                <h2 class="Toggle-Card__Title">Minify CSS</h2>
-                <p class="Toggle-Card__Description">Compress stylesheets by removing formatting and comments.</p>
-              </div>
-              <div class="Toggle-Card__Actions">
-                <button class="Toggle-Card__InfoBtn" aria-label="Learn more about Minify CSS" data-panel="minify-css">
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
-                </button>
-                <label class="Toggle-Switch">
-                  <input type="checkbox" class="Toggle-Switch__Input" checked>
-                  <span class="Toggle-Switch__Slider"></span>
-                  <span class="visually-hidden">Toggle Minify CSS</span>
-                </label>
-              </div>
-            </div>
-          </article>
-
-          <!-- COMPONENT: Toggle Card - Brotli -->
-          <article class="Toggle-Card" data-setting="brotli" role="listitem">
-            <div class="Toggle-Card__Inner">
-              <div class="Toggle-Card__Icon">🗜️</div>
-              <div class="Toggle-Card__Content">
-                <h2 class="Toggle-Card__Title">Brotli Compression</h2>
-                <p class="Toggle-Card__Description">Advanced compression for faster transfers and reduced bandwidth.</p>
-              </div>
-              <div class="Toggle-Card__Actions">
-                <button class="Toggle-Card__InfoBtn" aria-label="Learn more about Brotli" data-panel="brotli">
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
-                </button>
-                <label class="Toggle-Switch">
-                  <input type="checkbox" class="Toggle-Switch__Input" checked>
-                  <span class="Toggle-Switch__Slider"></span>
-                  <span class="visually-hidden">Toggle Brotli</span>
-                </label>
-              </div>
-            </div>
-          </article>
-
-          <!-- COMPONENT: Toggle Card - Early Hints -->
-          <article class="Toggle-Card" data-setting="early-hints" role="listitem">
-            <div class="Toggle-Card__Inner">
-              <div class="Toggle-Card__Icon">⏱️</div>
-              <div class="Toggle-Card__Content">
-                <h2 class="Toggle-Card__Title">Early Hints</h2>
-                <p class="Toggle-Card__Description">Preload critical resources before the main response arrives.</p>
-              </div>
-              <div class="Toggle-Card__Actions">
-                <button class="Toggle-Card__InfoBtn" aria-label="Learn more about Early Hints" data-panel="early-hints">
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
-                </button>
-                <label class="Toggle-Switch">
-                  <input type="checkbox" class="Toggle-Switch__Input">
-                  <span class="Toggle-Switch__Slider"></span>
-                  <span class="visually-hidden">Toggle Early Hints</span>
-                </label>
-              </div>
-            </div>
-          </article>
-
-          <!-- COMPONENT: Toggle Card - Theme (variant) -->
-          <article class="Toggle-Card Toggle-Card--theme" data-setting="theme" role="listitem">
-            <div class="Toggle-Card__Inner">
-              <div class="Toggle-Card__Icon">🌓</div>
-              <div class="Toggle-Card__Content">
-                <h2 class="Toggle-Card__Title">Dashboard Theme</h2>
-                <p class="Toggle-Card__Description">Currently: <strong id="theme-label">Dark</strong></p>
-              </div>
-              <div class="Toggle-Card__Actions">
-                <label class="Toggle-Switch">
-                  <input type="checkbox" class="Toggle-Switch__Input" id="theme-toggle">
-                  <span class="Toggle-Switch__Slider"></span>
-                  <span class="visually-hidden">Toggle theme</span>
-                </label>
-              </div>
-            </div>
-          </article>
-          
-        </div><!-- /Toggle-List -->
-        
-      </div><!-- /Page-Body -->
-
-      <!-- ============================================
-           COMPONENT: Page Footer
-           ============================================ -->
-      <footer class="Page-Footer">
-        <div class="Page-Footer__Inner">
-          <div class="Page-Footer__Copyright">© 2025 Cloudcache. All rights reserved.</div>
-          <div class="Page-Footer__Links">
-            <a href="#docs" class="Page-Footer__Link">Documentation</a>
-            <a href="#support" class="Page-Footer__Link">Support</a>
-            <a href="#privacy" class="Page-Footer__Link">Privacy</a>
-          </div>
-        </div>
-      </footer>
-
-    </main><!-- /Main-Content -->
-    
-  </div><!-- /App-Layout -->
-
-  <!-- ============================================
-       COMPONENT: Backdrop
-       ============================================ -->
-  <div class="Backdrop" id="backdrop"></div>
-
-  <!-- ============================================
-       COMPONENT: Panels (Slide-out sheets)
-       Parent container for all panel children
-       ============================================ -->
-  
-  <!-- PANEL: Rocket Loader -->
-  <aside class="Panel" id="panel-rocket-loader" role="dialog" aria-labelledby="title-rocket-loader" aria-modal="true" aria-hidden="true">
-    <header class="Panel__Header">
-      <div class="Panel__HeaderIcon">🚀</div>
-      <h2 class="Panel__HeaderTitle" id="title-rocket-loader">Rocket Loader</h2>
-      <button class="Panel__CloseBtn" aria-label="Close" data-close><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg></button>
-    </header>
-    <div class="Panel__Body">
-      <div class="Panel__Stack">
-        <div class="Panel__TextBlock">
-          <h3 class="Panel__TextHeading">The Problem</h3>
-          <p><strong>Imagine your webpage as a race car.</strong> Without Rocket Loader, visitors wait at a blank screen while JavaScript loads. The "engine" has to warm up before they see anything.</p>
-        </div>
-        <div class="Panel__TextBlock">
-          <h3 class="Panel__TextHeading">The Solution</h3>
-          <p>Rocket Loader makes your page <em>launch immediately</em>—content appears while JavaScript loads in the background. Visitors see your products first, not a loading screen.</p>
-        </div>
-        <div class="Panel__Callout">
-          <div class="Panel__CalloutTitle">✨ The Magic</div>
-          <p>JavaScript is deferred until after the DOM renders, making First Contentful Paint dramatically faster.</p>
-        </div>
-        <div class="Panel__VisualBox">
-          <div class="Panel__VisualLabel">Performance Comparison</div>
-          <div class="Panel__Browser">
-            <div class="Panel__BrowserBar">
-              <div class="Panel__BrowserDots"><span></span><span></span><span></span></div>
-              <div class="Panel__BrowserURL">yourstore.myshopify.com</div>
-            </div>
-            <div class="Panel__BrowserContent">
-              <div class="Panel__Skeleton Panel__Skeleton--header"></div>
-              <div class="Panel__Skeleton Panel__Skeleton--nav"></div>
-              <div class="Panel__Skeleton Panel__Skeleton--hero"></div>
-              <div class="Panel__Skeleton Panel__Skeleton--text"></div>
-            </div>
-          </div>
-          <div class="Panel__Banner"><span class="Panel__BannerIcon">✓</span>Content visible instantly</div>
-          <div class="Panel__Timeline">
-            <div class="Panel__TimelineRow">
-              <div class="Panel__TimelineLabel">❌ Without Rocket Loader</div>
-              <div class="Panel__TimelineBar">
-                <div class="Panel__TimelineSegment Panel__TimelineSegment--blocking" style="width:70%">JS Blocking</div>
-                <div class="Panel__TimelineSegment Panel__TimelineSegment--delayed" style="width:30%">Content</div>
-              </div>
-              <div class="Panel__TimelineTime Panel__TimelineTime--slow">~3.2s</div>
-            </div>
-            <div class="Panel__TimelineRow">
-              <div class="Panel__TimelineLabel">✅ With Rocket Loader</div>
-              <div class="Panel__TimelineBar">
-                <div class="Panel__TimelineSegment Panel__TimelineSegment--fast" style="width:25%">Content</div>
-                <div class="Panel__TimelineSegment Panel__TimelineSegment--deferred" style="width:75%">JS Deferred</div>
-              </div>
-              <div class="Panel__TimelineTime Panel__TimelineTime--fast">~0.8s</div>
-            </div>
-          </div>
-          <div class="Panel__StatsGrid">
-            <div class="Panel__StatCard"><div class="Panel__StatValue">75%</div><div class="Panel__StatLabel">Faster Paint</div></div>
-            <div class="Panel__StatCard"><div class="Panel__StatValue">4x</div><div class="Panel__StatLabel">Quicker Load</div></div>
-          </div>
-        </div>
-      </div>
+    <div class="sidebar__footer">
+      <div class="sidebar__avatar">👤</div>
+      <span>Pro Plan</span>
     </div>
   </aside>
 
-  <!-- PANEL: Minify JavaScript -->
-  <aside class="Panel" id="panel-minify-js" role="dialog" aria-labelledby="title-minify-js" aria-modal="true" aria-hidden="true">
-    <header class="Panel__Header">
-      <div class="Panel__HeaderIcon">📦</div>
-      <h2 class="Panel__HeaderTitle" id="title-minify-js">Minify JavaScript</h2>
-      <button class="Panel__CloseBtn" aria-label="Close" data-close><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg></button>
+  <!-- =============================================
+       MAIN CONTENT
+       ============================================= -->
+  <main class="main">
+
+    <!-- PAGE HEADER -->
+    <header class="header">
+      <span class="header__badge">✓ Polaris Compliant</span>
+      <h1 class="header__title" id="page-title">Performance</h1>
+      <p class="header__subtitle" id="page-subtitle">Optimize your store's speed with Cloudflare performance features.</p>
     </header>
-    <div class="Panel__Body">
-      <div class="Panel__Stack">
-        <div class="Panel__TextBlock">
-          <h3 class="Panel__TextHeading">The Problem</h3>
-          <p><strong>Think of JavaScript files like a moving truck.</strong> Developers write code with spaces, comments, and long variable names for readability—but browsers don't need any of that.</p>
+
+    <!-- PAGE BODY -->
+    <div class="body">
+
+      <!-- =============================================
+           CATEGORY: PERFORMANCE
+           
+           Toggle cards for speed & loading optimization.
+           To reorder: move <article> blocks up/down.
+           To move to another category: cut/paste to that section.
+           ============================================= -->
+      <section class="toggle-list" id="page-performance">
+
+        <!-- CARD: Rocket Loader -->
+        <article class="card" data-id="rocket-loader">
+          <div class="card__inner">
+            <div class="card__icon">🚀</div>
+            <div class="card__content">
+              <div class="card__title">Rocket Loader</div>
+              <div class="card__desc">Defer JavaScript loading until after page content renders.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" data-panel="rocket-loader" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Minify JavaScript -->
+        <article class="card" data-id="minify-js">
+          <div class="card__inner">
+            <div class="card__icon">📦</div>
+            <div class="card__content">
+              <div class="card__title">Minify JavaScript</div>
+              <div class="card__desc">Remove unnecessary characters to reduce file sizes.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" data-panel="minify-js" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Minify CSS -->
+        <article class="card" data-id="minify-css">
+          <div class="card__inner">
+            <div class="card__icon">🎨</div>
+            <div class="card__content">
+              <div class="card__title">Minify CSS</div>
+              <div class="card__desc">Compress stylesheets by removing formatting and comments.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" data-panel="minify-css" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Brotli Compression -->
+        <article class="card" data-id="brotli">
+          <div class="card__inner">
+            <div class="card__icon">🗜️</div>
+            <div class="card__content">
+              <div class="card__title">Brotli Compression</div>
+              <div class="card__desc">Advanced compression for faster transfers.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" data-panel="brotli" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Early Hints -->
+        <article class="card" data-id="early-hints">
+          <div class="card__inner">
+            <div class="card__icon">⏱️</div>
+            <div class="card__content">
+              <div class="card__title">Early Hints</div>
+              <div class="card__desc">Preload critical resources before the main response.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" data-panel="early-hints" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox"><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Auto Minify HTML -->
+        <article class="card" data-id="minify-html">
+          <div class="card__inner">
+            <div class="card__icon">📄</div>
+            <div class="card__content">
+              <div class="card__title">Minify HTML</div>
+              <div class="card__desc">Strip whitespace from HTML documents.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Theme Toggle -->
+        <article class="card card--theme" data-id="theme">
+          <div class="card__inner">
+            <div class="card__icon">🌓</div>
+            <div class="card__content">
+              <div class="card__title">Dashboard Theme</div>
+              <div class="card__desc">Currently: <strong id="theme-label">Dark</strong></div>
+            </div>
+            <div class="card__actions">
+              <label class="switch"><input type="checkbox" id="theme-toggle"><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- =============================================
+           CATEGORY: SECURITY
+           
+           Toggle cards for security features.
+           ============================================= -->
+      <section class="toggle-list hidden" id="page-security">
+
+        <!-- CARD: Web Application Firewall -->
+        <article class="card" data-id="waf">
+          <div class="card__inner">
+            <div class="card__icon">🔥</div>
+            <div class="card__content">
+              <div class="card__title">Web Application Firewall</div>
+              <div class="card__desc">Block malicious requests and common attacks.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Bot Protection -->
+        <article class="card" data-id="bot-protection">
+          <div class="card__inner">
+            <div class="card__icon">🤖</div>
+            <div class="card__content">
+              <div class="card__title">Bot Protection</div>
+              <div class="card__desc">Detect and block automated threats.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: DDoS Protection -->
+        <article class="card" data-id="ddos">
+          <div class="card__inner">
+            <div class="card__icon">🛡️</div>
+            <div class="card__content">
+              <div class="card__title">DDoS Protection</div>
+              <div class="card__desc">Mitigate distributed denial-of-service attacks.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Security Headers -->
+        <article class="card" data-id="security-headers">
+          <div class="card__inner">
+            <div class="card__icon">📋</div>
+            <div class="card__content">
+              <div class="card__title">Security Headers</div>
+              <div class="card__desc">Add CSP, X-Frame-Options, and more.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox"><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Hotlink Protection -->
+        <article class="card" data-id="hotlink">
+          <div class="card__inner">
+            <div class="card__icon">🔗</div>
+            <div class="card__content">
+              <div class="card__title">Hotlink Protection</div>
+              <div class="card__desc">Prevent other sites from embedding your images.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox"><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- =============================================
+           CATEGORY: NETWORK
+           
+           Toggle cards for network optimization.
+           ============================================= -->
+      <section class="toggle-list hidden" id="page-network">
+
+        <!-- CARD: HTTP/2 -->
+        <article class="card" data-id="http2">
+          <div class="card__inner">
+            <div class="card__icon">🌊</div>
+            <div class="card__content">
+              <div class="card__title">HTTP/2</div>
+              <div class="card__desc">Enable multiplexed connections and header compression.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: HTTP/3 (QUIC) -->
+        <article class="card" data-id="http3">
+          <div class="card__inner">
+            <div class="card__icon">⚡</div>
+            <div class="card__content">
+              <div class="card__title">HTTP/3 (QUIC)</div>
+              <div class="card__desc">Next-gen protocol with reduced latency.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: IPv6 -->
+        <article class="card" data-id="ipv6">
+          <div class="card__inner">
+            <div class="card__icon">🔢</div>
+            <div class="card__content">
+              <div class="card__title">IPv6 Compatibility</div>
+              <div class="card__desc">Enable IPv6 support for your domain.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: WebSockets -->
+        <article class="card" data-id="websockets">
+          <div class="card__inner">
+            <div class="card__icon">🔌</div>
+            <div class="card__content">
+              <div class="card__title">WebSockets</div>
+              <div class="card__desc">Allow persistent connections for real-time apps.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- =============================================
+           CATEGORY: CACHING
+           
+           Toggle cards for caching behavior.
+           ============================================= -->
+      <section class="toggle-list hidden" id="page-caching">
+
+        <!-- CARD: Browser Cache TTL -->
+        <article class="card" data-id="browser-cache">
+          <div class="card__inner">
+            <div class="card__icon">🕐</div>
+            <div class="card__content">
+              <div class="card__title">Browser Cache TTL</div>
+              <div class="card__desc">Set how long browsers cache your files.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Always Online -->
+        <article class="card" data-id="always-online">
+          <div class="card__inner">
+            <div class="card__icon">🌐</div>
+            <div class="card__content">
+              <div class="card__title">Always Online</div>
+              <div class="card__desc">Serve cached pages when origin is down.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Development Mode -->
+        <article class="card" data-id="dev-mode">
+          <div class="card__inner">
+            <div class="card__icon">🔧</div>
+            <div class="card__content">
+              <div class="card__title">Development Mode</div>
+              <div class="card__desc">Bypass cache for immediate updates (3hr).</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox"><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Cache Everything -->
+        <article class="card" data-id="cache-everything">
+          <div class="card__inner">
+            <div class="card__icon">💾</div>
+            <div class="card__content">
+              <div class="card__title">Cache Everything</div>
+              <div class="card__desc">Cache all content including HTML pages.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox"><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- =============================================
+           CATEGORY: SSL/TLS
+           
+           Toggle cards for SSL/TLS settings.
+           ============================================= -->
+      <section class="toggle-list hidden" id="page-ssl">
+
+        <!-- CARD: Always Use HTTPS -->
+        <article class="card" data-id="always-https">
+          <div class="card__inner">
+            <div class="card__icon">🔐</div>
+            <div class="card__content">
+              <div class="card__title">Always Use HTTPS</div>
+              <div class="card__desc">Redirect all HTTP requests to HTTPS.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Automatic HTTPS Rewrites -->
+        <article class="card" data-id="https-rewrites">
+          <div class="card__inner">
+            <div class="card__icon">🔄</div>
+            <div class="card__content">
+              <div class="card__title">Automatic HTTPS Rewrites</div>
+              <div class="card__desc">Fix mixed content by rewriting HTTP to HTTPS.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: TLS 1.3 -->
+        <article class="card" data-id="tls13">
+          <div class="card__inner">
+            <div class="card__icon">🔒</div>
+            <div class="card__content">
+              <div class="card__title">TLS 1.3</div>
+              <div class="card__desc">Enable the latest, fastest TLS version.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Minimum TLS Version -->
+        <article class="card" data-id="min-tls">
+          <div class="card__inner">
+            <div class="card__icon">📊</div>
+            <div class="card__content">
+              <div class="card__title">Minimum TLS 1.2</div>
+              <div class="card__desc">Block outdated, insecure TLS versions.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- =============================================
+           CATEGORY: ANALYTICS
+           
+           Toggle cards for analytics & monitoring.
+           ============================================= -->
+      <section class="toggle-list hidden" id="page-analytics">
+
+        <!-- CARD: Web Analytics -->
+        <article class="card" data-id="web-analytics">
+          <div class="card__inner">
+            <div class="card__icon">📈</div>
+            <div class="card__content">
+              <div class="card__title">Web Analytics</div>
+              <div class="card__desc">Privacy-first analytics without cookies.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Real User Monitoring -->
+        <article class="card" data-id="rum">
+          <div class="card__inner">
+            <div class="card__icon">👁️</div>
+            <div class="card__content">
+              <div class="card__title">Real User Monitoring</div>
+              <div class="card__desc">Track actual visitor performance metrics.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox"><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD: Core Web Vitals -->
+        <article class="card" data-id="cwv">
+          <div class="card__inner">
+            <div class="card__icon">💓</div>
+            <div class="card__content">
+              <div class="card__title">Core Web Vitals</div>
+              <div class="card__desc">Monitor LCP, FID, and CLS scores.</div>
+            </div>
+            <div class="card__actions">
+              <button class="card__info" aria-label="Learn more">?</button>
+              <label class="switch"><input type="checkbox" checked><span class="switch__slider"></span></label>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+    </div>
+
+    <!-- PAGE FOOTER -->
+    <footer class="footer">
+      <span>© 2025 Cloudcache</span>
+      <div><a href="#">Docs</a> · <a href="#">Support</a> · <a href="#">Privacy</a></div>
+    </footer>
+
+  </main>
+
+</div>
+
+<!-- BACKDROP -->
+<div class="backdrop" id="backdrop"></div>
+
+<!-- =============================================
+     PANELS (Slide-out info sheets)
+     
+     Each panel is self-contained.
+     Add new panels by copying the template structure.
+     ============================================= -->
+
+<!-- PANEL: Rocket Loader -->
+<aside class="panel" id="panel-rocket-loader">
+  <header class="panel__header">
+    <div class="panel__icon">🚀</div>
+    <h2 class="panel__title">Rocket Loader</h2>
+    <button class="panel__close" data-close>✕</button>
+  </header>
+  <div class="panel__body">
+    <div class="panel__stack">
+      <div><div class="panel__label">The Problem</div><p class="panel__text"><strong>Imagine your webpage as a race car.</strong> Without Rocket Loader, visitors wait at a blank screen while JavaScript loads.</p></div>
+      <div><div class="panel__label">The Solution</div><p class="panel__text">Rocket Loader makes your page <em>launch immediately</em>—content appears while JavaScript loads in the background.</p></div>
+      <div class="callout"><div class="callout__title">✨ The Magic</div><p>JavaScript is deferred until after DOM renders, making First Contentful Paint dramatically faster.</p></div>
+      <div class="visual">
+        <div class="visual__label">Performance Comparison</div>
+        <div class="browser">
+          <div class="browser__bar"><div class="browser__dots"><span></span><span></span><span></span></div><div class="browser__url">yourstore.myshopify.com</div></div>
+          <div class="browser__content"><div class="skel skel--h"></div><div class="skel skel--nav"></div><div class="skel skel--hero"></div><div class="skel skel--text"></div></div>
         </div>
-        <div class="Panel__TextBlock">
-          <h3 class="Panel__TextHeading">The Solution</h3>
-          <p>Minification <em>vacuum-seals your code</em>—removing whitespace, shortening names, and stripping comments. Same functionality, much smaller package.</p>
+        <div class="banner" style="margin-top:10px"><span class="banner__icon">✓</span>Content visible instantly</div>
+        <div class="timeline" style="margin-top:10px">
+          <div class="timeline__row"><div class="timeline__label">❌ Without</div><div class="timeline__bar"><div class="timeline__seg timeline__seg--block" style="width:70%">JS Blocking</div><div class="timeline__seg timeline__seg--delay" style="width:30%">Content</div></div><div class="timeline__time timeline__time--slow">~3.2s</div></div>
+          <div class="timeline__row"><div class="timeline__label">✅ With</div><div class="timeline__bar"><div class="timeline__seg timeline__seg--fast" style="width:25%">Content</div><div class="timeline__seg timeline__seg--defer" style="width:75%">JS Deferred</div></div><div class="timeline__time timeline__time--fast">~0.8s</div></div>
         </div>
-        <div class="Panel__Callout">
-          <div class="Panel__CalloutTitle">✨ The Magic</div>
-          <p>Less bytes = faster downloads = happier customers. Every millisecond counts.</p>
-        </div>
-        <div class="Panel__VisualBox">
-          <div class="Panel__VisualLabel">Code Transformation</div>
-          <div class="Panel__CodeTransform">
-            <div>
-              <div class="Panel__CodeLabel">❌ Before (readable but bulky)</div>
-              <div class="Panel__CodeBlock Panel__CodeBlock--before"><span class="comment">// Calculate total price</span>
-<span class="keyword">function</span> <span class="property">calculateTotal</span>(items) {
-  <span class="keyword">let</span> total = <span class="value">0</span>;
-  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="value">0</span>; i < items.length; i++) {
+        <div class="stats" style="margin-top:10px"><div class="stat"><div class="stat__value">75%</div><div class="stat__label">Faster Paint</div></div><div class="stat"><div class="stat__value">4x</div><div class="stat__label">Quicker Load</div></div></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- PANEL: Minify JavaScript -->
+<aside class="panel" id="panel-minify-js">
+  <header class="panel__header">
+    <div class="panel__icon">📦</div>
+    <h2 class="panel__title">Minify JavaScript</h2>
+    <button class="panel__close" data-close>✕</button>
+  </header>
+  <div class="panel__body">
+    <div class="panel__stack">
+      <div><div class="panel__label">The Problem</div><p class="panel__text"><strong>Think of JS files like a moving truck.</strong> Developers write code with spaces and comments for readability—but browsers don't need that.</p></div>
+      <div><div class="panel__label">The Solution</div><p class="panel__text">Minification <em>vacuum-seals your code</em>—removing whitespace, shortening names, stripping comments.</p></div>
+      <div class="callout"><div class="callout__title">✨ The Magic</div><p>Less bytes = faster downloads = happier customers.</p></div>
+      <div class="visual">
+        <div class="visual__label">Code Transformation</div>
+        <div class="code-compare">
+          <div><div class="code-label">❌ Before</div><div class="code code--before"><span class="cmt">// Calculate total</span>
+<span class="kw">function</span> <span class="prop">calculateTotal</span>(items) {
+  <span class="kw">let</span> total = <span class="val">0</span>;
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="val">0</span>; i < items.length; i++) {
     total += items[i].price;
   }
-  <span class="keyword">return</span> total;
-}</div>
-            </div>
-            <div>
-              <div class="Panel__CodeLabel">✅ After (compact & fast)</div>
-              <div class="Panel__CodeBlock Panel__CodeBlock--after"><span class="keyword">function</span> <span class="property">c</span>(a){<span class="keyword">let</span> t=<span class="value">0</span>;<span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="value">0</span>;i<a.length;i++)t+=a[i].price;<span class="keyword">return</span> t}</div>
-            </div>
-          </div>
-          <div class="Panel__SizeCompare">
-            <div class="Panel__SizeBarContainer">
-              <div class="Panel__SizeBarLabel"><span>Original</span><span>186 bytes</span></div>
-              <div class="Panel__SizeBar Panel__SizeBar--original"></div>
-            </div>
-            <div class="Panel__SizeBarContainer">
-              <div class="Panel__SizeBarLabel"><span>Minified</span><span>72 bytes</span></div>
-              <div class="Panel__SizeBar Panel__SizeBar--compressed" style="width: 39%"></div>
-            </div>
-            <div class="Panel__SizeSavings">
-              <div class="Panel__SizeSavingsValue">61%</div>
-              <div class="Panel__SizeSavingsLabel">Smaller file size</div>
-            </div>
-          </div>
+  <span class="kw">return</span> total;
+}</div></div>
+          <div><div class="code-label">✅ After</div><div class="code code--after"><span class="kw">function</span> <span class="prop">c</span>(a){<span class="kw">let</span> t=<span class="val">0</span>;<span class="kw">for</span>(<span class="kw">let</span> i=<span class="val">0</span>;i<a.length;i++)t+=a[i].price;<span class="kw">return</span> t}</div></div>
+        </div>
+        <div class="size-bars" style="margin-top:10px">
+          <div class="size-bar__row"><div class="size-bar__label"><span>Original</span><span>186 bytes</span></div><div class="size-bar size-bar--orig"></div></div>
+          <div class="size-bar__row"><div class="size-bar__label"><span>Minified</span><span>72 bytes</span></div><div class="size-bar size-bar--comp" style="width:39%"></div></div>
+          <div class="size-savings"><div class="size-savings__val">61%</div><div class="size-savings__label">Smaller</div></div>
         </div>
       </div>
     </div>
-  </aside>
+  </div>
+</aside>
 
-  <!-- PANEL: Minify CSS -->
-  <aside class="Panel" id="panel-minify-css" role="dialog" aria-labelledby="title-minify-css" aria-modal="true" aria-hidden="true">
-    <header class="Panel__Header">
-      <div class="Panel__HeaderIcon">🎨</div>
-      <h2 class="Panel__HeaderTitle" id="title-minify-css">Minify CSS</h2>
-      <button class="Panel__CloseBtn" aria-label="Close" data-close><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg></button>
-    </header>
-    <div class="Panel__Body">
-      <div class="Panel__Stack">
-        <div class="Panel__TextBlock">
-          <h3 class="Panel__TextHeading">The Problem</h3>
-          <p><strong>CSS is like interior design notes.</strong> Designers write styles with beautiful formatting and helpful comments. But browsers just need the instructions.</p>
+<!-- PANEL: Minify CSS -->
+<aside class="panel" id="panel-minify-css">
+  <header class="panel__header">
+    <div class="panel__icon">🎨</div>
+    <h2 class="panel__title">Minify CSS</h2>
+    <button class="panel__close" data-close>✕</button>
+  </header>
+  <div class="panel__body">
+    <div class="panel__stack">
+      <div><div class="panel__label">The Problem</div><p class="panel__text"><strong>CSS is like interior design notes.</strong> Designers write with beautiful formatting. Browsers just need instructions.</p></div>
+      <div><div class="panel__label">The Solution</div><p class="panel__text">CSS minification <em>strips the fluff</em>—same design, faster delivery.</p></div>
+      <div class="visual">
+        <div class="visual__label">Style Compression</div>
+        <div class="code-compare">
+          <div><div class="code-label">❌ Before</div><div class="code code--before"><span class="cmt">/* Button */</span>
+<span class="prop">.btn</span> {
+  <span class="prop">background</span>: <span class="val">#F48120</span>;
+  <span class="prop">border-radius</span>: <span class="val">8px</span>;
+  <span class="prop">padding</span>: <span class="val">12px 24px</span>;
+}</div></div>
+          <div><div class="code-label">✅ After</div><div class="code code--after"><span class="prop">.btn</span>{<span class="prop">background</span>:<span class="val">#F48120</span>;<span class="prop">border-radius</span>:<span class="val">8px</span>;<span class="prop">padding</span>:<span class="val">12px 24px</span>}</div></div>
         </div>
-        <div class="Panel__TextBlock">
-          <h3 class="Panel__TextHeading">The Solution</h3>
-          <p>CSS minification <em>strips away the fluff</em>—keeping only what browsers need. Same stunning design, faster delivery.</p>
-        </div>
-        <div class="Panel__Callout">
-          <div class="Panel__CalloutTitle">✨ The Magic</div>
-          <p>CSS loads before anything appears. Smaller CSS = faster "First Paint".</p>
-        </div>
-        <div class="Panel__VisualBox">
-          <div class="Panel__VisualLabel">Style Compression</div>
-          <div class="Panel__CodeTransform">
-            <div>
-              <div class="Panel__CodeLabel">❌ Before (formatted)</div>
-              <div class="Panel__CodeBlock Panel__CodeBlock--before"><span class="comment">/* Primary button */</span>
-<span class="property">.button</span> {
-  <span class="property">background</span>: <span class="value">#F48120</span>;
-  <span class="property">border-radius</span>: <span class="value">8px</span>;
-  <span class="property">padding</span>: <span class="value">12px 24px</span>;
-}</div>
-            </div>
-            <div>
-              <div class="Panel__CodeLabel">✅ After (compressed)</div>
-              <div class="Panel__CodeBlock Panel__CodeBlock--after"><span class="property">.button</span>{<span class="property">background</span>:<span class="value">#F48120</span>;<span class="property">border-radius</span>:<span class="value">8px</span>;<span class="property">padding</span>:<span class="value">12px 24px</span>}</div>
-            </div>
-          </div>
-          <div class="Panel__StatsGrid">
-            <div class="Panel__StatCard"><div class="Panel__StatValue">~30%</div><div class="Panel__StatLabel">Smaller CSS</div></div>
-            <div class="Panel__StatCard"><div class="Panel__StatValue">50ms</div><div class="Panel__StatLabel">Faster Render</div></div>
-          </div>
-        </div>
+        <div class="stats" style="margin-top:10px"><div class="stat"><div class="stat__value">~30%</div><div class="stat__label">Smaller</div></div><div class="stat"><div class="stat__value">50ms</div><div class="stat__label">Faster</div></div></div>
       </div>
     </div>
-  </aside>
+  </div>
+</aside>
 
-  <!-- PANEL: Brotli -->
-  <aside class="Panel" id="panel-brotli" role="dialog" aria-labelledby="title-brotli" aria-modal="true" aria-hidden="true">
-    <header class="Panel__Header">
-      <div class="Panel__HeaderIcon">🗜️</div>
-      <h2 class="Panel__HeaderTitle" id="title-brotli">Brotli Compression</h2>
-      <button class="Panel__CloseBtn" aria-label="Close" data-close><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg></button>
-    </header>
-    <div class="Panel__Body">
-      <div class="Panel__Stack">
-        <div class="Panel__TextBlock">
-          <h3 class="Panel__TextHeading">The Problem</h3>
-          <p><strong>Sending data is like shipping packages.</strong> The bigger the package, the longer it takes. Even minified files can be compressed further.</p>
+<!-- PANEL: Brotli -->
+<aside class="panel" id="panel-brotli">
+  <header class="panel__header">
+    <div class="panel__icon">🗜️</div>
+    <h2 class="panel__title">Brotli Compression</h2>
+    <button class="panel__close" data-close>✕</button>
+  </header>
+  <div class="panel__body">
+    <div class="panel__stack">
+      <div><div class="panel__label">The Problem</div><p class="panel__text"><strong>Sending data is like shipping packages.</strong> Bigger = slower. Even minified files can compress further.</p></div>
+      <div><div class="panel__label">The Solution</div><p class="panel__text">Brotli is Google's <em>next-gen compression</em>. 15-25% smaller than gzip.</p></div>
+      <div class="visual">
+        <div class="visual__label">Compression Comparison</div>
+        <div class="size-bars">
+          <div class="size-bar__row"><div class="size-bar__label"><span>Original</span><span>500 KB</span></div><div class="size-bar size-bar--orig"></div></div>
+          <div class="size-bar__row"><div class="size-bar__label"><span>Gzip</span><span>150 KB</span></div><div class="size-bar size-bar--gzip" style="width:30%"></div></div>
+          <div class="size-bar__row"><div class="size-bar__label"><span>Brotli</span><span>115 KB</span></div><div class="size-bar size-bar--comp" style="width:23%"></div></div>
         </div>
-        <div class="Panel__TextBlock">
-          <h3 class="Panel__TextHeading">The Solution</h3>
-          <p>Brotli is Google's <em>next-generation compression</em>. It squeezes files 15-25% smaller than gzip—noticeably faster loads.</p>
-        </div>
-        <div class="Panel__Callout">
-          <div class="Panel__CalloutTitle">✨ The Magic</div>
-          <p>Brotli uses a smarter algorithm with a pre-built dictionary of common web patterns.</p>
-        </div>
-        <div class="Panel__VisualBox">
-          <div class="Panel__VisualLabel">Compression Comparison</div>
-          <div class="Panel__SizeCompare">
-            <div class="Panel__SizeBarContainer">
-              <div class="Panel__SizeBarLabel"><span>Original</span><span>500 KB</span></div>
-              <div class="Panel__SizeBar Panel__SizeBar--original"></div>
-            </div>
-            <div class="Panel__SizeBarContainer">
-              <div class="Panel__SizeBarLabel"><span>Gzip (old)</span><span>150 KB</span></div>
-              <div class="Panel__SizeBar Panel__SizeBar--gzip" style="width: 30%"></div>
-            </div>
-            <div class="Panel__SizeBarContainer">
-              <div class="Panel__SizeBarLabel"><span>Brotli (new)</span><span>115 KB</span></div>
-              <div class="Panel__SizeBar Panel__SizeBar--compressed" style="width: 23%"></div>
-            </div>
-          </div>
-          <div class="Panel__StatsGrid">
-            <div class="Panel__StatCard"><div class="Panel__StatValue">77%</div><div class="Panel__StatLabel">Smaller Files</div></div>
-            <div class="Panel__StatCard"><div class="Panel__StatValue">20%</div><div class="Panel__StatLabel">Better Than Gzip</div></div>
-          </div>
-          <div class="Panel__Banner"><span class="Panel__BannerIcon">✓</span>Supported by all modern browsers</div>
-        </div>
+        <div class="stats" style="margin-top:10px"><div class="stat"><div class="stat__value">77%</div><div class="stat__label">Smaller</div></div><div class="stat"><div class="stat__value">20%</div><div class="stat__label">vs Gzip</div></div></div>
+        <div class="banner" style="margin-top:10px"><span class="banner__icon">✓</span>All modern browsers supported</div>
       </div>
     </div>
-  </aside>
+  </div>
+</aside>
 
-  <!-- PANEL: Early Hints -->
-  <aside class="Panel" id="panel-early-hints" role="dialog" aria-labelledby="title-early-hints" aria-modal="true" aria-hidden="true">
-    <header class="Panel__Header">
-      <div class="Panel__HeaderIcon">⏱️</div>
-      <h2 class="Panel__HeaderTitle" id="title-early-hints">Early Hints</h2>
-      <button class="Panel__CloseBtn" aria-label="Close" data-close><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg></button>
-    </header>
-    <div class="Panel__Body">
-      <div class="Panel__Stack">
-        <div class="Panel__TextBlock">
-          <h3 class="Panel__TextHeading">The Problem</h3>
-          <p><strong>Loading a webpage is like cooking dinner.</strong> Normally, the browser waits for the "recipe" (HTML) before gathering ingredients. That's wasted time!</p>
+<!-- PANEL: Early Hints -->
+<aside class="panel" id="panel-early-hints">
+  <header class="panel__header">
+    <div class="panel__icon">⏱️</div>
+    <h2 class="panel__title">Early Hints</h2>
+    <button class="panel__close" data-close>✕</button>
+  </header>
+  <div class="panel__body">
+    <div class="panel__stack">
+      <div><div class="panel__label">The Problem</div><p class="panel__text"><strong>Loading a page is like cooking dinner.</strong> Browser waits for the "recipe" before gathering ingredients.</p></div>
+      <div><div class="panel__label">The Solution</div><p class="panel__text">Early Hints is a <em>prep cook giving a head start</em>. Browser downloads files while server prepares.</p></div>
+      <div class="visual">
+        <div class="visual__label">Request Timeline</div>
+        <div class="sequence">
+          <div class="seq-row seq-row--hl"><div class="seq-step">1</div><div class="seq-content"><div class="seq-title">Browser requests page</div><div class="seq-desc">GET /products/thing</div></div><div class="seq-time">0ms</div></div>
+          <div class="seq-row seq-row--hl"><div class="seq-step">2</div><div class="seq-content"><div class="seq-title">🚀 Early Hint arrives!</div><div class="seq-desc">103: Preload styles, fonts</div></div><div class="seq-time">50ms</div></div>
+          <div class="seq-row"><div class="seq-step">3</div><div class="seq-content"><div class="seq-title">Browser preloads</div><div class="seq-desc">Downloads in parallel</div></div><div class="seq-time">51ms</div></div>
+          <div class="seq-row"><div class="seq-step">4</div><div class="seq-content"><div class="seq-title">Full response</div><div class="seq-desc">200 OK with HTML</div></div><div class="seq-time">200ms</div></div>
+          <div class="seq-row seq-row--hl"><div class="seq-step">✓</div><div class="seq-content"><div class="seq-title">Faster render!</div><div class="seq-desc">CSS already loaded</div></div><div class="seq-time">250ms</div></div>
         </div>
-        <div class="Panel__TextBlock">
-          <h3 class="Panel__TextHeading">The Solution</h3>
-          <p>Early Hints is like a <em>prep cook giving you a head start</em>. Before the main response, the browser gets a hint to start downloading critical files.</p>
-        </div>
-        <div class="Panel__Callout">
-          <div class="Panel__CalloutTitle">✨ The Magic</div>
-          <p>HTTP 103 responses arrive in ~50ms while the server prepares the full page. Free loading time!</p>
-        </div>
-        <div class="Panel__VisualBox">
-          <div class="Panel__VisualLabel">Request Timeline</div>
-          <div class="Panel__Sequence">
-            <div class="Panel__SequenceRow Panel__SequenceRow--highlight">
-              <div class="Panel__SequenceStep">1</div>
-              <div class="Panel__SequenceContent">
-                <div class="Panel__SequenceTitle">Browser requests page</div>
-                <div class="Panel__SequenceDesc">GET /products/awesome-thing</div>
-              </div>
-              <div class="Panel__SequenceTime">0ms</div>
-            </div>
-            <div class="Panel__SequenceRow Panel__SequenceRow--highlight">
-              <div class="Panel__SequenceStep">2</div>
-              <div class="Panel__SequenceContent">
-                <div class="Panel__SequenceTitle">🚀 Early Hint arrives!</div>
-                <div class="Panel__SequenceDesc">103: Preload styles.css, fonts.woff2</div>
-              </div>
-              <div class="Panel__SequenceTime">50ms</div>
-            </div>
-            <div class="Panel__SequenceRow">
-              <div class="Panel__SequenceStep">3</div>
-              <div class="Panel__SequenceContent">
-                <div class="Panel__SequenceTitle">Browser starts preloading</div>
-                <div class="Panel__SequenceDesc">Downloads CSS & fonts in parallel</div>
-              </div>
-              <div class="Panel__SequenceTime">51ms</div>
-            </div>
-            <div class="Panel__SequenceRow">
-              <div class="Panel__SequenceStep">4</div>
-              <div class="Panel__SequenceContent">
-                <div class="Panel__SequenceTitle">Full response arrives</div>
-                <div class="Panel__SequenceDesc">200 OK with HTML content</div>
-              </div>
-              <div class="Panel__SequenceTime">200ms</div>
-            </div>
-            <div class="Panel__SequenceRow Panel__SequenceRow--highlight">
-              <div class="Panel__SequenceStep">✓</div>
-              <div class="Panel__SequenceContent">
-                <div class="Panel__SequenceTitle">Page renders faster!</div>
-                <div class="Panel__SequenceDesc">CSS already loaded = instant paint</div>
-              </div>
-              <div class="Panel__SequenceTime">250ms</div>
-            </div>
-          </div>
-          <div class="Panel__StatsGrid">
-            <div class="Panel__StatCard"><div class="Panel__StatValue">~30%</div><div class="Panel__StatLabel">Faster LCP</div></div>
-            <div class="Panel__StatCard"><div class="Panel__StatValue">150ms</div><div class="Panel__StatLabel">Head Start</div></div>
-          </div>
-        </div>
+        <div class="stats" style="margin-top:10px"><div class="stat"><div class="stat__value">~30%</div><div class="stat__label">Faster LCP</div></div><div class="stat"><div class="stat__value">150ms</div><div class="stat__label">Head Start</div></div></div>
       </div>
     </div>
-  </aside>
+  </div>
+</aside>
 
-  <!-- ============================================
-       JAVASCRIPT
-       ============================================ -->
-  <script>
-    // ============================================
-    // Panel Management
-    // ============================================
-    const backdrop = document.getElementById('backdrop');
-    const sidebar = document.getElementById('sidebar');
-    let activePanel = null;
-    let activeCard = null;
+<!-- =============================================
+     JAVASCRIPT
+     ============================================= -->
+<script>
+// Page titles & subtitles
+const pages = {
+  performance: { title: 'Performance', subtitle: 'Optimize your store\'s speed with Cloudflare performance features.' },
+  security:    { title: 'Security', subtitle: 'Protect your store from threats and attacks.' },
+  network:     { title: 'Network', subtitle: 'Configure network protocols and connectivity.' },
+  caching:     { title: 'Caching', subtitle: 'Control how content is cached and served.' },
+  ssl:         { title: 'SSL/TLS', subtitle: 'Manage encryption and HTTPS settings.' },
+  analytics:   { title: 'Analytics', subtitle: 'Monitor performance and visitor metrics.' }
+};
 
-    function openPanel(panelId, card) {
-      const panel = document.getElementById('panel-' + panelId);
-      if (!panel) return;
-      
-      activePanel = panel;
-      activeCard = card;
-      
-      backdrop.classList.add('is-active');
-      panel.classList.add('is-active');
-      panel.setAttribute('aria-hidden', 'false');
-      card.classList.add('is-active');
-      document.body.style.overflow = 'hidden';
-      
-      panel.querySelector('[data-close]').focus();
-    }
-
-    function closePanel() {
-      if (!activePanel) return;
-      
-      backdrop.classList.remove('is-active');
-      activePanel.classList.remove('is-active');
-      activePanel.setAttribute('aria-hidden', 'true');
-      if (activeCard) activeCard.classList.remove('is-active');
-      document.body.style.overflow = '';
-      
-      if (activeCard) activeCard.querySelector('[data-panel]').focus();
-      
-      activePanel = null;
-      activeCard = null;
-    }
-
-    // Panel event listeners
-    document.querySelectorAll('[data-panel]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const panelId = btn.getAttribute('data-panel');
-        const card = btn.closest('.Toggle-Card');
-        openPanel(panelId, card);
-      });
-    });
-
-    document.querySelectorAll('[data-close]').forEach(btn => {
-      btn.addEventListener('click', closePanel);
-    });
-
-    backdrop.addEventListener('click', () => {
-      closePanel();
-      closeSidebar();
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        if (activePanel) closePanel();
-        closeSidebar();
-      }
-    });
-
-    // ============================================
-    // Mobile Sidebar
-    // ============================================
-    const menuToggle = document.getElementById('menu-toggle');
+// Navigation
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const page = item.dataset.page;
     
-    function openSidebar() {
-      sidebar.classList.add('is-open');
-      backdrop.classList.add('is-active');
-      document.body.style.overflow = 'hidden';
-    }
+    // Update nav
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    item.classList.add('active');
     
-    function closeSidebar() {
-      sidebar.classList.remove('is-open');
-      if (!activePanel) {
-        backdrop.classList.remove('is-active');
-        document.body.style.overflow = '';
-      }
-    }
+    // Update header
+    document.getElementById('page-title').textContent = pages[page].title;
+    document.getElementById('page-subtitle').textContent = pages[page].subtitle;
     
-    menuToggle.addEventListener('click', () => {
-      if (sidebar.classList.contains('is-open')) {
-        closeSidebar();
-      } else {
-        openSidebar();
-      }
-    });
+    // Show page
+    document.querySelectorAll('.toggle-list').forEach(p => p.classList.add('hidden'));
+    document.getElementById('page-' + page).classList.remove('hidden');
+  });
+});
 
-    // ============================================
-    // Theme Toggle
-    // ============================================
-    const themeToggle = document.getElementById('theme-toggle');
-    const themeLabel = document.getElementById('theme-label');
+// Panels
+const backdrop = document.getElementById('backdrop');
+let activePanel = null, activeCard = null;
 
-    function setTheme(isLight) {
-      document.body.classList.toggle('light-theme', isLight);
-      themeLabel.textContent = isLight ? 'Light' : 'Dark';
-    }
+function openPanel(id, card) {
+  const panel = document.getElementById('panel-' + id);
+  if (!panel) return;
+  activePanel = panel;
+  activeCard = card;
+  backdrop.classList.add('active');
+  panel.classList.add('active');
+  card.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  panel.querySelector('.panel__close').focus();
+}
 
-    themeToggle.addEventListener('change', function() {
-      setTheme(this.checked);
-      try { localStorage.setItem('cc-theme', this.checked ? 'light' : 'dark'); } catch(e) {}
-    });
+function closePanel() {
+  if (!activePanel) return;
+  backdrop.classList.remove('active');
+  activePanel.classList.remove('active');
+  if (activeCard) activeCard.classList.remove('active');
+  document.body.style.overflow = '';
+  if (activeCard) activeCard.querySelector('.card__info').focus();
+  activePanel = null;
+  activeCard = null;
+}
 
-    try {
-      if (localStorage.getItem('cc-theme') === 'light') {
-        themeToggle.checked = true;
-        setTheme(true);
-      }
-    } catch(e) {}
-  </script>
+document.querySelectorAll('[data-panel]').forEach(btn => {
+  btn.addEventListener('click', () => openPanel(btn.dataset.panel, btn.closest('.card')));
+});
+
+document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', closePanel));
+backdrop.addEventListener('click', closePanel);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+
+// Theme
+const themeToggle = document.getElementById('theme-toggle');
+const themeLabel = document.getElementById('theme-label');
+
+themeToggle.addEventListener('change', function() {
+  document.body.classList.toggle('light', this.checked);
+  themeLabel.textContent = this.checked ? 'Light' : 'Dark';
+  try { localStorage.setItem('theme', this.checked ? 'light' : 'dark'); } catch(e) {}
+});
+
+try { if (localStorage.getItem('theme') === 'light') { themeToggle.checked = true; themeToggle.dispatchEvent(new Event('change')); } } catch(e) {}
+</script>
+
 </body>
 </html>
