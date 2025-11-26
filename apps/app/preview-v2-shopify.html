@@ -5,16 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Cloudcache - Performance Settings</title>
   
-  <!-- Shopify's Inter font -->
+  <!-- Shopify's Inter font + JetBrains Mono for code -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <style>
     /* ============================================
-       POLARIS DESIGN TOKENS
+       DESIGN TOKENS (Polaris + Cloudcache Brand)
        ============================================ */
     :root {
+      /* Colors - Dark Theme */
       --p-color-bg: #0d0d0d;
       --p-color-bg-surface: #1a1a1a;
       --p-color-bg-surface-hover: #262626;
@@ -23,22 +24,20 @@
       --p-color-bg-fill-secondary: #262626;
       --p-color-bg-fill-secondary-hover: #333333;
       --p-color-bg-fill-critical: #e51c00;
-      --p-color-bg-fill-success: #008060;
-      
       --p-color-border: #333333;
       --p-color-border-hover: #444444;
       --p-color-border-focus: #005bd3;
       --p-color-border-secondary: #262626;
-      
       --p-color-text: #e3e3e3;
       --p-color-text-secondary: #b5b5b5;
       --p-color-text-disabled: #757575;
       --p-color-text-critical: #ff8a80;
       --p-color-text-success: #36d399;
       --p-color-text-on-fill: #ffffff;
-      
       --p-color-icon: #b5b5b5;
+      --p-color-icon-hover: #e3e3e3;
       
+      /* Spacing */
       --p-space-050: 2px;
       --p-space-100: 4px;
       --p-space-150: 6px;
@@ -49,16 +48,19 @@
       --p-space-600: 24px;
       --p-space-800: 32px;
       
+      /* Border Radius */
       --p-border-radius-100: 4px;
       --p-border-radius-200: 8px;
       --p-border-radius-300: 12px;
       --p-border-radius-full: 9999px;
       
+      /* Shadows */
       --p-shadow-100: 0 1px 0 rgba(0, 0, 0, 0.07);
       --p-shadow-200: 0 3px 1px -1px rgba(0, 0, 0, 0.07);
       --p-shadow-300: 0 4px 6px -2px rgba(0, 0, 0, 0.2);
       --p-shadow-600: 0 20px 20px -8px rgba(0, 0, 0, 0.28);
       
+      /* Typography */
       --p-font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --p-font-family-mono: 'JetBrains Mono', monospace;
       --p-font-size-275: 11px;
@@ -72,17 +74,20 @@
       --p-font-weight-semibold: 600;
       --p-font-weight-bold: 700;
       
-      --p-width-page-max: 990px;
+      /* Layout */
+      --sidebar-width: 240px;
       --p-motion-duration-150: 150ms;
       --p-motion-duration-200: 200ms;
       --p-motion-duration-300: 300ms;
       --p-motion-ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
       
+      /* Cloudcache Brand */
       --cc-brand-primary: #F48120;
       --cc-brand-secondary: #ff9a3c;
       --cc-brand-text: #ffa94d;
     }
     
+    /* Light Theme */
     body.light-theme {
       --p-color-bg: #f1f1f1;
       --p-color-bg-surface: #ffffff;
@@ -99,9 +104,13 @@
       --p-color-text-disabled: #8c9196;
       --p-color-text-success: #006e52;
       --p-color-icon: #5c5f62;
+      --p-color-icon-hover: #202223;
       --cc-brand-text: #b35500;
     }
 
+    /* ============================================
+       BASE STYLES
+       ============================================ */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
@@ -114,19 +123,187 @@
       transition: background var(--p-motion-duration-200) var(--p-motion-ease-in-out);
     }
 
-    .Polaris-Page {
-      max-width: var(--p-width-page-max);
-      margin: 0 auto;
-      padding: var(--p-space-400);
+    /* ============================================
+       COMPONENT: App Layout
+       ============================================ */
+    .App-Layout {
+      display: flex;
+      min-height: 100vh;
     }
-    @media (min-width: 768px) { .Polaris-Page { padding: var(--p-space-600) var(--p-space-800); } }
 
-    .Polaris-Page__Header { margin-bottom: var(--p-space-500); }
-    .Polaris-Header__Title { font-size: var(--p-font-size-500); font-weight: var(--p-font-weight-semibold); }
-    @media (min-width: 768px) { .Polaris-Header__Title { font-size: var(--p-font-size-600); } }
-    .Polaris-Header__Subtitle { margin-top: var(--p-space-100); color: var(--p-color-text-secondary); }
+    /* ============================================
+       COMPONENT: Sidebar
+       ============================================ */
+    .Sidebar {
+      width: var(--sidebar-width);
+      background: var(--p-color-bg-surface);
+      border-right: 1px solid var(--p-color-border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 100;
+      transition: transform var(--p-motion-duration-200) var(--p-motion-ease-in-out);
+    }
+    
+    @media (max-width: 768px) {
+      .Sidebar {
+        transform: translateX(-100%);
+      }
+      .Sidebar.is-open {
+        transform: translateX(0);
+      }
+    }
 
-    .Polaris-Badge {
+    /* Sidebar: Logo */
+    .Sidebar__Logo {
+      padding: var(--p-space-500);
+      border-bottom: 1px solid var(--p-color-border);
+      display: flex;
+      align-items: center;
+      gap: var(--p-space-300);
+    }
+    
+    .Sidebar__LogoIcon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--cc-brand-primary), var(--cc-brand-secondary));
+      border-radius: var(--p-border-radius-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 2px 8px rgba(244, 129, 32, 0.3);
+    }
+    
+    .Sidebar__LogoText {
+      font-size: var(--p-font-size-400);
+      font-weight: var(--p-font-weight-bold);
+      color: var(--p-color-text);
+    }
+
+    /* Sidebar: Navigation */
+    .Sidebar__Nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--p-space-400) 0;
+    }
+    
+    .Sidebar__NavGroup {
+      margin-bottom: var(--p-space-400);
+    }
+    
+    .Sidebar__NavGroupTitle {
+      padding: var(--p-space-200) var(--p-space-500);
+      font-size: var(--p-font-size-275);
+      font-weight: var(--p-font-weight-semibold);
+      color: var(--p-color-text-disabled);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .Sidebar__NavItem {
+      display: flex;
+      align-items: center;
+      gap: var(--p-space-300);
+      padding: var(--p-space-300) var(--p-space-500);
+      color: var(--p-color-text-secondary);
+      text-decoration: none;
+      font-size: var(--p-font-size-350);
+      font-weight: var(--p-font-weight-medium);
+      transition: all var(--p-motion-duration-150) var(--p-motion-ease-in-out);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+    }
+    
+    .Sidebar__NavItem:hover {
+      background: var(--p-color-bg-surface-hover);
+      color: var(--p-color-text);
+    }
+    
+    .Sidebar__NavItem.is-active {
+      background: rgba(244, 129, 32, 0.1);
+      color: var(--cc-brand-text);
+      border-left-color: var(--cc-brand-primary);
+    }
+    
+    .Sidebar__NavIcon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    /* Sidebar: Footer */
+    .Sidebar__Footer {
+      padding: var(--p-space-400) var(--p-space-500);
+      border-top: 1px solid var(--p-color-border);
+    }
+    
+    .Sidebar__User {
+      display: flex;
+      align-items: center;
+      gap: var(--p-space-300);
+    }
+    
+    .Sidebar__UserAvatar {
+      width: 32px;
+      height: 32px;
+      background: var(--p-color-bg-fill-secondary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    
+    .Sidebar__UserInfo {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .Sidebar__UserName {
+      font-size: var(--p-font-size-325);
+      font-weight: var(--p-font-weight-medium);
+      color: var(--p-color-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .Sidebar__UserRole {
+      font-size: var(--p-font-size-275);
+      color: var(--p-color-text-disabled);
+    }
+
+    /* ============================================
+       COMPONENT: Main Content
+       ============================================ */
+    .Main-Content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    @media (max-width: 768px) {
+      .Main-Content {
+        margin-left: 0;
+      }
+    }
+
+    /* ============================================
+       COMPONENT: Page Header
+       ============================================ */
+    .Page-Header {
+      padding: var(--p-space-600) var(--p-space-600) var(--p-space-400);
+      border-bottom: 1px solid var(--p-color-border);
+      background: var(--p-color-bg-surface);
+    }
+    
+    .Page-Header__Badge {
       display: inline-flex;
       align-items: center;
       gap: var(--p-space-100);
@@ -136,9 +313,64 @@
       font-weight: var(--p-font-weight-medium);
       background: linear-gradient(135deg, var(--cc-brand-primary), var(--cc-brand-secondary));
       color: var(--p-color-text-on-fill);
+      margin-bottom: var(--p-space-300);
+    }
+    
+    .Page-Header__Title {
+      font-size: var(--p-font-size-600);
+      font-weight: var(--p-font-weight-semibold);
+      color: var(--p-color-text);
+      margin-bottom: var(--p-space-100);
+    }
+    
+    .Page-Header__Subtitle {
+      font-size: var(--p-font-size-350);
+      color: var(--p-color-text-secondary);
+    }
+    
+    /* Mobile menu button */
+    .Page-Header__MenuBtn {
+      display: none;
+      width: 40px;
+      height: 40px;
+      align-items: center;
+      justify-content: center;
+      background: var(--p-color-bg-fill-secondary);
+      border: 1px solid var(--p-color-border);
+      border-radius: var(--p-border-radius-200);
+      color: var(--p-color-icon);
+      cursor: pointer;
+      margin-bottom: var(--p-space-300);
+    }
+    
+    @media (max-width: 768px) {
+      .Page-Header__MenuBtn {
+        display: flex;
+      }
     }
 
-    .Polaris-Card {
+    /* ============================================
+       COMPONENT: Page Body
+       ============================================ */
+    .Page-Body {
+      flex: 1;
+      padding: var(--p-space-600);
+      max-width: 800px;
+    }
+
+    /* ============================================
+       COMPONENT: Toggle List (Parent)
+       ============================================ */
+    .Toggle-List {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-400);
+    }
+
+    /* ============================================
+       COMPONENT: Toggle Card (Child)
+       ============================================ */
+    .Toggle-Card {
       background: var(--p-color-bg-surface);
       border-radius: var(--p-border-radius-300);
       border: 1px solid var(--p-color-border);
@@ -148,43 +380,74 @@
                   border-color var(--p-motion-duration-150) var(--p-motion-ease-in-out),
                   transform var(--p-motion-duration-150) var(--p-motion-ease-in-out);
     }
-    .Polaris-Card + .Polaris-Card { margin-top: var(--p-space-400); }
-    .Polaris-Card:hover {
+    
+    .Toggle-Card:hover {
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
       transform: translateY(-3px) rotate(-0.4deg);
     }
-    .Polaris-Card.is-active {
+    
+    .Toggle-Card.is-active {
       border-color: var(--cc-brand-primary);
       box-shadow: 0 0 0 2px var(--cc-brand-primary), 0 4px 20px rgba(244, 129, 32, 0.2);
     }
-    .Polaris-Card__Section { padding: var(--p-space-400); }
-    @media (min-width: 490px) { .Polaris-Card__Section { padding: var(--p-space-400) var(--p-space-500); } }
-
-    .Polaris-SettingToggle { display: flex; align-items: flex-start; gap: var(--p-space-300); }
-    @media (min-width: 490px) { .Polaris-SettingToggle { gap: var(--p-space-400); } }
     
-    .Polaris-SettingToggle__Icon {
-      width: 42px; height: 42px;
-      display: flex; align-items: center; justify-content: center;
+    .Toggle-Card__Inner {
+      padding: var(--p-space-400) var(--p-space-500);
+      display: flex;
+      align-items: flex-start;
+      gap: var(--p-space-400);
+    }
+    
+    .Toggle-Card__Icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: linear-gradient(135deg, var(--cc-brand-primary), var(--cc-brand-secondary));
       border-radius: var(--p-border-radius-300);
-      font-size: 20px;
+      font-size: 24px;
       flex-shrink: 0;
       box-shadow: 0 2px 8px rgba(244, 129, 32, 0.3);
       transition: transform var(--p-motion-duration-150) var(--p-motion-ease-in-out);
     }
-    @media (min-width: 490px) { .Polaris-SettingToggle__Icon { width: 48px; height: 48px; font-size: 24px; } }
-    .Polaris-Card:hover .Polaris-SettingToggle__Icon { transform: scale(1.08) rotate(-2deg); }
+    
+    .Toggle-Card:hover .Toggle-Card__Icon {
+      transform: scale(1.08) rotate(-2deg);
+    }
+    
+    .Toggle-Card__Content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .Toggle-Card__Title {
+      font-size: var(--p-font-size-350);
+      font-weight: var(--p-font-weight-semibold);
+      color: var(--p-color-text);
+      margin-bottom: var(--p-space-050);
+    }
+    
+    .Toggle-Card__Description {
+      font-size: var(--p-font-size-325);
+      color: var(--p-color-text-secondary);
+      line-height: 1.45;
+    }
+    
+    .Toggle-Card__Actions {
+      display: flex;
+      align-items: center;
+      gap: var(--p-space-300);
+      flex-shrink: 0;
+    }
 
-    .Polaris-SettingToggle__Content { flex: 1; min-width: 0; }
-    .Polaris-SettingToggle__Title { font-size: var(--p-font-size-350); font-weight: var(--p-font-weight-semibold); margin-bottom: var(--p-space-050); }
-    .Polaris-SettingToggle__Description { font-size: var(--p-font-size-325); color: var(--p-color-text-secondary); line-height: 1.45; }
-    .Polaris-SettingToggle__Actions { display: flex; align-items: center; gap: var(--p-space-200); flex-shrink: 0; }
-    @media (min-width: 490px) { .Polaris-SettingToggle__Actions { gap: var(--p-space-300); } }
-
-    .Polaris-Button--plain {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-width: 32px; min-height: 32px;
+    /* Toggle Card: Info Button */
+    .Toggle-Card__InfoBtn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      min-height: 36px;
       padding: var(--p-space-150);
       background: var(--p-color-bg-fill-secondary);
       border: 1px solid var(--p-color-border);
@@ -193,135 +456,294 @@
       cursor: pointer;
       transition: all var(--p-motion-duration-150) var(--p-motion-ease-in-out);
     }
-    @media (min-width: 490px) { .Polaris-Button--plain { min-width: 36px; min-height: 36px; } }
-    .Polaris-Button--plain:hover { background: var(--p-color-bg-fill-secondary-hover); color: var(--p-color-text); }
-    .Polaris-Button--plain:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--p-color-border-focus); }
-    .Polaris-Card.is-active .Polaris-Button--plain {
+    
+    .Toggle-Card__InfoBtn:hover {
+      background: var(--p-color-bg-fill-secondary-hover);
+      color: var(--p-color-text);
+    }
+    
+    .Toggle-Card__InfoBtn:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--p-color-border-focus);
+    }
+    
+    .Toggle-Card.is-active .Toggle-Card__InfoBtn {
       background: var(--cc-brand-primary);
       border-color: var(--cc-brand-primary);
       color: var(--p-color-text-on-fill);
     }
 
-    .Polaris-Toggle { position: relative; width: 52px; height: 28px; flex-shrink: 0; }
-    @media (min-width: 490px) { .Polaris-Toggle { width: 56px; height: 30px; } }
-    .Polaris-Toggle__Input { opacity: 0; width: 0; height: 0; position: absolute; }
-    .Polaris-Toggle__Slider {
-      position: absolute; inset: 0;
+    /* Toggle Card: Switch */
+    .Toggle-Switch {
+      position: relative;
+      width: 56px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+    
+    .Toggle-Switch__Input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+    
+    .Toggle-Switch__Slider {
+      position: absolute;
+      inset: 0;
       background: var(--p-color-border);
       border-radius: var(--p-border-radius-full);
       cursor: pointer;
       transition: background var(--p-motion-duration-150) var(--p-motion-ease-in-out);
     }
-    .Polaris-Toggle__Slider::before {
+    
+    .Toggle-Switch__Slider::before {
       content: '';
       position: absolute;
-      width: 22px; height: 22px;
-      left: 3px; bottom: 3px;
+      width: 24px;
+      height: 24px;
+      left: 3px;
+      bottom: 3px;
       background: #fff;
       border-radius: 50%;
       transition: transform var(--p-motion-duration-200) var(--p-motion-ease-in-out);
       box-shadow: var(--p-shadow-300);
     }
-    @media (min-width: 490px) { .Polaris-Toggle__Slider::before { width: 24px; height: 24px; } }
-    .Polaris-Toggle__Input:checked + .Polaris-Toggle__Slider {
+    
+    .Toggle-Switch__Input:checked + .Toggle-Switch__Slider {
       background: var(--cc-brand-primary);
       box-shadow: 0 0 12px rgba(244, 129, 32, 0.4);
     }
-    .Polaris-Toggle__Input:checked + .Polaris-Toggle__Slider::before { transform: translateX(24px); }
-    @media (min-width: 490px) { .Polaris-Toggle__Input:checked + .Polaris-Toggle__Slider::before { transform: translateX(26px); } }
-    .Polaris-Toggle__Input:focus-visible + .Polaris-Toggle__Slider { box-shadow: 0 0 0 3px rgba(244, 129, 32, 0.5); }
-    .Polaris-Toggle:hover .Polaris-Toggle__Slider { background: var(--p-color-border-hover); }
-    .Polaris-Toggle:hover .Polaris-Toggle__Input:checked + .Polaris-Toggle__Slider { background: var(--cc-brand-secondary); }
-
-    /* Sheet Panel */
-    .Polaris-Backdrop {
-      position: fixed; inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 0; visibility: hidden;
-      transition: opacity var(--p-motion-duration-200) var(--p-motion-ease-in-out);
-      z-index: 400;
+    
+    .Toggle-Switch__Input:checked + .Toggle-Switch__Slider::before {
+      transform: translateX(26px);
     }
-    .Polaris-Backdrop.is-active { opacity: 1; visibility: visible; }
+    
+    .Toggle-Switch__Input:focus-visible + .Toggle-Switch__Slider {
+      box-shadow: 0 0 0 3px rgba(244, 129, 32, 0.5);
+    }
+    
+    .Toggle-Switch:hover .Toggle-Switch__Slider {
+      background: var(--p-color-border-hover);
+    }
+    
+    .Toggle-Switch:hover .Toggle-Switch__Input:checked + .Toggle-Switch__Slider {
+      background: var(--cc-brand-secondary);
+    }
 
-    .Polaris-Sheet {
-      position: fixed; top: 0; right: 0;
-      width: 100%; max-width: 500px;
-      height: 100vh; height: 100dvh;
+    /* Toggle Card: Theme variant */
+    .Toggle-Card--theme {
+      border-style: dashed;
+    }
+
+    /* ============================================
+       COMPONENT: Page Footer
+       ============================================ */
+    .Page-Footer {
+      padding: var(--p-space-500) var(--p-space-600);
+      border-top: 1px solid var(--p-color-border);
+      background: var(--p-color-bg-surface);
+      margin-top: auto;
+    }
+    
+    .Page-Footer__Inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--p-space-400);
+      flex-wrap: wrap;
+    }
+    
+    .Page-Footer__Copyright {
+      font-size: var(--p-font-size-300);
+      color: var(--p-color-text-disabled);
+    }
+    
+    .Page-Footer__Links {
+      display: flex;
+      gap: var(--p-space-400);
+    }
+    
+    .Page-Footer__Link {
+      font-size: var(--p-font-size-300);
+      color: var(--p-color-text-secondary);
+      text-decoration: none;
+      transition: color var(--p-motion-duration-150) var(--p-motion-ease-in-out);
+    }
+    
+    .Page-Footer__Link:hover {
+      color: var(--cc-brand-text);
+    }
+
+    /* ============================================
+       COMPONENT: Backdrop (for panels & mobile menu)
+       ============================================ */
+    .Backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--p-motion-duration-200) var(--p-motion-ease-in-out);
+      z-index: 300;
+    }
+    
+    .Backdrop.is-active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* ============================================
+       COMPONENT: Panel (Slide-out sheets)
+       ============================================ */
+    .Panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      max-width: 500px;
+      height: 100vh;
+      height: 100dvh;
       background: var(--p-color-bg-surface);
       border-left: 1px solid var(--p-color-border);
-      z-index: 401;
-      display: flex; flex-direction: column;
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
       transform: translateX(100%);
       transition: transform var(--p-motion-duration-300) var(--p-motion-ease-in-out);
       box-shadow: var(--p-shadow-600);
     }
-    .Polaris-Sheet.is-active { transform: translateX(0); }
-
-    .Polaris-Sheet__Header {
-      display: flex; align-items: center; gap: var(--p-space-300);
+    
+    .Panel.is-active {
+      transform: translateX(0);
+    }
+    
+    .Panel__Header {
+      display: flex;
+      align-items: center;
+      gap: var(--p-space-300);
       padding: var(--p-space-400);
       border-bottom: 1px solid var(--p-color-border);
       background: var(--p-color-bg-surface-secondary);
       flex-shrink: 0;
     }
-    .Polaris-Sheet__HeaderIcon {
-      width: 40px; height: 40px;
-      display: flex; align-items: center; justify-content: center;
+    
+    .Panel__HeaderIcon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: linear-gradient(135deg, var(--cc-brand-primary), var(--cc-brand-secondary));
       border-radius: var(--p-border-radius-200);
       font-size: 20px;
       box-shadow: 0 2px 8px rgba(244, 129, 32, 0.3);
     }
-    .Polaris-Sheet__HeaderTitle { flex: 1; font-size: var(--p-font-size-400); font-weight: var(--p-font-weight-semibold); }
-    .Polaris-Sheet__CloseButton {
-      width: 32px; height: 32px;
-      display: flex; align-items: center; justify-content: center;
-      background: transparent; border: none;
+    
+    .Panel__HeaderTitle {
+      flex: 1;
+      font-size: var(--p-font-size-400);
+      font-weight: var(--p-font-weight-semibold);
+    }
+    
+    .Panel__CloseBtn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
       border-radius: var(--p-border-radius-200);
       color: var(--p-color-icon);
       cursor: pointer;
       transition: all var(--p-motion-duration-150) var(--p-motion-ease-in-out);
     }
-    .Polaris-Sheet__CloseButton:hover { background: rgba(229, 28, 0, 0.15); color: var(--p-color-text-critical); }
+    
+    .Panel__CloseBtn:hover {
+      background: rgba(229, 28, 0, 0.15);
+      color: var(--p-color-text-critical);
+    }
+    
+    .Panel__Body {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--p-space-400);
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .Panel__Stack {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-500);
+    }
 
-    .Polaris-Sheet__Content { flex: 1; overflow-y: auto; padding: var(--p-space-400); -webkit-overflow-scrolling: touch; }
-
-    .Polaris-Stack { display: flex; flex-direction: column; gap: var(--p-space-500); }
-    .Polaris-TextBlock { display: flex; flex-direction: column; gap: var(--p-space-300); }
-    .Polaris-TextBlock__Heading {
+    /* Panel: Text Block */
+    .Panel__TextBlock {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-300);
+    }
+    
+    .Panel__TextHeading {
       font-size: var(--p-font-size-275);
       font-weight: var(--p-font-weight-semibold);
       color: var(--cc-brand-text);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .Polaris-TextBlock p { font-size: var(--p-font-size-350); line-height: 1.55; color: var(--p-color-text-secondary); }
-    .Polaris-TextBlock strong { color: var(--p-color-text); font-weight: var(--p-font-weight-semibold); }
-    .Polaris-TextBlock em { color: var(--p-color-text-success); font-style: normal; font-weight: var(--p-font-weight-medium); }
+    
+    .Panel__TextBlock p {
+      font-size: var(--p-font-size-350);
+      line-height: 1.55;
+      color: var(--p-color-text-secondary);
+    }
+    
+    .Panel__TextBlock strong {
+      color: var(--p-color-text);
+      font-weight: var(--p-font-weight-semibold);
+    }
+    
+    .Panel__TextBlock em {
+      color: var(--p-color-text-success);
+      font-style: normal;
+      font-weight: var(--p-font-weight-medium);
+    }
 
-    .Polaris-CalloutCard {
+    /* Panel: Callout */
+    .Panel__Callout {
       background: var(--p-color-bg-surface-secondary);
       border: 1px solid var(--p-color-border);
       border-left: 4px solid var(--cc-brand-primary);
       border-radius: var(--p-border-radius-200);
       padding: var(--p-space-300);
     }
-    .Polaris-CalloutCard__Title {
+    
+    .Panel__CalloutTitle {
       font-size: var(--p-font-size-325);
       font-weight: var(--p-font-weight-semibold);
       color: var(--cc-brand-text);
       margin-bottom: var(--p-space-100);
     }
-    .Polaris-CalloutCard p { font-size: var(--p-font-size-325); color: var(--p-color-text-secondary); margin: 0; }
+    
+    .Panel__Callout p {
+      font-size: var(--p-font-size-325);
+      color: var(--p-color-text-secondary);
+      margin: 0;
+    }
 
-    .Polaris-VisualBox {
+    /* Panel: Visual Box */
+    .Panel__VisualBox {
       background: var(--p-color-bg-surface-tertiary);
       border: 1px solid var(--p-color-border-secondary);
       border-radius: var(--p-border-radius-200);
       padding: var(--p-space-400);
-      display: flex; flex-direction: column; gap: var(--p-space-300);
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-300);
     }
-    .Polaris-VisualBox__Label {
+    
+    .Panel__VisualLabel {
       font-size: var(--p-font-size-275);
       font-weight: var(--p-font-weight-medium);
       color: var(--p-color-text-disabled);
@@ -330,9 +752,98 @@
       text-align: center;
     }
 
-    /* Code Transform Visualization */
-    .Code-Transform { display: flex; flex-direction: column; gap: var(--p-space-200); }
-    .Code-Block {
+    /* Panel: Stats Grid */
+    .Panel__StatsGrid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--p-space-200);
+    }
+    
+    .Panel__StatCard {
+      background: var(--p-color-bg-surface);
+      border: 1px solid var(--p-color-border);
+      border-radius: var(--p-border-radius-200);
+      padding: var(--p-space-300);
+      text-align: center;
+    }
+    
+    .Panel__StatValue {
+      font-size: var(--p-font-size-500);
+      font-weight: var(--p-font-weight-bold);
+      color: var(--cc-brand-text);
+    }
+    
+    .Panel__StatLabel {
+      font-size: var(--p-font-size-275);
+      color: var(--p-color-text-disabled);
+      text-transform: uppercase;
+      margin-top: var(--p-space-050);
+    }
+
+    /* Panel: Timeline */
+    .Panel__Timeline {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-300);
+    }
+    
+    .Panel__TimelineRow {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-050);
+    }
+    
+    .Panel__TimelineLabel {
+      font-size: var(--p-font-size-275);
+      font-weight: var(--p-font-weight-medium);
+      color: var(--p-color-text-disabled);
+    }
+    
+    .Panel__TimelineBar {
+      height: 22px;
+      border-radius: var(--p-border-radius-100);
+      display: flex;
+      overflow: hidden;
+    }
+    
+    .Panel__TimelineSegment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: var(--p-font-weight-semibold);
+      color: #fff;
+    }
+    
+    .Panel__TimelineSegment--blocking { background: var(--p-color-bg-fill-critical); }
+    .Panel__TimelineSegment--delayed { background: var(--p-color-border); color: var(--p-color-text-disabled); }
+    .Panel__TimelineSegment--fast { background: var(--cc-brand-primary); }
+    .Panel__TimelineSegment--deferred { background: rgba(244, 129, 32, 0.2); color: var(--cc-brand-text); }
+    
+    .Panel__TimelineTime {
+      font-size: var(--p-font-size-275);
+      font-weight: var(--p-font-weight-semibold);
+      text-align: right;
+    }
+    
+    .Panel__TimelineTime--slow { color: var(--p-color-text-critical); }
+    .Panel__TimelineTime--fast { color: var(--cc-brand-text); }
+
+    /* Panel: Code Block */
+    .Panel__CodeTransform {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-200);
+    }
+    
+    .Panel__CodeLabel {
+      font-size: var(--p-font-size-275);
+      font-weight: var(--p-font-weight-medium);
+      color: var(--p-color-text-disabled);
+      margin-bottom: var(--p-space-050);
+    }
+    
+    .Panel__CodeBlock {
       background: var(--p-color-bg-surface);
       border: 1px solid var(--p-color-border);
       border-radius: var(--p-border-radius-200);
@@ -342,110 +853,130 @@
       line-height: 1.5;
       overflow-x: auto;
     }
-    .Code-Block--before { border-left: 3px solid var(--p-color-text-critical); }
-    .Code-Block--after { border-left: 3px solid var(--cc-brand-primary); }
-    .Code-Label {
-      font-size: var(--p-font-size-275);
-      font-weight: var(--p-font-weight-medium);
-      color: var(--p-color-text-disabled);
-      margin-bottom: var(--p-space-050);
-    }
-    .Code-Block .keyword { color: #c792ea; }
-    .Code-Block .string { color: #c3e88d; }
-    .Code-Block .comment { color: #546e7a; }
-    .Code-Block .property { color: #82aaff; }
-    .Code-Block .value { color: #f78c6c; }
+    
+    .Panel__CodeBlock--before { border-left: 3px solid var(--p-color-text-critical); }
+    .Panel__CodeBlock--after { border-left: 3px solid var(--cc-brand-primary); }
+    
+    .Panel__CodeBlock .keyword { color: #c792ea; }
+    .Panel__CodeBlock .string { color: #c3e88d; }
+    .Panel__CodeBlock .comment { color: #546e7a; }
+    .Panel__CodeBlock .property { color: #82aaff; }
+    .Panel__CodeBlock .value { color: #f78c6c; }
 
-    /* File Size Comparison */
-    .Size-Compare { display: flex; flex-direction: column; gap: var(--p-space-300); }
-    .Size-Bar-Container { display: flex; flex-direction: column; gap: var(--p-space-050); }
-    .Size-Bar-Label { font-size: var(--p-font-size-275); color: var(--p-color-text-disabled); display: flex; justify-content: space-between; }
-    .Size-Bar {
+    /* Panel: Size Compare */
+    .Panel__SizeCompare {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-300);
+    }
+    
+    .Panel__SizeBarContainer {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-050);
+    }
+    
+    .Panel__SizeBarLabel {
+      font-size: var(--p-font-size-275);
+      color: var(--p-color-text-disabled);
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .Panel__SizeBar {
       height: 24px;
       border-radius: var(--p-border-radius-100);
       transition: width 0.5s ease;
     }
-    .Size-Bar--original { background: var(--p-color-border); width: 100%; }
-    .Size-Bar--compressed { background: var(--cc-brand-primary); }
-    .Size-Savings {
+    
+    .Panel__SizeBar--original { background: var(--p-color-border); width: 100%; }
+    .Panel__SizeBar--compressed { background: var(--cc-brand-primary); }
+    .Panel__SizeBar--gzip { background: var(--p-color-text-disabled); }
+    
+    .Panel__SizeSavings {
       text-align: center;
       padding: var(--p-space-200);
       background: rgba(244, 129, 32, 0.1);
       border-radius: var(--p-border-radius-100);
       border: 1px solid var(--cc-brand-primary);
     }
-    .Size-Savings__Value { font-size: var(--p-font-size-500); font-weight: var(--p-font-weight-bold); color: var(--cc-brand-text); }
-    .Size-Savings__Label { font-size: var(--p-font-size-275); color: var(--p-color-text-secondary); }
-
-    /* Timeline */
-    .Timeline-Comparison { display: flex; flex-direction: column; gap: var(--p-space-300); }
-    .Timeline-Row { display: flex; flex-direction: column; gap: var(--p-space-050); }
-    .Timeline-Label { font-size: var(--p-font-size-275); font-weight: var(--p-font-weight-medium); color: var(--p-color-text-disabled); }
-    .Timeline-Bar { height: 22px; border-radius: var(--p-border-radius-100); display: flex; overflow: hidden; }
-    .Timeline-Segment { display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: var(--p-font-weight-semibold); color: #fff; }
-    .Timeline-Segment--blocking { background: var(--p-color-bg-fill-critical); }
-    .Timeline-Segment--delayed { background: var(--p-color-border); color: var(--p-color-text-disabled); }
-    .Timeline-Segment--fast { background: var(--cc-brand-primary); }
-    .Timeline-Segment--deferred { background: rgba(244, 129, 32, 0.2); color: var(--cc-brand-text); }
-    .Timeline-Time { font-size: var(--p-font-size-275); font-weight: var(--p-font-weight-semibold); text-align: right; }
-    .Timeline-Time--slow { color: var(--p-color-text-critical); }
-    .Timeline-Time--fast { color: var(--cc-brand-text); }
-
-    /* Stats Grid */
-    .Stats-Grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--p-space-200); }
-    .Stat-Card {
-      background: var(--p-color-bg-surface);
-      border: 1px solid var(--p-color-border);
-      border-radius: var(--p-border-radius-200);
-      padding: var(--p-space-300);
-      text-align: center;
+    
+    .Panel__SizeSavingsValue {
+      font-size: var(--p-font-size-500);
+      font-weight: var(--p-font-weight-bold);
+      color: var(--cc-brand-text);
     }
-    .Stat-Value { font-size: var(--p-font-size-500); font-weight: var(--p-font-weight-bold); color: var(--cc-brand-text); }
-    .Stat-Label { font-size: var(--p-font-size-275); color: var(--p-color-text-disabled); text-transform: uppercase; margin-top: var(--p-space-050); }
+    
+    .Panel__SizeSavingsLabel {
+      font-size: var(--p-font-size-275);
+      color: var(--p-color-text-secondary);
+    }
 
-    /* Sequence Diagram */
-    .Sequence-Diagram { display: flex; flex-direction: column; gap: var(--p-space-200); }
-    .Sequence-Row {
-      display: flex; align-items: center; gap: var(--p-space-200);
+    /* Panel: Sequence Diagram */
+    .Panel__Sequence {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-200);
+    }
+    
+    .Panel__SequenceRow {
+      display: flex;
+      align-items: center;
+      gap: var(--p-space-200);
       padding: var(--p-space-200);
       background: var(--p-color-bg-surface);
       border-radius: var(--p-border-radius-100);
       border: 1px solid var(--p-color-border);
     }
-    .Sequence-Row--highlight { border-color: var(--cc-brand-primary); background: rgba(244, 129, 32, 0.05); }
-    .Sequence-Step {
-      width: 24px; height: 24px;
-      display: flex; align-items: center; justify-content: center;
+    
+    .Panel__SequenceRow--highlight {
+      border-color: var(--cc-brand-primary);
+      background: rgba(244, 129, 32, 0.05);
+    }
+    
+    .Panel__SequenceStep {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: var(--cc-brand-primary);
       border-radius: 50%;
-      font-size: 11px; font-weight: var(--p-font-weight-bold);
+      font-size: 11px;
+      font-weight: var(--p-font-weight-bold);
       color: #fff;
       flex-shrink: 0;
     }
-    .Sequence-Content { flex: 1; }
-    .Sequence-Title { font-size: var(--p-font-size-325); font-weight: var(--p-font-weight-semibold); }
-    .Sequence-Desc { font-size: var(--p-font-size-275); color: var(--p-color-text-secondary); }
-    .Sequence-Time { font-size: var(--p-font-size-275); color: var(--cc-brand-text); font-weight: var(--p-font-weight-medium); }
+    
+    .Panel__SequenceContent { flex: 1; }
+    .Panel__SequenceTitle { font-size: var(--p-font-size-325); font-weight: var(--p-font-weight-semibold); }
+    .Panel__SequenceDesc { font-size: var(--p-font-size-275); color: var(--p-color-text-secondary); }
+    .Panel__SequenceTime { font-size: var(--p-font-size-275); color: var(--cc-brand-text); font-weight: var(--p-font-weight-medium); }
 
-    /* Browser Mockup */
-    .Browser-Mockup {
+    /* Panel: Browser Mockup */
+    .Panel__Browser {
       background: var(--p-color-bg-surface);
       border: 1px solid var(--p-color-border);
       border-radius: var(--p-border-radius-200);
       overflow: hidden;
     }
-    .Browser-Mockup__Bar {
-      display: flex; align-items: center; gap: var(--p-space-200);
+    
+    .Panel__BrowserBar {
+      display: flex;
+      align-items: center;
+      gap: var(--p-space-200);
       padding: var(--p-space-150) var(--p-space-300);
       background: var(--p-color-bg-surface-secondary);
       border-bottom: 1px solid var(--p-color-border);
     }
-    .Browser-Mockup__Dots { display: flex; gap: var(--p-space-100); }
-    .Browser-Mockup__Dots span { width: 8px; height: 8px; border-radius: 50%; }
-    .Browser-Mockup__Dots span:nth-child(1) { background: #ff5f57; }
-    .Browser-Mockup__Dots span:nth-child(2) { background: #ffbd2e; }
-    .Browser-Mockup__Dots span:nth-child(3) { background: #28c840; }
-    .Browser-Mockup__URL {
+    
+    .Panel__BrowserDots { display: flex; gap: var(--p-space-100); }
+    .Panel__BrowserDots span { width: 8px; height: 8px; border-radius: 50%; }
+    .Panel__BrowserDots span:nth-child(1) { background: #ff5f57; }
+    .Panel__BrowserDots span:nth-child(2) { background: #ffbd2e; }
+    .Panel__BrowserDots span:nth-child(3) { background: #28c840; }
+    
+    .Panel__BrowserURL {
       flex: 1;
       background: var(--p-color-bg);
       padding: var(--p-space-050) var(--p-space-200);
@@ -454,16 +985,33 @@
       color: var(--p-color-text-disabled);
       font-family: monospace;
     }
-    .Browser-Mockup__Content { padding: var(--p-space-300); display: flex; flex-direction: column; gap: var(--p-space-200); min-height: 70px; }
-    .Skeleton-Block { background: var(--p-color-border); border-radius: var(--p-border-radius-100); animation: skeleton-pulse 1.5s ease-in-out infinite; }
-    .Skeleton-Block--header { width: 35%; height: 10px; background: var(--cc-brand-primary); }
-    .Skeleton-Block--nav { width: 55%; height: 8px; }
-    .Skeleton-Block--hero { width: 100%; height: 28px; }
-    .Skeleton-Block--text { width: 75%; height: 6px; }
-    @keyframes skeleton-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+    
+    .Panel__BrowserContent {
+      padding: var(--p-space-300);
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-200);
+      min-height: 70px;
+    }
+    
+    .Panel__Skeleton {
+      background: var(--p-color-border);
+      border-radius: var(--p-border-radius-100);
+      animation: skeletonPulse 1.5s ease-in-out infinite;
+    }
+    
+    .Panel__Skeleton--header { width: 35%; height: 10px; background: var(--cc-brand-primary); }
+    .Panel__Skeleton--nav { width: 55%; height: 8px; }
+    .Panel__Skeleton--hero { width: 100%; height: 28px; }
+    .Panel__Skeleton--text { width: 75%; height: 6px; }
+    
+    @keyframes skeletonPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    .Polaris-Banner--success {
-      display: flex; align-items: center; gap: var(--p-space-200);
+    /* Panel: Banner */
+    .Panel__Banner {
+      display: flex;
+      align-items: center;
+      gap: var(--p-space-200);
       padding: var(--p-space-200) var(--p-space-300);
       background: rgba(244, 129, 32, 0.1);
       border: 1px solid var(--cc-brand-primary);
@@ -472,252 +1020,399 @@
       font-weight: var(--p-font-weight-medium);
       color: var(--cc-brand-text);
     }
-    .Polaris-Banner__Icon {
-      width: 18px; height: 18px;
+    
+    .Panel__BannerIcon {
+      width: 18px;
+      height: 18px;
       background: var(--cc-brand-primary);
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 10px;
     }
 
-    .Theme-Toggle-Card { border-style: dashed; }
-
-    .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
-    .skip-link { position: absolute; top: -40px; left: 0; background: var(--cc-brand-primary); color: #fff; padding: var(--p-space-200) var(--p-space-400); z-index: 1000; }
+    /* ============================================
+       UTILITIES
+       ============================================ */
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+    
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--cc-brand-primary);
+      color: #fff;
+      padding: var(--p-space-200) var(--p-space-400);
+      z-index: 1000;
+    }
+    
     .skip-link:focus { top: 0; }
 
-    @media (max-width: 489px) {
-      .Polaris-SettingToggle { flex-wrap: wrap; }
-      .Polaris-SettingToggle__Content { order: 2; width: calc(100% - 52px); }
-      .Polaris-SettingToggle__Actions {
-        order: 3; width: 100%; justify-content: space-between;
-        margin-top: var(--p-space-300); padding-top: var(--p-space-300);
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 600px) {
+      .Toggle-Card__Inner {
+        flex-wrap: wrap;
+      }
+      
+      .Toggle-Card__Content {
+        order: 2;
+        width: calc(100% - 64px);
+      }
+      
+      .Toggle-Card__Actions {
+        order: 3;
+        width: 100%;
+        justify-content: space-between;
+        margin-top: var(--p-space-300);
+        padding-top: var(--p-space-300);
         border-top: 1px solid var(--p-color-border-secondary);
       }
-      .Polaris-Sheet { max-width: 100%; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
   
-  <main class="Polaris-Page" id="main-content" role="main">
-    <span class="Polaris-Badge">
-      <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path d="M10 0a10 10 0 1 0 10 10A10 10 0 0 0 10 0zm5.7 7.3-6 6a1 1 0 0 1-1.4 0l-3-3a1 1 0 0 1 1.4-1.4l2.3 2.3 5.3-5.3a1 1 0 0 1 1.4 1.4z"/></svg>
-      Polaris Compliant
-    </span>
+  <!-- ============================================
+       COMPONENT: App Layout
+       ============================================ -->
+  <div class="App-Layout">
     
-    <header class="Polaris-Page__Header">
-      <h1 class="Polaris-Header__Title">Performance Settings</h1>
-      <p class="Polaris-Header__Subtitle">Optimize your store's speed with Cloudflare performance features.</p>
-    </header>
-
-    <div class="Polaris-CardList" role="list">
-      <!-- Rocket Loader -->
-      <article class="Polaris-Card" data-setting="rocket-loader" role="listitem">
-        <div class="Polaris-Card__Section">
-          <div class="Polaris-SettingToggle">
-            <div class="Polaris-SettingToggle__Icon">🚀</div>
-            <div class="Polaris-SettingToggle__Content">
-              <h2 class="Polaris-SettingToggle__Title">Rocket Loader</h2>
-              <p class="Polaris-SettingToggle__Description">Defer JavaScript loading until after page content renders.</p>
-            </div>
-            <div class="Polaris-SettingToggle__Actions">
-              <button class="Polaris-Button--plain" aria-label="Learn more about Rocket Loader" data-panel="rocket-loader">
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
-              </button>
-              <label class="Polaris-Toggle">
-                <input type="checkbox" class="Polaris-Toggle__Input" checked>
-                <span class="Polaris-Toggle__Slider"></span>
-                <span class="visually-hidden">Toggle Rocket Loader</span>
-              </label>
-            </div>
+    <!-- ============================================
+         COMPONENT: Sidebar
+         ============================================ -->
+    <aside class="Sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+      
+      <!-- Sidebar: Logo -->
+      <div class="Sidebar__Logo">
+        <div class="Sidebar__LogoIcon">☁️</div>
+        <span class="Sidebar__LogoText">Cloudcache</span>
+      </div>
+      
+      <!-- Sidebar: Navigation -->
+      <nav class="Sidebar__Nav">
+        
+        <!-- Nav Group: Optimization -->
+        <div class="Sidebar__NavGroup">
+          <div class="Sidebar__NavGroupTitle">Optimization</div>
+          <a class="Sidebar__NavItem is-active" href="#performance">
+            <span class="Sidebar__NavIcon">⚡</span>
+            Performance
+          </a>
+          <a class="Sidebar__NavItem" href="#security">
+            <span class="Sidebar__NavIcon">🛡️</span>
+            Security
+          </a>
+          <a class="Sidebar__NavItem" href="#network">
+            <span class="Sidebar__NavIcon">🌐</span>
+            Network
+          </a>
+        </div>
+        
+        <!-- Nav Group: Content -->
+        <div class="Sidebar__NavGroup">
+          <div class="Sidebar__NavGroupTitle">Content</div>
+          <a class="Sidebar__NavItem" href="#caching">
+            <span class="Sidebar__NavIcon">📦</span>
+            Caching
+          </a>
+          <a class="Sidebar__NavItem" href="#ssl">
+            <span class="Sidebar__NavIcon">🔒</span>
+            SSL/TLS
+          </a>
+        </div>
+        
+        <!-- Nav Group: Tools -->
+        <div class="Sidebar__NavGroup">
+          <div class="Sidebar__NavGroupTitle">Tools</div>
+          <a class="Sidebar__NavItem" href="#analytics">
+            <span class="Sidebar__NavIcon">📊</span>
+            Analytics
+          </a>
+          <a class="Sidebar__NavItem" href="#workers">
+            <span class="Sidebar__NavIcon">⚙️</span>
+            Workers
+          </a>
+        </div>
+        
+      </nav>
+      
+      <!-- Sidebar: Footer -->
+      <div class="Sidebar__Footer">
+        <div class="Sidebar__User">
+          <div class="Sidebar__UserAvatar">👤</div>
+          <div class="Sidebar__UserInfo">
+            <div class="Sidebar__UserName">Store Admin</div>
+            <div class="Sidebar__UserRole">Pro Plan</div>
           </div>
         </div>
-      </article>
+      </div>
+      
+    </aside>
 
-      <!-- Minify JavaScript -->
-      <article class="Polaris-Card" data-setting="minify-js" role="listitem">
-        <div class="Polaris-Card__Section">
-          <div class="Polaris-SettingToggle">
-            <div class="Polaris-SettingToggle__Icon">📦</div>
-            <div class="Polaris-SettingToggle__Content">
-              <h2 class="Polaris-SettingToggle__Title">Minify JavaScript</h2>
-              <p class="Polaris-SettingToggle__Description">Remove unnecessary characters to reduce file sizes.</p>
+    <!-- ============================================
+         COMPONENT: Main Content
+         ============================================ -->
+    <main class="Main-Content" id="main-content">
+      
+      <!-- ============================================
+           COMPONENT: Page Header
+           ============================================ -->
+      <header class="Page-Header">
+        <button class="Page-Header__MenuBtn" id="menu-toggle" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2 4.5h16M2 10h16M2 15.5h16" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        </button>
+        <span class="Page-Header__Badge">
+          <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path d="M10 0a10 10 0 1 0 10 10A10 10 0 0 0 10 0zm5.7 7.3-6 6a1 1 0 0 1-1.4 0l-3-3a1 1 0 0 1 1.4-1.4l2.3 2.3 5.3-5.3a1 1 0 0 1 1.4 1.4z"/></svg>
+          Polaris Compliant
+        </span>
+        <h1 class="Page-Header__Title">Performance Settings</h1>
+        <p class="Page-Header__Subtitle">Optimize your store's speed with Cloudflare performance features.</p>
+      </header>
+
+      <!-- ============================================
+           COMPONENT: Page Body
+           ============================================ -->
+      <div class="Page-Body">
+        
+        <!-- ============================================
+             COMPONENT: Toggle List (Parent)
+             Contains all Toggle Card children
+             ============================================ -->
+        <div class="Toggle-List" role="list" aria-label="Performance settings">
+          
+          <!-- COMPONENT: Toggle Card - Rocket Loader -->
+          <article class="Toggle-Card" data-setting="rocket-loader" role="listitem">
+            <div class="Toggle-Card__Inner">
+              <div class="Toggle-Card__Icon">🚀</div>
+              <div class="Toggle-Card__Content">
+                <h2 class="Toggle-Card__Title">Rocket Loader</h2>
+                <p class="Toggle-Card__Description">Defer JavaScript loading until after page content renders.</p>
+              </div>
+              <div class="Toggle-Card__Actions">
+                <button class="Toggle-Card__InfoBtn" aria-label="Learn more about Rocket Loader" data-panel="rocket-loader">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
+                </button>
+                <label class="Toggle-Switch">
+                  <input type="checkbox" class="Toggle-Switch__Input" checked>
+                  <span class="Toggle-Switch__Slider"></span>
+                  <span class="visually-hidden">Toggle Rocket Loader</span>
+                </label>
+              </div>
             </div>
-            <div class="Polaris-SettingToggle__Actions">
-              <button class="Polaris-Button--plain" aria-label="Learn more about Minify JavaScript" data-panel="minify-js">
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
-              </button>
-              <label class="Polaris-Toggle">
-                <input type="checkbox" class="Polaris-Toggle__Input" checked>
-                <span class="Polaris-Toggle__Slider"></span>
-                <span class="visually-hidden">Toggle Minify JavaScript</span>
-              </label>
+          </article>
+
+          <!-- COMPONENT: Toggle Card - Minify JS -->
+          <article class="Toggle-Card" data-setting="minify-js" role="listitem">
+            <div class="Toggle-Card__Inner">
+              <div class="Toggle-Card__Icon">📦</div>
+              <div class="Toggle-Card__Content">
+                <h2 class="Toggle-Card__Title">Minify JavaScript</h2>
+                <p class="Toggle-Card__Description">Remove unnecessary characters to reduce file sizes.</p>
+              </div>
+              <div class="Toggle-Card__Actions">
+                <button class="Toggle-Card__InfoBtn" aria-label="Learn more about Minify JavaScript" data-panel="minify-js">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
+                </button>
+                <label class="Toggle-Switch">
+                  <input type="checkbox" class="Toggle-Switch__Input" checked>
+                  <span class="Toggle-Switch__Slider"></span>
+                  <span class="visually-hidden">Toggle Minify JavaScript</span>
+                </label>
+              </div>
             </div>
+          </article>
+
+          <!-- COMPONENT: Toggle Card - Minify CSS -->
+          <article class="Toggle-Card" data-setting="minify-css" role="listitem">
+            <div class="Toggle-Card__Inner">
+              <div class="Toggle-Card__Icon">🎨</div>
+              <div class="Toggle-Card__Content">
+                <h2 class="Toggle-Card__Title">Minify CSS</h2>
+                <p class="Toggle-Card__Description">Compress stylesheets by removing formatting and comments.</p>
+              </div>
+              <div class="Toggle-Card__Actions">
+                <button class="Toggle-Card__InfoBtn" aria-label="Learn more about Minify CSS" data-panel="minify-css">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
+                </button>
+                <label class="Toggle-Switch">
+                  <input type="checkbox" class="Toggle-Switch__Input" checked>
+                  <span class="Toggle-Switch__Slider"></span>
+                  <span class="visually-hidden">Toggle Minify CSS</span>
+                </label>
+              </div>
+            </div>
+          </article>
+
+          <!-- COMPONENT: Toggle Card - Brotli -->
+          <article class="Toggle-Card" data-setting="brotli" role="listitem">
+            <div class="Toggle-Card__Inner">
+              <div class="Toggle-Card__Icon">🗜️</div>
+              <div class="Toggle-Card__Content">
+                <h2 class="Toggle-Card__Title">Brotli Compression</h2>
+                <p class="Toggle-Card__Description">Advanced compression for faster transfers and reduced bandwidth.</p>
+              </div>
+              <div class="Toggle-Card__Actions">
+                <button class="Toggle-Card__InfoBtn" aria-label="Learn more about Brotli" data-panel="brotli">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
+                </button>
+                <label class="Toggle-Switch">
+                  <input type="checkbox" class="Toggle-Switch__Input" checked>
+                  <span class="Toggle-Switch__Slider"></span>
+                  <span class="visually-hidden">Toggle Brotli</span>
+                </label>
+              </div>
+            </div>
+          </article>
+
+          <!-- COMPONENT: Toggle Card - Early Hints -->
+          <article class="Toggle-Card" data-setting="early-hints" role="listitem">
+            <div class="Toggle-Card__Inner">
+              <div class="Toggle-Card__Icon">⏱️</div>
+              <div class="Toggle-Card__Content">
+                <h2 class="Toggle-Card__Title">Early Hints</h2>
+                <p class="Toggle-Card__Description">Preload critical resources before the main response arrives.</p>
+              </div>
+              <div class="Toggle-Card__Actions">
+                <button class="Toggle-Card__InfoBtn" aria-label="Learn more about Early Hints" data-panel="early-hints">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
+                </button>
+                <label class="Toggle-Switch">
+                  <input type="checkbox" class="Toggle-Switch__Input">
+                  <span class="Toggle-Switch__Slider"></span>
+                  <span class="visually-hidden">Toggle Early Hints</span>
+                </label>
+              </div>
+            </div>
+          </article>
+
+          <!-- COMPONENT: Toggle Card - Theme (variant) -->
+          <article class="Toggle-Card Toggle-Card--theme" data-setting="theme" role="listitem">
+            <div class="Toggle-Card__Inner">
+              <div class="Toggle-Card__Icon">🌓</div>
+              <div class="Toggle-Card__Content">
+                <h2 class="Toggle-Card__Title">Dashboard Theme</h2>
+                <p class="Toggle-Card__Description">Currently: <strong id="theme-label">Dark</strong></p>
+              </div>
+              <div class="Toggle-Card__Actions">
+                <label class="Toggle-Switch">
+                  <input type="checkbox" class="Toggle-Switch__Input" id="theme-toggle">
+                  <span class="Toggle-Switch__Slider"></span>
+                  <span class="visually-hidden">Toggle theme</span>
+                </label>
+              </div>
+            </div>
+          </article>
+          
+        </div><!-- /Toggle-List -->
+        
+      </div><!-- /Page-Body -->
+
+      <!-- ============================================
+           COMPONENT: Page Footer
+           ============================================ -->
+      <footer class="Page-Footer">
+        <div class="Page-Footer__Inner">
+          <div class="Page-Footer__Copyright">© 2025 Cloudcache. All rights reserved.</div>
+          <div class="Page-Footer__Links">
+            <a href="#docs" class="Page-Footer__Link">Documentation</a>
+            <a href="#support" class="Page-Footer__Link">Support</a>
+            <a href="#privacy" class="Page-Footer__Link">Privacy</a>
           </div>
         </div>
-      </article>
+      </footer>
 
-      <!-- Minify CSS -->
-      <article class="Polaris-Card" data-setting="minify-css" role="listitem">
-        <div class="Polaris-Card__Section">
-          <div class="Polaris-SettingToggle">
-            <div class="Polaris-SettingToggle__Icon">🎨</div>
-            <div class="Polaris-SettingToggle__Content">
-              <h2 class="Polaris-SettingToggle__Title">Minify CSS</h2>
-              <p class="Polaris-SettingToggle__Description">Compress stylesheets by removing formatting and comments.</p>
-            </div>
-            <div class="Polaris-SettingToggle__Actions">
-              <button class="Polaris-Button--plain" aria-label="Learn more about Minify CSS" data-panel="minify-css">
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
-              </button>
-              <label class="Polaris-Toggle">
-                <input type="checkbox" class="Polaris-Toggle__Input" checked>
-                <span class="Polaris-Toggle__Slider"></span>
-                <span class="visually-hidden">Toggle Minify CSS</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </article>
+    </main><!-- /Main-Content -->
+    
+  </div><!-- /App-Layout -->
 
-      <!-- Brotli Compression -->
-      <article class="Polaris-Card" data-setting="brotli" role="listitem">
-        <div class="Polaris-Card__Section">
-          <div class="Polaris-SettingToggle">
-            <div class="Polaris-SettingToggle__Icon">🗜️</div>
-            <div class="Polaris-SettingToggle__Content">
-              <h2 class="Polaris-SettingToggle__Title">Brotli Compression</h2>
-              <p class="Polaris-SettingToggle__Description">Advanced compression for faster transfers and reduced bandwidth.</p>
-            </div>
-            <div class="Polaris-SettingToggle__Actions">
-              <button class="Polaris-Button--plain" aria-label="Learn more about Brotli" data-panel="brotli">
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
-              </button>
-              <label class="Polaris-Toggle">
-                <input type="checkbox" class="Polaris-Toggle__Input" checked>
-                <span class="Polaris-Toggle__Slider"></span>
-                <span class="visually-hidden">Toggle Brotli</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </article>
+  <!-- ============================================
+       COMPONENT: Backdrop
+       ============================================ -->
+  <div class="Backdrop" id="backdrop"></div>
 
-      <!-- Early Hints -->
-      <article class="Polaris-Card" data-setting="early-hints" role="listitem">
-        <div class="Polaris-Card__Section">
-          <div class="Polaris-SettingToggle">
-            <div class="Polaris-SettingToggle__Icon">⏱️</div>
-            <div class="Polaris-SettingToggle__Content">
-              <h2 class="Polaris-SettingToggle__Title">Early Hints</h2>
-              <p class="Polaris-SettingToggle__Description">Preload critical resources before the main response arrives.</p>
-            </div>
-            <div class="Polaris-SettingToggle__Actions">
-              <button class="Polaris-Button--plain" aria-label="Learn more about Early Hints" data-panel="early-hints">
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
-              </button>
-              <label class="Polaris-Toggle">
-                <input type="checkbox" class="Polaris-Toggle__Input">
-                <span class="Polaris-Toggle__Slider"></span>
-                <span class="visually-hidden">Toggle Early Hints</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </article>
-
-      <!-- Theme Toggle -->
-      <article class="Polaris-Card Theme-Toggle-Card" role="listitem">
-        <div class="Polaris-Card__Section">
-          <div class="Polaris-SettingToggle">
-            <div class="Polaris-SettingToggle__Icon">🌓</div>
-            <div class="Polaris-SettingToggle__Content">
-              <h2 class="Polaris-SettingToggle__Title">Dashboard Theme</h2>
-              <p class="Polaris-SettingToggle__Description">Currently: <strong id="theme-label">Dark</strong></p>
-            </div>
-            <div class="Polaris-SettingToggle__Actions">
-              <label class="Polaris-Toggle">
-                <input type="checkbox" class="Polaris-Toggle__Input" id="theme-toggle">
-                <span class="Polaris-Toggle__Slider"></span>
-                <span class="visually-hidden">Toggle theme</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </article>
-    </div>
-  </main>
-
-  <div class="Polaris-Backdrop" id="backdrop"></div>
-
+  <!-- ============================================
+       COMPONENT: Panels (Slide-out sheets)
+       Parent container for all panel children
+       ============================================ -->
+  
   <!-- PANEL: Rocket Loader -->
-  <aside class="Polaris-Sheet" id="panel-rocket-loader" role="dialog" aria-labelledby="title-rocket-loader" aria-modal="true" aria-hidden="true">
-    <header class="Polaris-Sheet__Header">
-      <div class="Polaris-Sheet__HeaderIcon">🚀</div>
-      <h2 class="Polaris-Sheet__HeaderTitle" id="title-rocket-loader">Rocket Loader</h2>
-      <button class="Polaris-Sheet__CloseButton" aria-label="Close" data-close>
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg>
-      </button>
+  <aside class="Panel" id="panel-rocket-loader" role="dialog" aria-labelledby="title-rocket-loader" aria-modal="true" aria-hidden="true">
+    <header class="Panel__Header">
+      <div class="Panel__HeaderIcon">🚀</div>
+      <h2 class="Panel__HeaderTitle" id="title-rocket-loader">Rocket Loader</h2>
+      <button class="Panel__CloseBtn" aria-label="Close" data-close><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg></button>
     </header>
-    <div class="Polaris-Sheet__Content">
-      <div class="Polaris-Stack">
-        <div class="Polaris-TextBlock">
-          <h3 class="Polaris-TextBlock__Heading">The Problem</h3>
+    <div class="Panel__Body">
+      <div class="Panel__Stack">
+        <div class="Panel__TextBlock">
+          <h3 class="Panel__TextHeading">The Problem</h3>
           <p><strong>Imagine your webpage as a race car.</strong> Without Rocket Loader, visitors wait at a blank screen while JavaScript loads. The "engine" has to warm up before they see anything.</p>
         </div>
-        <div class="Polaris-TextBlock">
-          <h3 class="Polaris-TextBlock__Heading">The Solution</h3>
+        <div class="Panel__TextBlock">
+          <h3 class="Panel__TextHeading">The Solution</h3>
           <p>Rocket Loader makes your page <em>launch immediately</em>—content appears while JavaScript loads in the background. Visitors see your products first, not a loading screen.</p>
         </div>
-        <div class="Polaris-CalloutCard">
-          <div class="Polaris-CalloutCard__Title">✨ The Magic</div>
+        <div class="Panel__Callout">
+          <div class="Panel__CalloutTitle">✨ The Magic</div>
           <p>JavaScript is deferred until after the DOM renders, making First Contentful Paint dramatically faster.</p>
         </div>
-        <div class="Polaris-VisualBox">
-          <div class="Polaris-VisualBox__Label">Performance Comparison</div>
-          <div class="Browser-Mockup">
-            <div class="Browser-Mockup__Bar">
-              <div class="Browser-Mockup__Dots"><span></span><span></span><span></span></div>
-              <div class="Browser-Mockup__URL">yourstore.myshopify.com</div>
+        <div class="Panel__VisualBox">
+          <div class="Panel__VisualLabel">Performance Comparison</div>
+          <div class="Panel__Browser">
+            <div class="Panel__BrowserBar">
+              <div class="Panel__BrowserDots"><span></span><span></span><span></span></div>
+              <div class="Panel__BrowserURL">yourstore.myshopify.com</div>
             </div>
-            <div class="Browser-Mockup__Content">
-              <div class="Skeleton-Block Skeleton-Block--header"></div>
-              <div class="Skeleton-Block Skeleton-Block--nav"></div>
-              <div class="Skeleton-Block Skeleton-Block--hero"></div>
-              <div class="Skeleton-Block Skeleton-Block--text"></div>
+            <div class="Panel__BrowserContent">
+              <div class="Panel__Skeleton Panel__Skeleton--header"></div>
+              <div class="Panel__Skeleton Panel__Skeleton--nav"></div>
+              <div class="Panel__Skeleton Panel__Skeleton--hero"></div>
+              <div class="Panel__Skeleton Panel__Skeleton--text"></div>
             </div>
           </div>
-          <div class="Polaris-Banner--success">
-            <span class="Polaris-Banner__Icon">✓</span>
-            Content visible instantly
-          </div>
-          <div class="Timeline-Comparison">
-            <div class="Timeline-Row">
-              <div class="Timeline-Label">❌ Without Rocket Loader</div>
-              <div class="Timeline-Bar">
-                <div class="Timeline-Segment Timeline-Segment--blocking" style="width:70%">JS Blocking</div>
-                <div class="Timeline-Segment Timeline-Segment--delayed" style="width:30%">Content</div>
+          <div class="Panel__Banner"><span class="Panel__BannerIcon">✓</span>Content visible instantly</div>
+          <div class="Panel__Timeline">
+            <div class="Panel__TimelineRow">
+              <div class="Panel__TimelineLabel">❌ Without Rocket Loader</div>
+              <div class="Panel__TimelineBar">
+                <div class="Panel__TimelineSegment Panel__TimelineSegment--blocking" style="width:70%">JS Blocking</div>
+                <div class="Panel__TimelineSegment Panel__TimelineSegment--delayed" style="width:30%">Content</div>
               </div>
-              <div class="Timeline-Time Timeline-Time--slow">~3.2s</div>
+              <div class="Panel__TimelineTime Panel__TimelineTime--slow">~3.2s</div>
             </div>
-            <div class="Timeline-Row">
-              <div class="Timeline-Label">✅ With Rocket Loader</div>
-              <div class="Timeline-Bar">
-                <div class="Timeline-Segment Timeline-Segment--fast" style="width:25%">Content</div>
-                <div class="Timeline-Segment Timeline-Segment--deferred" style="width:75%">JS Deferred</div>
+            <div class="Panel__TimelineRow">
+              <div class="Panel__TimelineLabel">✅ With Rocket Loader</div>
+              <div class="Panel__TimelineBar">
+                <div class="Panel__TimelineSegment Panel__TimelineSegment--fast" style="width:25%">Content</div>
+                <div class="Panel__TimelineSegment Panel__TimelineSegment--deferred" style="width:75%">JS Deferred</div>
               </div>
-              <div class="Timeline-Time Timeline-Time--fast">~0.8s</div>
+              <div class="Panel__TimelineTime Panel__TimelineTime--fast">~0.8s</div>
             </div>
           </div>
-          <div class="Stats-Grid">
-            <div class="Stat-Card"><div class="Stat-Value">75%</div><div class="Stat-Label">Faster Paint</div></div>
-            <div class="Stat-Card"><div class="Stat-Value">4x</div><div class="Stat-Label">Quicker Load</div></div>
+          <div class="Panel__StatsGrid">
+            <div class="Panel__StatCard"><div class="Panel__StatValue">75%</div><div class="Panel__StatLabel">Faster Paint</div></div>
+            <div class="Panel__StatCard"><div class="Panel__StatValue">4x</div><div class="Panel__StatLabel">Quicker Load</div></div>
           </div>
         </div>
       </div>
@@ -725,35 +1420,32 @@
   </aside>
 
   <!-- PANEL: Minify JavaScript -->
-  <aside class="Polaris-Sheet" id="panel-minify-js" role="dialog" aria-labelledby="title-minify-js" aria-modal="true" aria-hidden="true">
-    <header class="Polaris-Sheet__Header">
-      <div class="Polaris-Sheet__HeaderIcon">📦</div>
-      <h2 class="Polaris-Sheet__HeaderTitle" id="title-minify-js">Minify JavaScript</h2>
-      <button class="Polaris-Sheet__CloseButton" aria-label="Close" data-close>
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg>
-      </button>
+  <aside class="Panel" id="panel-minify-js" role="dialog" aria-labelledby="title-minify-js" aria-modal="true" aria-hidden="true">
+    <header class="Panel__Header">
+      <div class="Panel__HeaderIcon">📦</div>
+      <h2 class="Panel__HeaderTitle" id="title-minify-js">Minify JavaScript</h2>
+      <button class="Panel__CloseBtn" aria-label="Close" data-close><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg></button>
     </header>
-    <div class="Polaris-Sheet__Content">
-      <div class="Polaris-Stack">
-        <div class="Polaris-TextBlock">
-          <h3 class="Polaris-TextBlock__Heading">The Problem</h3>
-          <p><strong>Think of JavaScript files like a moving truck.</strong> Developers write code with spaces, comments, and long variable names for readability—but browsers don't need any of that. It's like shipping air in your boxes.</p>
+    <div class="Panel__Body">
+      <div class="Panel__Stack">
+        <div class="Panel__TextBlock">
+          <h3 class="Panel__TextHeading">The Problem</h3>
+          <p><strong>Think of JavaScript files like a moving truck.</strong> Developers write code with spaces, comments, and long variable names for readability—but browsers don't need any of that.</p>
         </div>
-        <div class="Polaris-TextBlock">
-          <h3 class="Polaris-TextBlock__Heading">The Solution</h3>
-          <p>Minification <em>vacuum-seals your code</em>—removing whitespace, shortening names, and stripping comments. Same functionality, <em>much smaller package</em>.</p>
+        <div class="Panel__TextBlock">
+          <h3 class="Panel__TextHeading">The Solution</h3>
+          <p>Minification <em>vacuum-seals your code</em>—removing whitespace, shortening names, and stripping comments. Same functionality, much smaller package.</p>
         </div>
-        <div class="Polaris-CalloutCard">
-          <div class="Polaris-CalloutCard__Title">✨ The Magic</div>
-          <p>Less bytes = faster downloads = happier customers. Every millisecond counts for conversions.</p>
+        <div class="Panel__Callout">
+          <div class="Panel__CalloutTitle">✨ The Magic</div>
+          <p>Less bytes = faster downloads = happier customers. Every millisecond counts.</p>
         </div>
-        <div class="Polaris-VisualBox">
-          <div class="Polaris-VisualBox__Label">Code Transformation</div>
-          <div class="Code-Transform">
+        <div class="Panel__VisualBox">
+          <div class="Panel__VisualLabel">Code Transformation</div>
+          <div class="Panel__CodeTransform">
             <div>
-              <div class="Code-Label">❌ Before (readable but bulky)</div>
-              <div class="Code-Block Code-Block--before">
-<span class="comment">// Calculate total price</span>
+              <div class="Panel__CodeLabel">❌ Before (readable but bulky)</div>
+              <div class="Panel__CodeBlock Panel__CodeBlock--before"><span class="comment">// Calculate total price</span>
 <span class="keyword">function</span> <span class="property">calculateTotal</span>(items) {
   <span class="keyword">let</span> total = <span class="value">0</span>;
   <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="value">0</span>; i < items.length; i++) {
@@ -763,22 +1455,22 @@
 }</div>
             </div>
             <div>
-              <div class="Code-Label">✅ After (compact & fast)</div>
-              <div class="Code-Block Code-Block--after"><span class="keyword">function</span> <span class="property">c</span>(a){<span class="keyword">let</span> t=<span class="value">0</span>;<span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="value">0</span>;i<a.length;i++)t+=a[i].price;<span class="keyword">return</span> t}</div>
+              <div class="Panel__CodeLabel">✅ After (compact & fast)</div>
+              <div class="Panel__CodeBlock Panel__CodeBlock--after"><span class="keyword">function</span> <span class="property">c</span>(a){<span class="keyword">let</span> t=<span class="value">0</span>;<span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="value">0</span>;i<a.length;i++)t+=a[i].price;<span class="keyword">return</span> t}</div>
             </div>
           </div>
-          <div class="Size-Compare">
-            <div class="Size-Bar-Container">
-              <div class="Size-Bar-Label"><span>Original</span><span>186 bytes</span></div>
-              <div class="Size-Bar Size-Bar--original"></div>
+          <div class="Panel__SizeCompare">
+            <div class="Panel__SizeBarContainer">
+              <div class="Panel__SizeBarLabel"><span>Original</span><span>186 bytes</span></div>
+              <div class="Panel__SizeBar Panel__SizeBar--original"></div>
             </div>
-            <div class="Size-Bar-Container">
-              <div class="Size-Bar-Label"><span>Minified</span><span>72 bytes</span></div>
-              <div class="Size-Bar Size-Bar--compressed" style="width: 39%"></div>
+            <div class="Panel__SizeBarContainer">
+              <div class="Panel__SizeBarLabel"><span>Minified</span><span>72 bytes</span></div>
+              <div class="Panel__SizeBar Panel__SizeBar--compressed" style="width: 39%"></div>
             </div>
-            <div class="Size-Savings">
-              <div class="Size-Savings__Value">61%</div>
-              <div class="Size-Savings__Label">Smaller file size</div>
+            <div class="Panel__SizeSavings">
+              <div class="Panel__SizeSavingsValue">61%</div>
+              <div class="Panel__SizeSavingsLabel">Smaller file size</div>
             </div>
           </div>
         </div>
@@ -787,50 +1479,46 @@
   </aside>
 
   <!-- PANEL: Minify CSS -->
-  <aside class="Polaris-Sheet" id="panel-minify-css" role="dialog" aria-labelledby="title-minify-css" aria-modal="true" aria-hidden="true">
-    <header class="Polaris-Sheet__Header">
-      <div class="Polaris-Sheet__HeaderIcon">🎨</div>
-      <h2 class="Polaris-Sheet__HeaderTitle" id="title-minify-css">Minify CSS</h2>
-      <button class="Polaris-Sheet__CloseButton" aria-label="Close" data-close>
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg>
-      </button>
+  <aside class="Panel" id="panel-minify-css" role="dialog" aria-labelledby="title-minify-css" aria-modal="true" aria-hidden="true">
+    <header class="Panel__Header">
+      <div class="Panel__HeaderIcon">🎨</div>
+      <h2 class="Panel__HeaderTitle" id="title-minify-css">Minify CSS</h2>
+      <button class="Panel__CloseBtn" aria-label="Close" data-close><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg></button>
     </header>
-    <div class="Polaris-Sheet__Content">
-      <div class="Polaris-Stack">
-        <div class="Polaris-TextBlock">
-          <h3 class="Polaris-TextBlock__Heading">The Problem</h3>
-          <p><strong>CSS is like interior design notes.</strong> Designers write styles with beautiful formatting, helpful comments, and organized structure. But browsers just need the instructions—not the commentary.</p>
+    <div class="Panel__Body">
+      <div class="Panel__Stack">
+        <div class="Panel__TextBlock">
+          <h3 class="Panel__TextHeading">The Problem</h3>
+          <p><strong>CSS is like interior design notes.</strong> Designers write styles with beautiful formatting and helpful comments. But browsers just need the instructions.</p>
         </div>
-        <div class="Polaris-TextBlock">
-          <h3 class="Polaris-TextBlock__Heading">The Solution</h3>
-          <p>CSS minification <em>strips away the fluff</em>—keeping only what browsers need to render your beautiful store. Same stunning design, <em>faster delivery</em>.</p>
+        <div class="Panel__TextBlock">
+          <h3 class="Panel__TextHeading">The Solution</h3>
+          <p>CSS minification <em>strips away the fluff</em>—keeping only what browsers need. Same stunning design, faster delivery.</p>
         </div>
-        <div class="Polaris-CalloutCard">
-          <div class="Polaris-CalloutCard__Title">✨ The Magic</div>
-          <p>CSS loads before anything appears. Smaller CSS = faster "First Paint" = customers see your store sooner.</p>
+        <div class="Panel__Callout">
+          <div class="Panel__CalloutTitle">✨ The Magic</div>
+          <p>CSS loads before anything appears. Smaller CSS = faster "First Paint".</p>
         </div>
-        <div class="Polaris-VisualBox">
-          <div class="Polaris-VisualBox__Label">Style Compression</div>
-          <div class="Code-Transform">
+        <div class="Panel__VisualBox">
+          <div class="Panel__VisualLabel">Style Compression</div>
+          <div class="Panel__CodeTransform">
             <div>
-              <div class="Code-Label">❌ Before (formatted)</div>
-              <div class="Code-Block Code-Block--before">
-<span class="comment">/* Primary button styles */</span>
+              <div class="Panel__CodeLabel">❌ Before (formatted)</div>
+              <div class="Panel__CodeBlock Panel__CodeBlock--before"><span class="comment">/* Primary button */</span>
 <span class="property">.button</span> {
-  <span class="property">background-color</span>: <span class="value">#F48120</span>;
+  <span class="property">background</span>: <span class="value">#F48120</span>;
   <span class="property">border-radius</span>: <span class="value">8px</span>;
   <span class="property">padding</span>: <span class="value">12px 24px</span>;
-  <span class="property">font-weight</span>: <span class="value">600</span>;
 }</div>
             </div>
             <div>
-              <div class="Code-Label">✅ After (compressed)</div>
-              <div class="Code-Block Code-Block--after"><span class="property">.button</span>{<span class="property">background-color</span>:<span class="value">#F48120</span>;<span class="property">border-radius</span>:<span class="value">8px</span>;<span class="property">padding</span>:<span class="value">12px 24px</span>;<span class="property">font-weight</span>:<span class="value">600</span>}</div>
+              <div class="Panel__CodeLabel">✅ After (compressed)</div>
+              <div class="Panel__CodeBlock Panel__CodeBlock--after"><span class="property">.button</span>{<span class="property">background</span>:<span class="value">#F48120</span>;<span class="property">border-radius</span>:<span class="value">8px</span>;<span class="property">padding</span>:<span class="value">12px 24px</span>}</div>
             </div>
           </div>
-          <div class="Stats-Grid">
-            <div class="Stat-Card"><div class="Stat-Value">~30%</div><div class="Stat-Label">Smaller CSS</div></div>
-            <div class="Stat-Card"><div class="Stat-Value">50ms</div><div class="Stat-Label">Faster Render</div></div>
+          <div class="Panel__StatsGrid">
+            <div class="Panel__StatCard"><div class="Panel__StatValue">~30%</div><div class="Panel__StatLabel">Smaller CSS</div></div>
+            <div class="Panel__StatCard"><div class="Panel__StatValue">50ms</div><div class="Panel__StatLabel">Faster Render</div></div>
           </div>
         </div>
       </div>
@@ -838,136 +1526,135 @@
   </aside>
 
   <!-- PANEL: Brotli -->
-  <aside class="Polaris-Sheet" id="panel-brotli" role="dialog" aria-labelledby="title-brotli" aria-modal="true" aria-hidden="true">
-    <header class="Polaris-Sheet__Header">
-      <div class="Polaris-Sheet__HeaderIcon">🗜️</div>
-      <h2 class="Polaris-Sheet__HeaderTitle" id="title-brotli">Brotli Compression</h2>
-      <button class="Polaris-Sheet__CloseButton" aria-label="Close" data-close>
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg>
-      </button>
+  <aside class="Panel" id="panel-brotli" role="dialog" aria-labelledby="title-brotli" aria-modal="true" aria-hidden="true">
+    <header class="Panel__Header">
+      <div class="Panel__HeaderIcon">🗜️</div>
+      <h2 class="Panel__HeaderTitle" id="title-brotli">Brotli Compression</h2>
+      <button class="Panel__CloseBtn" aria-label="Close" data-close><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg></button>
     </header>
-    <div class="Polaris-Sheet__Content">
-      <div class="Polaris-Stack">
-        <div class="Polaris-TextBlock">
-          <h3 class="Polaris-TextBlock__Heading">The Problem</h3>
-          <p><strong>Sending data over the internet is like shipping packages.</strong> The bigger the package, the longer it takes to arrive. Even minified files can be compressed further—like vacuum-sealing clothes for travel.</p>
+    <div class="Panel__Body">
+      <div class="Panel__Stack">
+        <div class="Panel__TextBlock">
+          <h3 class="Panel__TextHeading">The Problem</h3>
+          <p><strong>Sending data is like shipping packages.</strong> The bigger the package, the longer it takes. Even minified files can be compressed further.</p>
         </div>
-        <div class="Polaris-TextBlock">
-          <h3 class="Polaris-TextBlock__Heading">The Solution</h3>
-          <p>Brotli is Google's <em>next-generation compression</em>. It squeezes files 15-25% smaller than the old gzip method—meaning your store loads noticeably faster.</p>
+        <div class="Panel__TextBlock">
+          <h3 class="Panel__TextHeading">The Solution</h3>
+          <p>Brotli is Google's <em>next-generation compression</em>. It squeezes files 15-25% smaller than gzip—noticeably faster loads.</p>
         </div>
-        <div class="Polaris-CalloutCard">
-          <div class="Polaris-CalloutCard__Title">✨ The Magic</div>
-          <p>Brotli uses a smarter algorithm with a pre-built dictionary of common web patterns. It's like having a compression expert who already knows HTML/CSS/JS.</p>
+        <div class="Panel__Callout">
+          <div class="Panel__CalloutTitle">✨ The Magic</div>
+          <p>Brotli uses a smarter algorithm with a pre-built dictionary of common web patterns.</p>
         </div>
-        <div class="Polaris-VisualBox">
-          <div class="Polaris-VisualBox__Label">Compression Comparison</div>
-          <div class="Size-Compare">
-            <div class="Size-Bar-Container">
-              <div class="Size-Bar-Label"><span>Original File</span><span>500 KB</span></div>
-              <div class="Size-Bar Size-Bar--original"></div>
+        <div class="Panel__VisualBox">
+          <div class="Panel__VisualLabel">Compression Comparison</div>
+          <div class="Panel__SizeCompare">
+            <div class="Panel__SizeBarContainer">
+              <div class="Panel__SizeBarLabel"><span>Original</span><span>500 KB</span></div>
+              <div class="Panel__SizeBar Panel__SizeBar--original"></div>
             </div>
-            <div class="Size-Bar-Container">
-              <div class="Size-Bar-Label"><span>Gzip (old)</span><span>150 KB</span></div>
-              <div class="Size-Bar" style="width: 30%; background: var(--p-color-text-disabled);"></div>
+            <div class="Panel__SizeBarContainer">
+              <div class="Panel__SizeBarLabel"><span>Gzip (old)</span><span>150 KB</span></div>
+              <div class="Panel__SizeBar Panel__SizeBar--gzip" style="width: 30%"></div>
             </div>
-            <div class="Size-Bar-Container">
-              <div class="Size-Bar-Label"><span>Brotli (new)</span><span>115 KB</span></div>
-              <div class="Size-Bar Size-Bar--compressed" style="width: 23%"></div>
+            <div class="Panel__SizeBarContainer">
+              <div class="Panel__SizeBarLabel"><span>Brotli (new)</span><span>115 KB</span></div>
+              <div class="Panel__SizeBar Panel__SizeBar--compressed" style="width: 23%"></div>
             </div>
           </div>
-          <div class="Stats-Grid">
-            <div class="Stat-Card"><div class="Stat-Value">77%</div><div class="Stat-Label">Smaller Files</div></div>
-            <div class="Stat-Card"><div class="Stat-Value">20%</div><div class="Stat-Label">Better Than Gzip</div></div>
+          <div class="Panel__StatsGrid">
+            <div class="Panel__StatCard"><div class="Panel__StatValue">77%</div><div class="Panel__StatLabel">Smaller Files</div></div>
+            <div class="Panel__StatCard"><div class="Panel__StatValue">20%</div><div class="Panel__StatLabel">Better Than Gzip</div></div>
           </div>
-          <div class="Polaris-Banner--success">
-            <span class="Polaris-Banner__Icon">✓</span>
-            Supported by all modern browsers
-          </div>
+          <div class="Panel__Banner"><span class="Panel__BannerIcon">✓</span>Supported by all modern browsers</div>
         </div>
       </div>
     </div>
   </aside>
 
   <!-- PANEL: Early Hints -->
-  <aside class="Polaris-Sheet" id="panel-early-hints" role="dialog" aria-labelledby="title-early-hints" aria-modal="true" aria-hidden="true">
-    <header class="Polaris-Sheet__Header">
-      <div class="Polaris-Sheet__HeaderIcon">⏱️</div>
-      <h2 class="Polaris-Sheet__HeaderTitle" id="title-early-hints">Early Hints</h2>
-      <button class="Polaris-Sheet__CloseButton" aria-label="Close" data-close>
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg>
-      </button>
+  <aside class="Panel" id="panel-early-hints" role="dialog" aria-labelledby="title-early-hints" aria-modal="true" aria-hidden="true">
+    <header class="Panel__Header">
+      <div class="Panel__HeaderIcon">⏱️</div>
+      <h2 class="Panel__HeaderTitle" id="title-early-hints">Early Hints</h2>
+      <button class="Panel__CloseBtn" aria-label="Close" data-close><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M11.414 10l4.293-4.293a1 1 0 0 0-1.414-1.414L10 8.586 5.707 4.293a1 1 0 0 0-1.414 1.414L8.586 10l-4.293 4.293a1 1 0 1 0 1.414 1.414L10 11.414l4.293 4.293a1 1 0 0 0 1.414-1.414L11.414 10z"/></svg></button>
     </header>
-    <div class="Polaris-Sheet__Content">
-      <div class="Polaris-Stack">
-        <div class="Polaris-TextBlock">
-          <h3 class="Polaris-TextBlock__Heading">The Problem</h3>
-          <p><strong>Loading a webpage is like cooking dinner.</strong> Normally, the browser waits for the "recipe" (HTML) before gathering ingredients (CSS, fonts, images). That's wasted time!</p>
+    <div class="Panel__Body">
+      <div class="Panel__Stack">
+        <div class="Panel__TextBlock">
+          <h3 class="Panel__TextHeading">The Problem</h3>
+          <p><strong>Loading a webpage is like cooking dinner.</strong> Normally, the browser waits for the "recipe" (HTML) before gathering ingredients. That's wasted time!</p>
         </div>
-        <div class="Polaris-TextBlock">
-          <h3 class="Polaris-TextBlock__Heading">The Solution</h3>
-          <p>Early Hints is like a <em>prep cook giving you a head start</em>. Before the main response arrives, the browser gets a "103" hint saying "Hey, you'll need these files—start downloading now!"</p>
+        <div class="Panel__TextBlock">
+          <h3 class="Panel__TextHeading">The Solution</h3>
+          <p>Early Hints is like a <em>prep cook giving you a head start</em>. Before the main response, the browser gets a hint to start downloading critical files.</p>
         </div>
-        <div class="Polaris-CalloutCard">
-          <div class="Polaris-CalloutCard__Title">✨ The Magic</div>
-          <p>HTTP 103 responses arrive in ~50ms while the server prepares the full page. That's free loading time browsers would otherwise waste waiting.</p>
+        <div class="Panel__Callout">
+          <div class="Panel__CalloutTitle">✨ The Magic</div>
+          <p>HTTP 103 responses arrive in ~50ms while the server prepares the full page. Free loading time!</p>
         </div>
-        <div class="Polaris-VisualBox">
-          <div class="Polaris-VisualBox__Label">Request Timeline</div>
-          <div class="Sequence-Diagram">
-            <div class="Sequence-Row Sequence-Row--highlight">
-              <div class="Sequence-Step">1</div>
-              <div class="Sequence-Content">
-                <div class="Sequence-Title">Browser requests page</div>
-                <div class="Sequence-Desc">GET /products/awesome-thing</div>
+        <div class="Panel__VisualBox">
+          <div class="Panel__VisualLabel">Request Timeline</div>
+          <div class="Panel__Sequence">
+            <div class="Panel__SequenceRow Panel__SequenceRow--highlight">
+              <div class="Panel__SequenceStep">1</div>
+              <div class="Panel__SequenceContent">
+                <div class="Panel__SequenceTitle">Browser requests page</div>
+                <div class="Panel__SequenceDesc">GET /products/awesome-thing</div>
               </div>
-              <div class="Sequence-Time">0ms</div>
+              <div class="Panel__SequenceTime">0ms</div>
             </div>
-            <div class="Sequence-Row Sequence-Row--highlight">
-              <div class="Sequence-Step">2</div>
-              <div class="Sequence-Content">
-                <div class="Sequence-Title">🚀 Early Hint arrives!</div>
-                <div class="Sequence-Desc">103: Preload styles.css, fonts.woff2</div>
+            <div class="Panel__SequenceRow Panel__SequenceRow--highlight">
+              <div class="Panel__SequenceStep">2</div>
+              <div class="Panel__SequenceContent">
+                <div class="Panel__SequenceTitle">🚀 Early Hint arrives!</div>
+                <div class="Panel__SequenceDesc">103: Preload styles.css, fonts.woff2</div>
               </div>
-              <div class="Sequence-Time">50ms</div>
+              <div class="Panel__SequenceTime">50ms</div>
             </div>
-            <div class="Sequence-Row">
-              <div class="Sequence-Step">3</div>
-              <div class="Sequence-Content">
-                <div class="Sequence-Title">Browser starts preloading</div>
-                <div class="Sequence-Desc">Downloads CSS & fonts in parallel</div>
+            <div class="Panel__SequenceRow">
+              <div class="Panel__SequenceStep">3</div>
+              <div class="Panel__SequenceContent">
+                <div class="Panel__SequenceTitle">Browser starts preloading</div>
+                <div class="Panel__SequenceDesc">Downloads CSS & fonts in parallel</div>
               </div>
-              <div class="Sequence-Time">51ms</div>
+              <div class="Panel__SequenceTime">51ms</div>
             </div>
-            <div class="Sequence-Row">
-              <div class="Sequence-Step">4</div>
-              <div class="Sequence-Content">
-                <div class="Sequence-Title">Full response arrives</div>
-                <div class="Sequence-Desc">200 OK with HTML content</div>
+            <div class="Panel__SequenceRow">
+              <div class="Panel__SequenceStep">4</div>
+              <div class="Panel__SequenceContent">
+                <div class="Panel__SequenceTitle">Full response arrives</div>
+                <div class="Panel__SequenceDesc">200 OK with HTML content</div>
               </div>
-              <div class="Sequence-Time">200ms</div>
+              <div class="Panel__SequenceTime">200ms</div>
             </div>
-            <div class="Sequence-Row Sequence-Row--highlight">
-              <div class="Sequence-Step">✓</div>
-              <div class="Sequence-Content">
-                <div class="Sequence-Title">Page renders faster!</div>
-                <div class="Sequence-Desc">CSS already loaded = instant paint</div>
+            <div class="Panel__SequenceRow Panel__SequenceRow--highlight">
+              <div class="Panel__SequenceStep">✓</div>
+              <div class="Panel__SequenceContent">
+                <div class="Panel__SequenceTitle">Page renders faster!</div>
+                <div class="Panel__SequenceDesc">CSS already loaded = instant paint</div>
               </div>
-              <div class="Sequence-Time">250ms</div>
+              <div class="Panel__SequenceTime">250ms</div>
             </div>
           </div>
-          <div class="Stats-Grid">
-            <div class="Stat-Card"><div class="Stat-Value">~30%</div><div class="Stat-Label">Faster LCP</div></div>
-            <div class="Stat-Card"><div class="Stat-Value">150ms</div><div class="Stat-Label">Head Start</div></div>
+          <div class="Panel__StatsGrid">
+            <div class="Panel__StatCard"><div class="Panel__StatValue">~30%</div><div class="Panel__StatLabel">Faster LCP</div></div>
+            <div class="Panel__StatCard"><div class="Panel__StatValue">150ms</div><div class="Panel__StatLabel">Head Start</div></div>
           </div>
         </div>
       </div>
     </div>
   </aside>
 
+  <!-- ============================================
+       JAVASCRIPT
+       ============================================ -->
   <script>
+    // ============================================
     // Panel Management
+    // ============================================
     const backdrop = document.getElementById('backdrop');
+    const sidebar = document.getElementById('sidebar');
     let activePanel = null;
     let activeCard = null;
 
@@ -996,19 +1683,17 @@
       if (activeCard) activeCard.classList.remove('is-active');
       document.body.style.overflow = '';
       
-      if (activeCard) {
-        activeCard.querySelector('[data-panel]').focus();
-      }
+      if (activeCard) activeCard.querySelector('[data-panel]').focus();
       
       activePanel = null;
       activeCard = null;
     }
 
-    // Event Listeners
+    // Panel event listeners
     document.querySelectorAll('[data-panel]').forEach(btn => {
       btn.addEventListener('click', () => {
         const panelId = btn.getAttribute('data-panel');
-        const card = btn.closest('.Polaris-Card');
+        const card = btn.closest('.Toggle-Card');
         openPanel(panelId, card);
       });
     });
@@ -1017,13 +1702,48 @@
       btn.addEventListener('click', closePanel);
     });
 
-    backdrop.addEventListener('click', closePanel);
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && activePanel) closePanel();
+    backdrop.addEventListener('click', () => {
+      closePanel();
+      closeSidebar();
     });
 
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (activePanel) closePanel();
+        closeSidebar();
+      }
+    });
+
+    // ============================================
+    // Mobile Sidebar
+    // ============================================
+    const menuToggle = document.getElementById('menu-toggle');
+    
+    function openSidebar() {
+      sidebar.classList.add('is-open');
+      backdrop.classList.add('is-active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeSidebar() {
+      sidebar.classList.remove('is-open');
+      if (!activePanel) {
+        backdrop.classList.remove('is-active');
+        document.body.style.overflow = '';
+      }
+    }
+    
+    menuToggle.addEventListener('click', () => {
+      if (sidebar.classList.contains('is-open')) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+
+    // ============================================
     // Theme Toggle
+    // ============================================
     const themeToggle = document.getElementById('theme-toggle');
     const themeLabel = document.getElementById('theme-label');
 
