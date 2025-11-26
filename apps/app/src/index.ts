@@ -12,13 +12,7 @@ import {
   createJSONResponse,
 } from "@cloudcache/platform-http";
 import { renderPage } from "./templates/page";
-import {
-  NAV_ITEMS,
-  PAGE_CONFIGS,
-  getPageConfig,
-  getAllToggleConfigs,
-  type ToggleConfig,
-} from "./config/pages";
+import { NAV_ITEMS, getPageConfig, getAllToggleConfigs } from "./config/pages";
 
 declare const __VERSION__: string;
 
@@ -276,7 +270,7 @@ export default {
           opt.options = toggle.options;
           opt.currentValue = rawValues[toggle.id];
           // Find the label for the current value
-          const currentOption = toggle.options.find(o => o.value === rawValues[toggle.id]);
+          const currentOption = toggle.options.find((o) => o.value === rawValues[toggle.id]);
           opt.currentLabel = currentOption?.label || null;
         }
 
@@ -288,6 +282,7 @@ export default {
         dashboardTitle: pageConfig.title,
         dashboardSubtitle: pageConfig.subtitle,
         activeNavItem: pageConfig.id,
+        pageId: pageConfig.id,
         navItems: NAV_ITEMS,
         optimizations,
         footer: {

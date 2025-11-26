@@ -1,4 +1,5 @@
 import { ToggleSection, type Optimization } from "./ToggleSection";
+import { EnhancedToggleSection } from "./EnhancedToggleSection";
 
 export interface DashboardProps {
   content?: string;
@@ -8,6 +9,7 @@ export interface DashboardProps {
   planName?: string;
   connectButtonText?: string;
   optimizations?: Optimization[];
+  pageId?: string; // Used to determine which toggle section to render
 }
 
 export function Dashboard(props: DashboardProps = {}): string {
@@ -19,6 +21,7 @@ export function Dashboard(props: DashboardProps = {}): string {
     planName,
     connectButtonText,
     optimizations = [],
+    pageId,
   } = props;
 
   // If custom content provided, use it
@@ -66,7 +69,11 @@ export function Dashboard(props: DashboardProps = {}): string {
     parts.push(`<button class="connect-button">${escapeHtml(connectButtonText)}</button>`);
   }
 
-  const toggleSection = ToggleSection({ optimizations });
+  // Use enhanced toggle section for performance page, regular for others
+  const toggleSection =
+    pageId === "performance"
+      ? EnhancedToggleSection({ optimizations })
+      : ToggleSection({ optimizations });
 
   return `
     <div class="container">

@@ -3,6 +3,7 @@ import { Navigation, type NavItem } from "../components/Navigation";
 import { Dashboard } from "../components/Dashboard";
 import { Footer } from "../components/Footer";
 import { styles } from "../components/styles";
+import { enhancedStyles } from "../components/enhancedStyles";
 import { getCloudcacheValidatedBadge } from "@cloudcache/worker-utils";
 import { generateSliderPanels, type SliderOption } from "../components/ToggleSection";
 
@@ -10,6 +11,7 @@ export interface PageProps {
   faviconBase64?: string;
   title?: string;
   activeNavItem?: string;
+  pageId?: string;
   navItems?: NavItem[];
   dashboardContent?: string;
   dashboardTitle?: string;
@@ -42,6 +44,7 @@ export function renderPage(props: PageProps = {}): string {
     faviconBase64,
     title = "Cloudcache APP",
     activeNavItem,
+    pageId,
     navItems = [],
     dashboardContent,
     dashboardTitle,
@@ -108,6 +111,7 @@ export function renderPage(props: PageProps = {}): string {
         planName,
         connectButtonText,
         optimizations,
+        pageId,
       });
     }
   } catch {
@@ -137,7 +141,7 @@ export function renderPage(props: PageProps = {}): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   ${faviconLinks}
   <title>${title || "CloudCache Dashboard"}</title>
-  <style>${styles || ""}</style>
+  <style>${styles || ""}${enhancedStyles || ""}</style>
 </head>
 <body ${bodyStyle || ""}>
   ${announcementHtml}
@@ -377,6 +381,64 @@ export function renderPage(props: PageProps = {}): string {
           }
         }
       }
+      
+      // ===== ENHANCED ACCORDION FUNCTIONALITY =====
+      // Handle accordion expand/collapse for enhanced toggle section
+      const expandButtons = document.querySelectorAll('.expand-btn');
+      
+      expandButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const item = this.closest('.enhanced-optimization-item');
+          if (!item) return;
+          
+          const isExpanded = item.classList.contains('expanded');
+          const accordion = item.querySelector('.optimization-accordion');
+          
+          // Close all other accordions first
+          document.querySelectorAll('.enhanced-optimization-item.expanded').forEach(openItem => {
+            if (openItem !== item) {
+              openItem.classList.remove('expanded');
+              const openBtn = openItem.querySelector('.expand-btn');
+              if (openBtn) openBtn.setAttribute('aria-expanded', 'false');
+              const openAccordion = openItem.querySelector('.optimization-accordion');
+              if (openAccordion) openAccordion.setAttribute('aria-hidden', 'true');
+            }
+          });
+          
+          // Toggle current accordion
+          if (isExpanded) {
+            item.classList.remove('expanded');
+            this.setAttribute('aria-expanded', 'false');
+            if (accordion) accordion.setAttribute('aria-hidden', 'true');
+          } else {
+            item.classList.add('expanded');
+            this.setAttribute('aria-expanded', 'true');
+            if (accordion) accordion.setAttribute('aria-hidden', 'false');
+            
+            // Smooth scroll to show the expanded content
+            setTimeout(() => {
+              item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+          }
+        });
+      });
+      
+      // Also allow clicking on the feature icon or title to expand
+      document.querySelectorAll('.enhanced-optimization-item .feature-icon, .enhanced-optimization-item .optimization-title').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', function(e) {
+          const item = this.closest('.enhanced-optimization-item');
+          if (!item) return;
+          
+          const expandBtn = item.querySelector('.expand-btn');
+          if (expandBtn) {
+            expandBtn.click();
+          }
+        });
+      });
     });
     
     // Toast notification system
