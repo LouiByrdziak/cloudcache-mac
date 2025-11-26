@@ -184,24 +184,17 @@
       color: var(--p-color-text);
     }
 
-    /* Sidebar: Navigation */
+    /* Sidebar: Navigation
+       Matches Shopify's ui-nav-menu component spacing
+       In production, use <ui-nav-menu> for automatic Shopify integration
+       ============================================ */
     .Sidebar__Nav {
       flex: 1;
       overflow-y: auto;
-      padding: var(--p-space-400) 0;
-    }
-    
-    .Sidebar__NavGroup {
-      margin-bottom: var(--p-space-400);
-    }
-    
-    .Sidebar__NavGroupTitle {
-      padding: var(--p-space-200) var(--p-space-500);
-      font-size: var(--p-font-size-275);
-      font-weight: var(--p-font-weight-semibold);
-      color: var(--p-color-text-disabled);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      padding: var(--p-space-300) 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-050); /* Consistent 2px gap between items */
     }
     
     .Sidebar__NavItem {
@@ -216,6 +209,7 @@
       transition: all var(--p-motion-duration-150) var(--p-motion-ease-in-out);
       cursor: pointer;
       border-left: 3px solid transparent;
+      margin: 0; /* Reset any default margins */
     }
     
     .Sidebar__NavItem:hover {
@@ -233,6 +227,7 @@
       font-size: 18px;
       width: 24px;
       text-align: center;
+      flex-shrink: 0;
     }
 
     /* Sidebar: Footer */
@@ -1109,52 +1104,35 @@
         <span class="Sidebar__LogoText">Cloudcache</span>
       </div>
       
-      <!-- Sidebar: Navigation -->
-      <nav class="Sidebar__Nav">
-        
-        <!-- Nav Group: Optimization -->
-        <div class="Sidebar__NavGroup">
-          <div class="Sidebar__NavGroupTitle">Optimization</div>
-          <a class="Sidebar__NavItem is-active" href="#performance">
-            <span class="Sidebar__NavIcon">⚡</span>
-            Performance
-          </a>
-          <a class="Sidebar__NavItem" href="#security">
-            <span class="Sidebar__NavIcon">🛡️</span>
-            Security
-          </a>
-          <a class="Sidebar__NavItem" href="#network">
-            <span class="Sidebar__NavIcon">🌐</span>
-            Network
-          </a>
-        </div>
-        
-        <!-- Nav Group: Content -->
-        <div class="Sidebar__NavGroup">
-          <div class="Sidebar__NavGroupTitle">Content</div>
-          <a class="Sidebar__NavItem" href="#caching">
-            <span class="Sidebar__NavIcon">📦</span>
-            Caching
-          </a>
-          <a class="Sidebar__NavItem" href="#ssl">
-            <span class="Sidebar__NavIcon">🔒</span>
-            SSL/TLS
-          </a>
-        </div>
-        
-        <!-- Nav Group: Tools -->
-        <div class="Sidebar__NavGroup">
-          <div class="Sidebar__NavGroupTitle">Tools</div>
-          <a class="Sidebar__NavItem" href="#analytics">
-            <span class="Sidebar__NavIcon">📊</span>
-            Analytics
-          </a>
-          <a class="Sidebar__NavItem" href="#workers">
-            <span class="Sidebar__NavIcon">⚙️</span>
-            Workers
-          </a>
-        </div>
-        
+      <!-- Sidebar: Navigation
+           Shopify App Bridge compatible - uses ui-nav-menu pattern
+           See: https://shopify.dev/docs/api/app-bridge-library/web-components/ui-nav-menu
+           ============================================ -->
+      <nav class="Sidebar__Nav" aria-label="App navigation">
+        <a class="Sidebar__NavItem is-active" href="#performance">
+          <span class="Sidebar__NavIcon">⚡</span>
+          Performance
+        </a>
+        <a class="Sidebar__NavItem" href="#security">
+          <span class="Sidebar__NavIcon">🛡️</span>
+          Security
+        </a>
+        <a class="Sidebar__NavItem" href="#network">
+          <span class="Sidebar__NavIcon">🌐</span>
+          Network
+        </a>
+        <a class="Sidebar__NavItem" href="#caching">
+          <span class="Sidebar__NavIcon">📦</span>
+          Caching
+        </a>
+        <a class="Sidebar__NavItem" href="#ssl">
+          <span class="Sidebar__NavIcon">🔒</span>
+          SSL/TLS
+        </a>
+        <a class="Sidebar__NavItem" href="#analytics">
+          <span class="Sidebar__NavIcon">📊</span>
+          Analytics
+        </a>
       </nav>
       
       <!-- Sidebar: Footer -->
