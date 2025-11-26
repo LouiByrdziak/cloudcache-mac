@@ -325,8 +325,8 @@
     }
     
     .Polaris-Card.is-active {
-      border-color: var(--p-color-border-brand);
-      box-shadow: 0 0 0 1px var(--p-color-border-brand);
+      border-color: var(--cc-brand-primary);
+      box-shadow: 0 0 0 2px var(--cc-brand-primary), 0 4px 20px rgba(244, 129, 32, 0.2);
     }
     
     .Polaris-Card__Section {
@@ -356,33 +356,37 @@
     }
     
     .Polaris-SettingToggle__Icon {
-      width: 36px;
-      height: 36px;
+      width: 42px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--p-color-bg-surface-tertiary);
-      border-radius: var(--p-border-radius-200);
-      font-size: 18px;
+      /* Orange gradient background - Cloudcache brand */
+      background: linear-gradient(135deg, var(--cc-brand-primary), var(--cc-brand-secondary));
+      border-radius: var(--p-border-radius-300);
+      font-size: 20px;
       flex-shrink: 0;
-      transition: background var(--p-motion-duration-150) var(--p-motion-ease-in-out),
-                  transform var(--p-motion-duration-150) var(--p-motion-ease-in-out);
+      box-shadow: 0 2px 8px rgba(244, 129, 32, 0.3);
+      transition: transform var(--p-motion-duration-150) var(--p-motion-ease-in-out),
+                  box-shadow var(--p-motion-duration-150) var(--p-motion-ease-in-out);
     }
     
     @media (min-width: 490px) {
       .Polaris-SettingToggle__Icon {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
       }
     }
     
     .Polaris-Card:hover .Polaris-SettingToggle__Icon {
-      transform: scale(1.05);
+      transform: scale(1.08) rotate(-2deg);
+      box-shadow: 0 4px 16px rgba(244, 129, 32, 0.4);
     }
     
     .Polaris-Card.is-active .Polaris-SettingToggle__Icon {
-      background: var(--cc-brand-primary);
+      transform: scale(1.1);
+      box-shadow: 0 4px 20px rgba(244, 129, 32, 0.5);
     }
     
     .Polaris-SettingToggle__Content {
@@ -452,9 +456,10 @@
     }
     
     .Polaris-Card.is-active .Polaris-Button--plain {
-      background: var(--p-color-bg-fill-brand);
-      border-color: var(--p-color-bg-fill-brand);
+      background: var(--cc-brand-primary);
+      border-color: var(--cc-brand-primary);
       color: var(--p-color-text-on-fill);
+      box-shadow: 0 2px 8px rgba(244, 129, 32, 0.4);
     }
     
     .Polaris-Button--plain:disabled {
@@ -463,19 +468,21 @@
     }
 
     /* ============================================
-       TOGGLE SWITCH (Polaris Toggle pattern)
+       TOGGLE SWITCH - CLOUDCACHE BRANDED
+       Chunky size for better accessibility/UX
+       Orange brand color (compliant - many apps do this)
        ============================================ */
     .Polaris-Toggle {
       position: relative;
-      width: 40px;
-      height: 22px;
+      width: 52px;   /* Chunky width */
+      height: 28px;  /* Chunky height */
       flex-shrink: 0;
     }
     
     @media (min-width: 490px) {
       .Polaris-Toggle {
-        width: 44px;
-        height: 24px;
+        width: 56px;
+        height: 30px;
       }
     }
     
@@ -492,45 +499,57 @@
       background: var(--p-color-border);
       border-radius: var(--p-border-radius-full);
       cursor: pointer;
-      transition: background var(--p-motion-duration-150) var(--p-motion-ease-in-out);
+      transition: background var(--p-motion-duration-150) var(--p-motion-ease-in-out),
+                  box-shadow var(--p-motion-duration-150) var(--p-motion-ease-in-out);
     }
     
     .Polaris-Toggle__Slider::before {
       content: '';
       position: absolute;
-      width: 18px;
-      height: 18px;
-      left: 2px;
-      bottom: 2px;
+      width: 22px;   /* Chunky knob */
+      height: 22px;
+      left: 3px;
+      bottom: 3px;
       background: #fff;
       border-radius: 50%;
-      transition: transform var(--p-motion-duration-150) var(--p-motion-ease-in-out);
-      box-shadow: var(--p-shadow-200);
+      transition: transform var(--p-motion-duration-200) var(--p-motion-ease-in-out);
+      box-shadow: var(--p-shadow-300);
     }
     
     @media (min-width: 490px) {
       .Polaris-Toggle__Slider::before {
-        width: 20px;
-        height: 20px;
+        width: 24px;
+        height: 24px;
       }
     }
     
+    /* ORANGE when ON - Cloudcache brand! */
     .Polaris-Toggle__Input:checked + .Polaris-Toggle__Slider {
-      background: var(--p-color-bg-fill-brand);
+      background: var(--cc-brand-primary);
+      box-shadow: 0 0 12px rgba(244, 129, 32, 0.4);
     }
     
     .Polaris-Toggle__Input:checked + .Polaris-Toggle__Slider::before {
-      transform: translateX(18px);
+      transform: translateX(24px);
     }
     
     @media (min-width: 490px) {
       .Polaris-Toggle__Input:checked + .Polaris-Toggle__Slider::before {
-        transform: translateX(20px);
+        transform: translateX(26px);
       }
     }
     
     .Polaris-Toggle__Input:focus-visible + .Polaris-Toggle__Slider {
-      box-shadow: 0 0 0 2px var(--p-color-border-focus);
+      box-shadow: 0 0 0 3px rgba(244, 129, 32, 0.5);
+    }
+    
+    /* Hover effect */
+    .Polaris-Toggle:hover .Polaris-Toggle__Slider {
+      background: var(--p-color-border-hover);
+    }
+    
+    .Polaris-Toggle:hover .Polaris-Toggle__Input:checked + .Polaris-Toggle__Slider {
+      background: var(--cc-brand-secondary);
     }
 
     /* ============================================
@@ -587,15 +606,16 @@
     }
     
     .Polaris-Sheet__HeaderIcon {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--cc-brand-primary);
+      background: linear-gradient(135deg, var(--cc-brand-primary), var(--cc-brand-secondary));
       border-radius: var(--p-border-radius-200);
-      font-size: 18px;
+      font-size: 20px;
       flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(244, 129, 32, 0.3);
     }
     
     .Polaris-Sheet__HeaderTitle {
@@ -682,7 +702,7 @@
     .Polaris-CalloutCard {
       background: var(--p-color-bg-surface-secondary);
       border: 1px solid var(--p-color-border);
-      border-left: 3px solid var(--p-color-bg-fill-brand);
+      border-left: 4px solid var(--cc-brand-primary);
       border-radius: var(--p-border-radius-200);
       padding: var(--p-space-300);
     }
@@ -690,7 +710,7 @@
     .Polaris-CalloutCard__Title {
       font-size: var(--p-font-size-325);
       font-weight: var(--p-font-weight-semibold);
-      color: var(--p-color-text-brand);
+      color: var(--cc-brand-text);
       margin-bottom: var(--p-space-100);
       display: flex;
       align-items: center;
@@ -783,7 +803,7 @@
       animation: skeleton-pulse 1.5s ease-in-out infinite;
     }
     
-    .Skeleton-Block--header { width: 35%; height: 10px; background: var(--p-color-bg-fill-brand); }
+    .Skeleton-Block--header { width: 35%; height: 10px; background: var(--cc-brand-primary); }
     .Skeleton-Block--nav { width: 55%; height: 8px; }
     .Skeleton-Block--hero { width: 100%; height: 28px; }
     .Skeleton-Block--text { width: 75%; height: 6px; }
@@ -841,13 +861,13 @@
     
     .Timeline-Segment--fast {
       width: 25%;
-      background: var(--p-color-bg-fill-brand);
+      background: var(--cc-brand-primary);
     }
     
     .Timeline-Segment--deferred {
       width: 75%;
-      background: var(--p-color-bg-fill-success-secondary);
-      color: var(--p-color-text-brand);
+      background: rgba(244, 129, 32, 0.2);
+      color: var(--cc-brand-text);
     }
     
     .Timeline-Time {
@@ -857,7 +877,7 @@
     }
     
     .Timeline-Time--slow { color: var(--p-color-text-critical); }
-    .Timeline-Time--fast { color: var(--p-color-text-success); }
+    .Timeline-Time--fast { color: var(--cc-brand-text); }
 
     /* Stats Grid */
     .Stats-Grid {
@@ -877,7 +897,7 @@
     .Stat-Value {
       font-size: var(--p-font-size-500);
       font-weight: var(--p-font-weight-bold);
-      color: var(--p-color-text-brand);
+      color: var(--cc-brand-text);
     }
     
     .Stat-Label {
@@ -888,24 +908,24 @@
       margin-top: var(--p-space-050);
     }
 
-    /* Success Banner */
+    /* Success Banner - Brand colored */
     .Polaris-Banner--success {
       display: flex;
       align-items: center;
       gap: var(--p-space-200);
       padding: var(--p-space-200) var(--p-space-300);
-      background: var(--p-color-bg-fill-success-secondary);
-      border: 1px solid var(--p-color-border-success);
+      background: rgba(244, 129, 32, 0.1);
+      border: 1px solid var(--cc-brand-primary);
       border-radius: var(--p-border-radius-100);
       font-size: var(--p-font-size-300);
       font-weight: var(--p-font-weight-medium);
-      color: var(--p-color-text-success);
+      color: var(--cc-brand-text);
     }
     
     .Polaris-Banner__Icon {
-      width: 16px;
-      height: 16px;
-      background: var(--p-color-bg-fill-brand);
+      width: 18px;
+      height: 18px;
+      background: var(--cc-brand-primary);
       border-radius: 50%;
       display: flex;
       align-items: center;
