@@ -8,7 +8,7 @@ export interface ToggleConfig {
   title: string;
   description: string;
   cfSettingName: string; // Cloudflare API setting name
-  valueType: 'on_off' | 'boolean' | 'string'; // How the value is sent to CF API
+  valueType: "on_off" | "boolean" | "string"; // How the value is sent to CF API
 }
 
 export interface PageConfig {
@@ -24,7 +24,13 @@ export interface PageConfig {
 
 // Navigation items for sidebar
 export const NAV_ITEMS = [
-  { id: "performance", text: "Performance", icon: "⚡", href: "/", subtext: "Speed & Optimization" },
+  {
+    id: "performance",
+    text: "Performance",
+    icon: "⚡",
+    href: "/",
+    subtext: "Speed & Optimization",
+  },
   { id: "security", text: "Security", icon: "🛡️", href: "/security", subtext: "Protection Rules" },
   { id: "network", text: "Network", icon: "🌐", href: "/network", subtext: "Protocol Settings" },
   { id: "caching", text: "Caching", icon: "💾", href: "/caching", subtext: "Cache Controls" },
@@ -45,14 +51,16 @@ export const PAGE_CONFIGS: Record<string, PageConfig> = {
       {
         id: "rocket_loader",
         title: "Rocket Loader",
-        description: "Improve paint times for pages that include JavaScript by deferring their loading until after rendering.",
+        description:
+          "Improve paint times for pages that include JavaScript by deferring their loading until after rendering.",
         cfSettingName: "rocket_loader",
         valueType: "on_off",
       },
       {
         id: "minify_js",
         title: "Minify JavaScript",
-        description: "Reduce JavaScript file sizes by removing unnecessary characters and whitespace.",
+        description:
+          "Reduce JavaScript file sizes by removing unnecessary characters and whitespace.",
         cfSettingName: "minify",
         valueType: "on_off",
       },
@@ -66,14 +74,16 @@ export const PAGE_CONFIGS: Record<string, PageConfig> = {
       {
         id: "brotli",
         title: "Brotli Compression",
-        description: "Enable Brotli compression to reduce file sizes and improve load times for supported browsers.",
+        description:
+          "Enable Brotli compression to reduce file sizes and improve load times for supported browsers.",
         cfSettingName: "brotli",
         valueType: "on_off",
       },
       {
         id: "early_hints",
         title: "Early Hints",
-        description: "Send 103 Early Hints responses to preload resources before the main response arrives.",
+        description:
+          "Send 103 Early Hints responses to preload resources before the main response arrives.",
         cfSettingName: "early_hints",
         valueType: "on_off",
       },
@@ -91,35 +101,40 @@ export const PAGE_CONFIGS: Record<string, PageConfig> = {
       {
         id: "security_level",
         title: "I'm Under Attack Mode",
-        description: "Display an interstitial page to visitors while Cloudflare analyzes traffic to stop DDoS attacks.",
+        description:
+          "Display an interstitial page to visitors while Cloudflare analyzes traffic to stop DDoS attacks.",
         cfSettingName: "security_level",
         valueType: "string",
       },
       {
         id: "hotlink_protection",
         title: "Hotlink Protection",
-        description: "Prevent other websites from linking directly to your images and consuming your bandwidth.",
+        description:
+          "Prevent other websites from linking directly to your images and consuming your bandwidth.",
         cfSettingName: "hotlink_protection",
         valueType: "on_off",
       },
       {
         id: "email_obfuscation",
         title: "Email Obfuscation",
-        description: "Protect email addresses on your site from bots and scrapers by obfuscating them.",
+        description:
+          "Protect email addresses on your site from bots and scrapers by obfuscating them.",
         cfSettingName: "email_obfuscation",
         valueType: "on_off",
       },
       {
         id: "browser_check",
         title: "Browser Integrity Check",
-        description: "Evaluate HTTP headers from visitors to eliminate bots and crawlers with bad intent.",
+        description:
+          "Evaluate HTTP headers from visitors to eliminate bots and crawlers with bad intent.",
         cfSettingName: "browser_check",
         valueType: "on_off",
       },
       {
         id: "server_side_exclude",
         title: "Server-side Excludes",
-        description: "Automatically hide specific content from suspicious visitors to protect sensitive data.",
+        description:
+          "Automatically hide specific content from suspicious visitors to protect sensitive data.",
         cfSettingName: "server_side_exclude",
         valueType: "on_off",
       },
@@ -137,14 +152,16 @@ export const PAGE_CONFIGS: Record<string, PageConfig> = {
       {
         id: "ipv6",
         title: "IPv6 Compatibility",
-        description: "Enable IPv6 support to allow visitors with IPv6 addresses to connect to your site.",
+        description:
+          "Enable IPv6 support to allow visitors with IPv6 addresses to connect to your site.",
         cfSettingName: "ipv6",
         valueType: "on_off",
       },
       {
         id: "websockets",
         title: "WebSockets",
-        description: "Allow WebSocket connections to your origin server for real-time communication.",
+        description:
+          "Allow WebSocket connections to your origin server for real-time communication.",
         cfSettingName: "websockets",
         valueType: "on_off",
       },
@@ -158,7 +175,8 @@ export const PAGE_CONFIGS: Record<string, PageConfig> = {
       {
         id: "ip_geolocation",
         title: "IP Geolocation",
-        description: "Add a header containing the visitor's country code to all requests to your origin.",
+        description:
+          "Add a header containing the visitor's country code to all requests to your origin.",
         cfSettingName: "ip_geolocation",
         valueType: "on_off",
       },
@@ -183,7 +201,8 @@ export const PAGE_CONFIGS: Record<string, PageConfig> = {
       {
         id: "development_mode",
         title: "Development Mode",
-        description: "Temporarily bypass Cloudflare's cache to see changes immediately during development.",
+        description:
+          "Temporarily bypass Cloudflare's cache to see changes immediately during development.",
         cfSettingName: "development_mode",
         valueType: "on_off",
       },
@@ -197,7 +216,8 @@ export const PAGE_CONFIGS: Record<string, PageConfig> = {
       {
         id: "browser_cache_ttl",
         title: "Browser Cache TTL",
-        description: "Control how long browsers cache static resources (enabled = respect origin headers).",
+        description:
+          "Control how long browsers cache static resources (enabled = respect origin headers).",
         cfSettingName: "browser_cache_ttl",
         valueType: "on_off",
       },
@@ -280,4 +300,3 @@ export function getAllToggleConfigs(): Map<string, ToggleConfig> {
   }
   return configs;
 }
-

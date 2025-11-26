@@ -14,26 +14,26 @@ export interface NavigationProps {
 }
 
 export function Navigation(props: NavigationProps = {}): string {
-  const { 
-    items = [], 
+  const {
+    items = [],
     activeItem,
     brandTitle = "Cloudcache",
-    brandSubtitle = "Performance Dashboard"
+    brandSubtitle = "Performance Dashboard",
   } = props;
-  
+
   // If no items provided, return empty string (component not used)
   if (items.length === 0) {
-    return '';
+    return "";
   }
-  
+
   // Escape HTML to prevent XSS
   const escapeHtml = (str: string): string => {
     return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   };
 
   return `
@@ -42,15 +42,19 @@ export function Navigation(props: NavigationProps = {}): string {
         <div class="nav-brand-title">${escapeHtml(brandTitle)}</div>
         <div class="nav-brand-subtitle">${escapeHtml(brandSubtitle)}</div>
       </div>
-      ${items.map(item => `
-        <a href="${escapeHtml(item.href || '#')}" class="nav-item ${item.id === activeItem ? 'active' : ''}">
-          ${item.icon ? `<span class="nav-item-icon">${item.icon}</span>` : ''}
+      ${items
+        .map(
+          (item) => `
+        <a href="${escapeHtml(item.href || "#")}" class="nav-item ${item.id === activeItem ? "active" : ""}">
+          ${item.icon ? `<span class="nav-item-icon">${item.icon}</span>` : ""}
           <div>
-            <div class="nav-item-text">${escapeHtml(item.text || '')}</div>
-            ${item.subtext ? `<div class="nav-item-subtext">${escapeHtml(item.subtext)}</div>` : ''}
+            <div class="nav-item-text">${escapeHtml(item.text || "")}</div>
+            ${item.subtext ? `<div class="nav-item-subtext">${escapeHtml(item.subtext)}</div>` : ""}
           </div>
         </a>
-      `).join('')}
+      `
+        )
+        .join("")}
     </nav>
   `;
 }

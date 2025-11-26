@@ -4,19 +4,19 @@ export interface HeaderProps {
 }
 
 export function Header(props: HeaderProps = {}): string {
-  const { 
+  const {
     title = "Cloudcache",
-    subtitle = "Manage your Cloudflare optimizations and workers with simple toggle switches."
+    subtitle = "Manage your Cloudflare optimizations and workers with simple toggle switches.",
   } = props;
-  
+
   // Escape HTML to prevent XSS
   const escapeHtml = (str: string): string => {
     return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   };
 
   return `
@@ -26,4 +26,3 @@ export function Header(props: HeaderProps = {}): string {
     </div>
   `;
 }
-

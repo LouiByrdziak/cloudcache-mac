@@ -1,4 +1,4 @@
-import { ToggleSection, type Optimization } from './ToggleSection';
+import { ToggleSection, type Optimization } from "./ToggleSection";
 
 export interface DashboardProps {
   content?: string;
@@ -11,16 +11,16 @@ export interface DashboardProps {
 }
 
 export function Dashboard(props: DashboardProps = {}): string {
-  const { 
+  const {
     content,
     title,
     subtitle,
     storeName,
     planName,
     connectButtonText,
-    optimizations = []
+    optimizations = [],
   } = props;
-  
+
   // If custom content provided, use it
   if (content) {
     return `
@@ -29,49 +29,49 @@ export function Dashboard(props: DashboardProps = {}): string {
       </div>
     `;
   }
-  
+
   // Escape HTML to prevent XSS
   const escapeHtml = (str: string): string => {
     return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   };
 
   // Build page header
-  let headerHtml = '';
+  let headerHtml = "";
   if (title || subtitle) {
     headerHtml = `
       <div class="page-header">
-        ${title ? `<h1 class="page-title">${escapeHtml(title)}</h1>` : ''}
-        ${subtitle ? `<p class="page-subtitle">${escapeHtml(subtitle)}</p>` : ''}
+        ${title ? `<h1 class="page-title">${escapeHtml(title)}</h1>` : ""}
+        ${subtitle ? `<p class="page-subtitle">${escapeHtml(subtitle)}</p>` : ""}
       </div>
     `;
   }
 
   // Build other parts
   const parts: string[] = [];
-  
+
   if (storeName) {
     parts.push(`<div class="store-info">Store: ${escapeHtml(storeName)}</div>`);
   }
-  
+
   if (planName) {
     parts.push(`<div class="plan-info">Current Plan: ${escapeHtml(planName)}</div>`);
   }
-  
+
   if (connectButtonText) {
     parts.push(`<button class="connect-button">${escapeHtml(connectButtonText)}</button>`);
   }
-  
+
   const toggleSection = ToggleSection({ optimizations });
-  
+
   return `
     <div class="container">
       ${headerHtml}
-      ${parts.join('')}
+      ${parts.join("")}
       ${toggleSection}
     </div>
   `;
