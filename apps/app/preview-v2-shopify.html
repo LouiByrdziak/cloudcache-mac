@@ -145,10 +145,14 @@
       box-shadow: var(--p-shadow-100);
       overflow: hidden;
       transition: box-shadow var(--p-motion-duration-150) var(--p-motion-ease-in-out),
-                  border-color var(--p-motion-duration-150) var(--p-motion-ease-in-out);
+                  border-color var(--p-motion-duration-150) var(--p-motion-ease-in-out),
+                  transform var(--p-motion-duration-150) var(--p-motion-ease-in-out);
     }
     .Polaris-Card + .Polaris-Card { margin-top: var(--p-space-400); }
-    .Polaris-Card:hover { box-shadow: var(--p-shadow-200); }
+    .Polaris-Card:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+      transform: translateY(-3px) rotate(-0.4deg);
+    }
     .Polaris-Card.is-active {
       border-color: var(--cc-brand-primary);
       box-shadow: 0 0 0 2px var(--cc-brand-primary), 0 4px 20px rgba(244, 129, 32, 0.2);
