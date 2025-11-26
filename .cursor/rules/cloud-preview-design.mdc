@@ -1,0 +1,178 @@
+---
+scope: ["apps/app/preview-*.html", "apps/app/**/*.ts"]
+enforce: true
+---
+# Cloud Preview Design Rules
+
+**Last Updated**: 2025-11-26  
+**Rule Reference**: `.cursor/rules/all-code-truth.mdc`  
+**Purpose**: Consistent design decisions for Cloudcache embedded Shopify admin app previews.
+
+---
+
+## Preview File Naming Convention
+
+**Format**: `preview-v{N}-{short-description}.html`
+
+- **N**: Sequential version number (2, 3, 4, 5...)
+- **short-description**: 3-6 words, hyphenated, describing the update
+- **Examples**:
+  - ✅ `preview-v3-chunky-toggles-sidebar.html`
+  - ✅ `preview-v4-panel-animations-fix.html`
+  - ❌ `preview-v2-shopify.html` (too vague)
+  - ❌ `preview-test.html` (no version)
+
+---
+
+## Toggle Switch Dimensions (ENFORCED)
+
+**Chunky toggles are required.** Do not use thin/narrow switches.
+
+```css
+/* CORRECT - Chunky toggles */
+.switch { width: 52px; height: 28px; }
+.switch__slider::before { width: 22px; height: 22px; }
+
+/* WRONG - Too thin */
+.switch { width: 44px; height: 24px; }
+.switch { width: 48px; height: 26px; }
+```
+
+**Rationale**: Better touch targets, matches Cloudcache brand identity, more visually impactful.
+
+---
+
+## Brand Colors (ENFORCED)
+
+**Primary Orange**: `#F48120`  
+**Secondary Orange**: `#ff9a3c`  
+**Brand Text (dark bg)**: `#ffa94d`  
+**Brand Text (light bg)**: `#b35500`
+
+### Where to Use Orange
+- Toggle switch active state background
+- Toggle switch active glow/shadow
+- Card icons (gradient background)
+- Active card border & shadow
+- Info button active state
+- Panel header icon
+- Callout left border
+- Stat values
+- Timeline "fast" segments
+- Size comparison bars (compressed)
+- Banners
+
+### Do NOT Use Shopify Green for Toggles
+Shopify green (`#008060`) is for Shopify system actions only. Cloudcache brand orange is for all our toggle/interactive elements.
+
+---
+
+## Toggle Card Hover Effect (ENFORCED)
+
+Cards must have a subtle hover animation:
+
+```css
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px) rotate(-0.3deg);
+}
+```
+
+**Do NOT remove** the transform/rotation effect. It provides visual feedback and brand personality.
+
+---
+
+## Sidebar Navigation
+
+### Structure
+- No group headers (Optimization, Content, Tools)
+- Flat list of nav items
+- Consistent spacing between all items
+- Active state uses orange left border + orange tint background
+
+### Categories (current)
+1. Performance ⚡
+2. Security 🛡️
+3. Network 🌐
+4. Caching 📦
+5. SSL/TLS 🔒
+6. Analytics 📊
+
+### Shopify Integration Note
+In production, use `<ui-nav-menu>` from App Bridge for automatic Shopify admin integration.
+
+---
+
+## Component Architecture
+
+### Toggle Card (self-contained)
+```html
+<article class="card" data-id="unique-id">
+  <div class="card__inner">
+    <div class="card__icon">{emoji}</div>
+    <div class="card__content">
+      <div class="card__title">{Title}</div>
+      <div class="card__desc">{Description}</div>
+    </div>
+    <div class="card__actions">
+      <button class="card__info" data-panel="panel-id">?</button>
+      <label class="switch"><input type="checkbox"><span class="switch__slider"></span></label>
+    </div>
+  </div>
+</article>
+```
+
+### Moving Cards
+1. Cut entire `<article class="card">` block
+2. Paste into target category section
+3. Card is fully self-contained, no dependencies
+
+---
+
+## CSS Variable Naming
+
+Use short, minimal variable names:
+
+```css
+/* CORRECT - Minimal */
+--bg: #0d0d0d;
+--bg-surface: #1a1a1a;
+--text: #e3e3e3;
+--brand: #F48120;
+
+/* AVOID - Verbose Polaris-style (only for reference) */
+--p-color-bg-surface-secondary-hover: #262626;
+```
+
+---
+
+## Code Minimalism Requirements
+
+- CSS: < 400 lines total
+- JS: < 100 lines total
+- No external dependencies (fonts via Google Fonts CDN are OK)
+- No frameworks (React, Vue, etc.) in previews
+- Comments only for section headers, not inline explanations
+
+---
+
+## Accessibility Requirements
+
+- `aria-label` on icon-only buttons
+- `role="dialog"` and `aria-modal="true"` on panels
+- Focus management (trap focus in open panels)
+- `prefers-reduced-motion` media query support
+- Keyboard navigation (Escape to close panels)
+
+---
+
+## Theme Support
+
+Both dark and light themes must be supported:
+
+```css
+:root { /* Dark theme defaults */ }
+body.light { /* Light theme overrides */ }
+```
+
+Theme toggle card should always be last in the Performance category.
