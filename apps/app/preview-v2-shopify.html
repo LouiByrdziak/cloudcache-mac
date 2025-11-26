@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloudcache - Shopify Polaris Compliant</title>
+  
+  <!-- Shopify's Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ============================================
+       POLARIS-COMPLIANT CSS TOKENS
+       Based on Shopify's Polaris Design System
+       https://polaris.shopify.com/tokens/color
+       ============================================ */
+    
+    :root {
+      /* Polaris Color Tokens - Dark Theme */
+      --p-color-bg: #1a1a1a;
+      --p-color-bg-surface: #2a2a2a;
+      --p-color-bg-surface-hover: #333333;
+      --p-color-bg-surface-active: #3d3d3d;
+      --p-color-bg-surface-selected: #333333;
+      --p-color-bg-surface-secondary: #1f1f1f;
+      --p-color-bg-fill-brand: #008060;
+      --p-color-bg-fill-brand-hover: #006e52;
+      --p-color-bg-fill-brand-active: #005c45;
+      --p-color-bg-fill-success: #008060;
+      --p-color-bg-fill-critical: #e51c00;
+      --p-color-bg-fill-warning: #ffb800;
+      --p-color-bg-fill-info: #00a0ac;
+      
+      --p-color-border: #454545;
+      --p-color-border-hover: #555555;
+      --p-color-border-focus: #005bd3;
+      --p-color-border-brand: #008060;
+      
+      --p-color-text: #e3e3e3;
+      --p-color-text-secondary: #a3a3a3;
+      --p-color-text-disabled: #6d6d6d;
+      --p-color-text-brand: #4ade80;
+      --p-color-text-success: #4ade80;
+      --p-color-text-critical: #ff8a80;
+      --p-color-text-warning: #ffc453;
+      --p-color-text-on-fill: #ffffff;
+      
+      --p-color-icon: #a3a3a3;
+      --p-color-icon-brand: #4ade80;
+      
+      /* Polaris Spacing Tokens (4px scale) */
+      --p-space-0: 0;
+      --p-space-025: 1px;
+      --p-space-050: 2px;
+      --p-space-100: 4px;
+      --p-space-150: 6px;
+      --p-space-200: 8px;
+      --p-space-300: 12px;
+      --p-space-400: 16px;
+      --p-space-500: 20px;
+      --p-space-600: 24px;
+      --p-space-800: 32px;
+      --p-space-1000: 40px;
+      --p-space-1200: 48px;
+      --p-space-1600: 64px;
+      
+      /* Polaris Border Radius */
+      --p-border-radius-100: 4px;
+      --p-border-radius-200: 8px;
+      --p-border-radius-300: 12px;
+      --p-border-radius-400: 16px;
+      --p-border-radius-full: 9999px;
+      
+      /* Polaris Shadow */
+      --p-shadow-100: 0 1px 0 0 rgba(0, 0, 0, 0.05);
+      --p-shadow-200: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+      --p-shadow-300: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+      --p-shadow-400: 0 4px 12px 0 rgba(0, 0, 0, 0.2);
+      --p-shadow-500: 0 8px 24px 0 rgba(0, 0, 0, 0.25);
+      
+      /* Cloudcache Brand (used sparingly, Polaris-compatible) */
+      --cc-brand: #F48120;
+      --cc-brand-text: #ffa94d;
+    }
+    
+    /* Light Theme - Polaris tokens */
+    body.light-theme {
+      --p-color-bg: #f6f6f7;
+      --p-color-bg-surface: #ffffff;
+      --p-color-bg-surface-hover: #f6f6f7;
+      --p-color-bg-surface-active: #ededed;
+      --p-color-bg-surface-selected: #f1f1f1;
+      --p-color-bg-surface-secondary: #f6f6f7;
+      
+      --p-color-border: #c9cccf;
+      --p-color-border-hover: #999999;
+      
+      --p-color-text: #1a1a1a;
+      --p-color-text-secondary: #616161;
+      --p-color-text-disabled: #8c8c8c;
+      --p-color-text-brand: #006e52;
+      --p-color-text-success: #006e52;
+      --p-color-text-critical: #d72c0d;
+      --p-color-text-warning: #916a00;
+      
+      --p-color-icon: #616161;
+      --p-color-icon-brand: #006e52;
+      
+      --cc-brand-text: #c45d00;
+    }
+
+    /* ============================================
+       BASE STYLES
+       ============================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--p-color-bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      font-size: 14px;
+      line-height: 1.4285714286; /* Polaris line-height */
+      color: var(--p-color-text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    /* ============================================
+       PAGE LAYOUT (Polaris Page component pattern)
+       ============================================ */
+    .Polaris-Page {
+      max-width: 998px;
+      margin: 0 auto;
+      padding: var(--p-space-600) var(--p-space-400);
+    }
+    
+    @media (min-width: 768px) {
+      .Polaris-Page {
+        padding: var(--p-space-800) var(--p-space-600);
+      }
+    }
+
+    /* Page Header */
+    .Polaris-Page__Header {
+      margin-bottom: var(--p-space-600);
+    }
+    
+    .Polaris-Header__Title {
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 24px;
+      color: var(--p-color-text);
+    }
+    
+    @media (min-width: 768px) {
+      .Polaris-Header__Title {
+        font-size: 24px;
+        line-height: 28px;
+      }
+    }
+    
+    .Polaris-Header__Subtitle {
+      margin-top: var(--p-space-100);
+      font-size: 14px;
+      color: var(--p-color-text-secondary);
+    }
+
+    /* Badge - Shopify App Bridge indicator */
+    .Polaris-Badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--p-space-100);
+      padding: var(--p-space-050) var(--p-space-200);
+      background: var(--p-color-bg-fill-info);
+      color: var(--p-color-text-on-fill);
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: var(--p-border-radius-full);
+      margin-bottom: var(--p-space-300);
+    }
+    
+    .Polaris-Badge--brand {
+      background: linear-gradient(135deg, var(--cc-brand), #ff9a3c);
+    }
+
+    /* ============================================
+       CARD (Polaris Card component)
+       ============================================ */
+    .Polaris-Card {
+      background: var(--p-color-bg-surface);
+      border-radius: var(--p-border-radius-300);
+      box-shadow: var(--p-shadow-100);
+      border: 1px solid var(--p-color-border);
+      overflow: hidden;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+    
+    .Polaris-Card + .Polaris-Card {
+      margin-top: var(--p-space-400);
+    }
+    
+    .Polaris-Card:hover {
+      box-shadow: var(--p-shadow-200);
+    }
+    
+    .Polaris-Card.is-active {
+      border-color: var(--p-color-border-brand);
+      box-shadow: 0 0 0 1px var(--p-color-border-brand);
+    }
+
+    /* Card Section */
+    .Polaris-Card__Section {
+      padding: var(--p-space-400);
+    }
+    
+    @media (min-width: 768px) {
+      .Polaris-Card__Section {
+        padding: var(--p-space-500);
+      }
+    }
+
+    /* ============================================
+       SETTING TOGGLE (Polaris pattern)
+       ============================================ */
+    .Polaris-SettingToggle {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--p-space-400);
+    }
+    
+    .Polaris-SettingToggle__Icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--p-color-bg-surface-secondary);
+      border-radius: var(--p-border-radius-200);
+      color: var(--cc-brand-text);
+      flex-shrink: 0;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    
+    .Polaris-Card:hover .Polaris-SettingToggle__Icon {
+      transform: scale(1.05);
+    }
+    
+    .Polaris-Card.is-active .Polaris-SettingToggle__Icon {
+      background: var(--cc-brand);
+      color: #fff;
+    }
+    
+    .Polaris-SettingToggle__Content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .Polaris-SettingToggle__Title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--p-color-text);
+      margin-bottom: var(--p-space-100);
+    }
+    
+    .Polaris-SettingToggle__Description {
+      font-size: 13px;
+      color: var(--p-color-text-secondary);
+      line-height: 1.5;
+    }
+    
+    .Polaris-SettingToggle__Actions {
+      display: flex;
+      align-items: center;
+      gap: var(--p-space-300);
+      flex-shrink: 0;
+    }
+
+    /* Learn More Button (Polaris Button - plain) */
+    .Polaris-Button--plain {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      min-height: 36px;
+      padding: var(--p-space-200);
+      background: transparent;
+      border: 1px solid var(--p-color-border);
+      border-radius: var(--p-border-radius-200);
+      color: var(--p-color-icon);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    
+    .Polaris-Button--plain:hover {
+      background: var(--p-color-bg-surface-hover);
+      border-color: var(--p-color-border-hover);
+      color: var(--p-color-text);
+    }
+    
+    .Polaris-Button--plain:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--p-color-border-focus);
+    }
+    
+    .Polaris-Card.is-active .Polaris-Button--plain {
+      background: var(--p-color-bg-fill-brand);
+      border-color: var(--p-color-bg-fill-brand);
+      color: var(--p-color-text-on-fill);
+    }
+
+    /* ============================================
+       TOGGLE SWITCH (Polaris pattern)
+       ============================================ */
+    .Polaris-Toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    
+    .Polaris-Toggle__Input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+    
+    .Polaris-Toggle__Slider {
+      position: absolute;
+      inset: 0;
+      background: var(--p-color-border);
+      border-radius: var(--p-border-radius-full);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    
+    .Polaris-Toggle__Slider::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      left: 2px;
+      bottom: 2px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+      box-shadow: var(--p-shadow-200);
+    }
+    
+    .Polaris-Toggle__Input:checked + .Polaris-Toggle__Slider {
+      background: var(--p-color-bg-fill-brand);
+    }
+    
+    .Polaris-Toggle__Input:checked + .Polaris-Toggle__Slider::before {
+      transform: translateX(20px);
+    }
+    
+    .Polaris-Toggle__Input:focus + .Polaris-Toggle__Slider {
+      box-shadow: 0 0 0 2px var(--p-color-border-focus);
+    }
+
+    /* ============================================
+       SLIDE PANEL (Modal-like, Polaris pattern)
+       ============================================ */
+    .Polaris-Backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+      z-index: 400;
+    }
+    
+    .Polaris-Backdrop.is-active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .Polaris-Sheet {
+      position: fixed;
+      top: 0;
+      right: -500px;
+      width: 480px;
+      max-width: 100%;
+      height: 100vh;
+      background: var(--p-color-bg-surface);
+      border-left: 1px solid var(--p-color-border);
+      z-index: 401;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s ease;
+      box-shadow: var(--p-shadow-500);
+    }
+    
+    .Polaris-Sheet.is-active {
+      right: 0;
+    }
+
+    /* Sheet Header */
+    .Polaris-Sheet__Header {
+      display: flex;
+      align-items: center;
+      gap: var(--p-space-400);
+      padding: var(--p-space-400) var(--p-space-500);
+      border-bottom: 1px solid var(--p-color-border);
+      background: var(--p-color-bg-surface-secondary);
+    }
+    
+    .Polaris-Sheet__HeaderIcon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--cc-brand);
+      border-radius: var(--p-border-radius-200);
+      font-size: 20px;
+    }
+    
+    .Polaris-Sheet__HeaderTitle {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--p-color-text);
+    }
+    
+    .Polaris-Sheet__CloseButton {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      border-radius: var(--p-border-radius-200);
+      color: var(--p-color-icon);
+      font-size: 20px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    
+    .Polaris-Sheet__CloseButton:hover {
+      background: var(--p-color-bg-fill-critical);
+      color: var(--p-color-text-on-fill);
+    }
+
+    /* Sheet Content */
+    .Polaris-Sheet__Content {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--p-space-500);
+    }
+
+    /* Content Grid - Side by Side */
+    .Polaris-Sheet__Grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-600);
+    }
+    
+    @media (min-width: 480px) {
+      .Polaris-Sheet__Grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--p-space-500);
+      }
+    }
+
+    /* Description Section */
+    .Polaris-TextBlock {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-400);
+    }
+    
+    .Polaris-TextBlock__Heading {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--cc-brand-text);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .Polaris-TextBlock p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--p-color-text-secondary);
+    }
+    
+    .Polaris-TextBlock strong {
+      color: var(--p-color-text);
+      font-weight: 600;
+    }
+    
+    .Polaris-TextBlock em {
+      color: var(--p-color-text-brand);
+      font-style: normal;
+      font-weight: 500;
+    }
+
+    /* Callout Box */
+    .Polaris-CalloutCard {
+      background: var(--p-color-bg-surface-secondary);
+      border: 1px solid var(--p-color-border);
+      border-left: 3px solid var(--p-color-bg-fill-brand);
+      border-radius: var(--p-border-radius-200);
+      padding: var(--p-space-400);
+      margin-top: auto;
+    }
+    
+    .Polaris-CalloutCard__Title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--p-color-text-brand);
+      margin-bottom: var(--p-space-200);
+    }
+    
+    .Polaris-CalloutCard p {
+      font-size: 13px;
+      color: var(--p-color-text-secondary);
+      margin: 0;
+    }
+
+    /* Visualization Box */
+    .Polaris-VisualBox {
+      background: var(--p-color-bg-surface-secondary);
+      border: 1px solid var(--p-color-border);
+      border-radius: var(--p-border-radius-200);
+      padding: var(--p-space-400);
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-400);
+    }
+    
+    .Polaris-VisualBox__Label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--p-color-text-disabled);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: center;
+    }
+
+    /* Browser Mockup */
+    .Browser-Mockup {
+      background: var(--p-color-bg-surface);
+      border: 1px solid var(--p-color-border);
+      border-radius: var(--p-border-radius-200);
+      overflow: hidden;
+    }
+    
+    .Browser-Mockup__Bar {
+      display: flex;
+      align-items: center;
+      gap: var(--p-space-200);
+      padding: var(--p-space-200) var(--p-space-300);
+      background: var(--p-color-bg-surface-secondary);
+      border-bottom: 1px solid var(--p-color-border);
+    }
+    
+    .Browser-Mockup__Dots {
+      display: flex;
+      gap: var(--p-space-100);
+    }
+    
+    .Browser-Mockup__Dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    
+    .Browser-Mockup__Dots span:nth-child(1) { background: #ff5f57; }
+    .Browser-Mockup__Dots span:nth-child(2) { background: #ffbd2e; }
+    .Browser-Mockup__Dots span:nth-child(3) { background: #28c840; }
+    
+    .Browser-Mockup__URL {
+      flex: 1;
+      background: var(--p-color-bg);
+      padding: var(--p-space-100) var(--p-space-200);
+      border-radius: var(--p-border-radius-100);
+      font-size: 10px;
+      color: var(--p-color-text-disabled);
+      font-family: monospace;
+    }
+    
+    .Browser-Mockup__Content {
+      padding: var(--p-space-300);
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-200);
+      min-height: 80px;
+    }
+    
+    .Skeleton-Block {
+      background: var(--p-color-border);
+      border-radius: var(--p-border-radius-100);
+      animation: shimmer 1.5s infinite;
+    }
+    
+    .Skeleton-Block--header { width: 40%; height: 12px; background: var(--p-color-bg-fill-brand); }
+    .Skeleton-Block--nav { width: 60%; height: 8px; }
+    .Skeleton-Block--hero { width: 100%; height: 32px; }
+    .Skeleton-Block--text { width: 80%; height: 6px; }
+
+    /* Timeline Comparison */
+    .Timeline-Comparison {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-300);
+    }
+    
+    .Timeline-Row {
+      display: flex;
+      flex-direction: column;
+      gap: var(--p-space-100);
+    }
+    
+    .Timeline-Label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--p-color-text-disabled);
+    }
+    
+    .Timeline-Bar {
+      height: 24px;
+      border-radius: var(--p-border-radius-100);
+      display: flex;
+      overflow: hidden;
+    }
+    
+    .Timeline-Segment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 600;
+      color: #fff;
+    }
+    
+    .Timeline-Segment--js-blocking {
+      width: 70%;
+      background: var(--p-color-bg-fill-critical);
+    }
+    
+    .Timeline-Segment--content-delayed {
+      width: 30%;
+      background: var(--p-color-border);
+      color: var(--p-color-text-disabled);
+    }
+    
+    .Timeline-Segment--content-fast {
+      width: 25%;
+      background: var(--p-color-bg-fill-brand);
+    }
+    
+    .Timeline-Segment--js-deferred {
+      width: 75%;
+      background: rgba(0, 128, 96, 0.2);
+      color: var(--p-color-text-brand);
+    }
+    
+    .Timeline-Time {
+      font-size: 11px;
+      font-weight: 600;
+      text-align: right;
+      margin-top: var(--p-space-050);
+    }
+    
+    .Timeline-Time--slow { color: var(--p-color-text-critical); }
+    .Timeline-Time--fast { color: var(--p-color-text-success); }
+
+    /* Stats Grid */
+    .Stats-Grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--p-space-200);
+    }
+    
+    .Stat-Card {
+      background: var(--p-color-bg-surface);
+      border: 1px solid var(--p-color-border);
+      border-radius: var(--p-border-radius-200);
+      padding: var(--p-space-300);
+      text-align: center;
+    }
+    
+    .Stat-Value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--p-color-text-brand);
+    }
+    
+    .Stat-Label {
+      font-size: 10px;
+      color: var(--p-color-text-disabled);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Success Banner */
+    .Polaris-Banner--success {
+      display: flex;
+      align-items: center;
+      gap: var(--p-space-200);
+      padding: var(--p-space-200) var(--p-space-300);
+      background: rgba(0, 128, 96, 0.1);
+      border: 1px solid var(--p-color-bg-fill-brand);
+      border-radius: var(--p-border-radius-100);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--p-color-text-success);
+    }
+    
+    .Polaris-Banner__Icon {
+      width: 16px;
+      height: 16px;
+      background: var(--p-color-bg-fill-brand);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 10px;
+    }
+
+    /* Theme Toggle Card */
+    .Theme-Toggle-Card {
+      border-style: dashed;
+    }
+
+    /* ============================================
+       ANIMATIONS (Subtle, Polaris-appropriate)
+       ============================================ */
+    @keyframes shimmer {
+      0% { opacity: 0.5; }
+      50% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .Polaris-Sheet.is-active .Polaris-TextBlock > * {
+      animation: fadeIn 0.3s ease backwards;
+    }
+    
+    .Polaris-Sheet.is-active .Polaris-TextBlock > *:nth-child(1) { animation-delay: 0.1s; }
+    .Polaris-Sheet.is-active .Polaris-TextBlock > *:nth-child(2) { animation-delay: 0.15s; }
+    .Polaris-Sheet.is-active .Polaris-TextBlock > *:nth-child(3) { animation-delay: 0.2s; }
+    .Polaris-Sheet.is-active .Polaris-TextBlock > *:nth-child(4) { animation-delay: 0.25s; }
+
+    /* ============================================
+       ACCESSIBILITY (WCAG 2.1 AA Compliant)
+       ============================================ */
+    :focus-visible {
+      outline: 2px solid var(--p-color-border-focus);
+      outline-offset: 2px;
+    }
+    
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    /* ============================================
+       RESPONSIVE (Mobile-first, no horizontal scroll)
+       ============================================ */
+    @media (max-width: 480px) {
+      .Polaris-SettingToggle {
+        flex-wrap: wrap;
+      }
+      
+      .Polaris-SettingToggle__Actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: var(--p-space-300);
+        padding-top: var(--p-space-300);
+        border-top: 1px solid var(--p-color-border);
+      }
+      
+      .Polaris-Sheet {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="Polaris-Page" role="main">
+    <!-- Shopify Compliance Badge -->
+    <span class="Polaris-Badge Polaris-Badge--brand">
+      <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path d="M10 0a10 10 0 1 0 10 10A10 10 0 0 0 10 0zm5.7 7.3-6 6a1 1 0 0 1-1.4 0l-3-3a1 1 0 0 1 1.4-1.4l2.3 2.3 5.3-5.3a1 1 0 0 1 1.4 1.4z"/></svg>
+      Polaris Compliant
+    </span>
+    
+    <!-- Page Header -->
+    <header class="Polaris-Page__Header">
+      <h1 class="Polaris-Header__Title">Performance Settings</h1>
+      <p class="Polaris-Header__Subtitle">Optimize your store's speed and loading times with Cloudflare settings.</p>
+    </header>
+
+    <!-- Toggle Cards -->
+    <div class="Polaris-CardList">
+      <!-- Rocket Loader -->
+      <article class="Polaris-Card" data-setting="rocket-loader">
+        <div class="Polaris-Card__Section">
+          <div class="Polaris-SettingToggle">
+            <div class="Polaris-SettingToggle__Icon" aria-hidden="true">🚀</div>
+            <div class="Polaris-SettingToggle__Content">
+              <h2 class="Polaris-SettingToggle__Title">Rocket Loader</h2>
+              <p class="Polaris-SettingToggle__Description">Improve paint times by deferring JavaScript loading until after page content renders.</p>
+            </div>
+            <div class="Polaris-SettingToggle__Actions">
+              <button class="Polaris-Button--plain" aria-label="Learn more about Rocket Loader" data-action="open-sheet">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
+              </button>
+              <label class="Polaris-Toggle">
+                <input type="checkbox" class="Polaris-Toggle__Input" checked>
+                <span class="Polaris-Toggle__Slider"></span>
+                <span class="visually-hidden">Toggle Rocket Loader</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Minify JavaScript (disabled for demo) -->
+      <article class="Polaris-Card" style="opacity: 0.6;">
+        <div class="Polaris-Card__Section">
+          <div class="Polaris-SettingToggle">
+            <div class="Polaris-SettingToggle__Icon">📦</div>
+            <div class="Polaris-SettingToggle__Content">
+              <h2 class="Polaris-SettingToggle__Title">Minify JavaScript</h2>
+              <p class="Polaris-SettingToggle__Description">Reduce JavaScript file sizes by removing unnecessary characters.</p>
+            </div>
+            <div class="Polaris-SettingToggle__Actions">
+              <button class="Polaris-Button--plain" disabled aria-label="Learn more about Minify JavaScript">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
+              </button>
+              <label class="Polaris-Toggle">
+                <input type="checkbox" class="Polaris-Toggle__Input">
+                <span class="Polaris-Toggle__Slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Minify CSS (disabled for demo) -->
+      <article class="Polaris-Card" style="opacity: 0.6;">
+        <div class="Polaris-Card__Section">
+          <div class="Polaris-SettingToggle">
+            <div class="Polaris-SettingToggle__Icon">🎨</div>
+            <div class="Polaris-SettingToggle__Content">
+              <h2 class="Polaris-SettingToggle__Title">Minify CSS</h2>
+              <p class="Polaris-SettingToggle__Description">Reduce CSS file sizes by removing unnecessary characters.</p>
+            </div>
+            <div class="Polaris-SettingToggle__Actions">
+              <button class="Polaris-Button--plain" disabled>
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
+              </button>
+              <label class="Polaris-Toggle">
+                <input type="checkbox" class="Polaris-Toggle__Input">
+                <span class="Polaris-Toggle__Slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Brotli (disabled for demo) -->
+      <article class="Polaris-Card" style="opacity: 0.6;">
+        <div class="Polaris-Card__Section">
+          <div class="Polaris-SettingToggle">
+            <div class="Polaris-SettingToggle__Icon">🗜️</div>
+            <div class="Polaris-SettingToggle__Content">
+              <h2 class="Polaris-SettingToggle__Title">Brotli Compression</h2>
+              <p class="Polaris-SettingToggle__Description">Enable Brotli compression for faster file transfer.</p>
+            </div>
+            <div class="Polaris-SettingToggle__Actions">
+              <button class="Polaris-Button--plain" disabled>
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
+              </button>
+              <label class="Polaris-Toggle">
+                <input type="checkbox" class="Polaris-Toggle__Input" checked>
+                <span class="Polaris-Toggle__Slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Early Hints (disabled for demo) -->
+      <article class="Polaris-Card" style="opacity: 0.6;">
+        <div class="Polaris-Card__Section">
+          <div class="Polaris-SettingToggle">
+            <div class="Polaris-SettingToggle__Icon">⏱️</div>
+            <div class="Polaris-SettingToggle__Content">
+              <h2 class="Polaris-SettingToggle__Title">Early Hints</h2>
+              <p class="Polaris-SettingToggle__Description">Preload critical resources before the main response.</p>
+            </div>
+            <div class="Polaris-SettingToggle__Actions">
+              <button class="Polaris-Button--plain" disabled>
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a1 1 0 0 1 2 0c0 1-1.5 1.5-1.5 3m0 2.5a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0"/></svg>
+              </button>
+              <label class="Polaris-Toggle">
+                <input type="checkbox" class="Polaris-Toggle__Input">
+                <span class="Polaris-Toggle__Slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Theme Toggle -->
+      <article class="Polaris-Card Theme-Toggle-Card">
+        <div class="Polaris-Card__Section">
+          <div class="Polaris-SettingToggle">
+            <div class="Polaris-SettingToggle__Icon">🌓</div>
+            <div class="Polaris-SettingToggle__Content">
+              <h2 class="Polaris-SettingToggle__Title">Dashboard Theme</h2>
+              <p class="Polaris-SettingToggle__Description">Switch between dark and light appearance. Currently: <strong id="theme-label">Dark</strong></p>
+            </div>
+            <div class="Polaris-SettingToggle__Actions">
+              <label class="Polaris-Toggle">
+                <input type="checkbox" class="Polaris-Toggle__Input" id="theme-toggle">
+                <span class="Polaris-Toggle__Slider"></span>
+                <span class="visually-hidden">Toggle theme</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <!-- Backdrop -->
+  <div class="Polaris-Backdrop" id="backdrop" aria-hidden="true"></div>
+
+  <!-- Slide-out Sheet for Rocket Loader -->
+  <aside class="Polaris-Sheet" id="rocket-sheet" role="dialog" aria-labelledby="sheet-title" aria-modal="true">
+    <header class="Polaris-Sheet__Header">
+      <div class="Polaris-Sheet__HeaderIcon">🚀</div>
+      <h2 class="Polaris-Sheet__HeaderTitle" id="sheet-title">Rocket Loader</h2>
+      <button class="Polaris-Sheet__CloseButton" aria-label="Close" data-action="close-sheet">×</button>
+    </header>
+    
+    <div class="Polaris-Sheet__Content">
+      <div class="Polaris-Sheet__Grid">
+        <!-- Description Column -->
+        <div class="Polaris-TextBlock">
+          <div>
+            <h3 class="Polaris-TextBlock__Heading">The Problem</h3>
+            <p><strong>Imagine your webpage as a race car.</strong> Without Rocket Loader, your car waits at the starting line while the engine (JavaScript) assembles. Visitors see a blank screen.</p>
+          </div>
+          
+          <div>
+            <h3 class="Polaris-TextBlock__Heading">The Solution</h3>
+            <p>With Rocket Loader, your car <em>takes off immediately</em>—showing content while JavaScript loads in the background. Visitors see what matters first.</p>
+          </div>
+          
+          <div class="Polaris-CalloutCard">
+            <div class="Polaris-CalloutCard__Title">✨ The Magic</div>
+            <p>JavaScript defers until after content renders, making First Contentful Paint dramatically faster.</p>
+          </div>
+        </div>
+        
+        <!-- Visualization Column -->
+        <div class="Polaris-VisualBox">
+          <div class="Polaris-VisualBox__Label">Live Demo</div>
+          
+          <!-- Browser Mockup -->
+          <div class="Browser-Mockup">
+            <div class="Browser-Mockup__Bar">
+              <div class="Browser-Mockup__Dots">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="Browser-Mockup__URL">yourstore.myshopify.com</div>
+            </div>
+            <div class="Browser-Mockup__Content">
+              <div class="Skeleton-Block Skeleton-Block--header"></div>
+              <div class="Skeleton-Block Skeleton-Block--nav"></div>
+              <div class="Skeleton-Block Skeleton-Block--hero"></div>
+              <div class="Skeleton-Block Skeleton-Block--text"></div>
+            </div>
+          </div>
+          
+          <div class="Polaris-Banner--success">
+            <span class="Polaris-Banner__Icon">✓</span>
+            Content visible instantly
+          </div>
+          
+          <!-- Timeline -->
+          <div class="Timeline-Comparison">
+            <div class="Timeline-Row">
+              <div class="Timeline-Label">❌ Without Rocket Loader</div>
+              <div class="Timeline-Bar">
+                <div class="Timeline-Segment Timeline-Segment--js-blocking">JS Loading...</div>
+                <div class="Timeline-Segment Timeline-Segment--content-delayed">Content</div>
+              </div>
+              <div class="Timeline-Time Timeline-Time--slow">~3.2s</div>
+            </div>
+            
+            <div class="Timeline-Row">
+              <div class="Timeline-Label">✅ With Rocket Loader</div>
+              <div class="Timeline-Bar">
+                <div class="Timeline-Segment Timeline-Segment--content-fast">Content</div>
+                <div class="Timeline-Segment Timeline-Segment--js-deferred">JS (deferred)</div>
+              </div>
+              <div class="Timeline-Time Timeline-Time--fast">~0.8s</div>
+            </div>
+          </div>
+          
+          <!-- Stats -->
+          <div class="Stats-Grid">
+            <div class="Stat-Card">
+              <div class="Stat-Value">75%</div>
+              <div class="Stat-Label">Faster Paint</div>
+            </div>
+            <div class="Stat-Card">
+              <div class="Stat-Value">4x</div>
+              <div class="Stat-Label">Quicker Load</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    // Sheet functionality
+    const backdrop = document.getElementById('backdrop');
+    const sheet = document.getElementById('rocket-sheet');
+    const rocketCard = document.querySelector('[data-setting="rocket-loader"]');
+    const openBtn = rocketCard.querySelector('[data-action="open-sheet"]');
+    const closeBtn = sheet.querySelector('[data-action="close-sheet"]');
+    
+    function openSheet() {
+      backdrop.classList.add('is-active');
+      sheet.classList.add('is-active');
+      rocketCard.classList.add('is-active');
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+    }
+    
+    function closeSheet() {
+      backdrop.classList.remove('is-active');
+      sheet.classList.remove('is-active');
+      rocketCard.classList.remove('is-active');
+      document.body.style.overflow = '';
+      openBtn.focus();
+    }
+    
+    openBtn.addEventListener('click', openSheet);
+    closeBtn.addEventListener('click', closeSheet);
+    backdrop.addEventListener('click', closeSheet);
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sheet.classList.contains('is-active')) {
+        closeSheet();
+      }
+    });
+    
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeLabel = document.getElementById('theme-label');
+    
+    function setTheme(isLight) {
+      if (isLight) {
+        document.body.classList.add('light-theme');
+        themeLabel.textContent = 'Light';
+      } else {
+        document.body.classList.remove('light-theme');
+        themeLabel.textContent = 'Dark';
+      }
+    }
+    
+    themeToggle.addEventListener('change', function() {
+      setTheme(this.checked);
+      localStorage.setItem('cc-polaris-theme', this.checked ? 'light' : 'dark');
+    });
+    
+    // Load saved theme
+    const saved = localStorage.getItem('cc-polaris-theme');
+    if (saved === 'light') {
+      themeToggle.checked = true;
+      setTheme(true);
+    }
+  </script>
+</body>
+</html>
