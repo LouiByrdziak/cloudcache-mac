@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloudcache Performance - Preview</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #080808;
+      --bg-card: #0f0f0f;
+      --bg-card-hover: #141414;
+      --border-color: #1a1a1a;
+      --border-card: #1f1f1f;
+      --border-card-hover: #2a2a2a;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666;
+      --text-description: #888;
+      --toggle-off-bg: #2a2a2a;
+      --toggle-off-border: #3a3a3a;
+      --toggle-knob: #ffffff;
+      --toggle-knob-on: #000000;
+      --accent-primary: #F48120;
+      --accent-glow: rgba(244, 129, 32, 0.3);
+      --success-color: #22c55e;
+      --error-color: #ef4444;
+    }
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background: var(--bg-primary);
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text-primary);
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 32px;
+    }
+    
+    .page-header {
+      margin-bottom: 48px;
+    }
+    .page-title {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+    }
+    .page-subtitle {
+      color: var(--text-muted);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    /* ===== ENHANCED TOGGLE SECTION ===== */
+    .enhanced-optimization-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .enhanced-optimization-item {
+      background: var(--bg-card);
+      border-radius: 20px;
+      border: 1px solid var(--border-card);
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .enhanced-optimization-item:hover {
+      border-color: var(--border-card-hover);
+      background: var(--bg-card-hover);
+    }
+
+    .enhanced-optimization-item.expanded {
+      border-color: var(--accent-primary);
+      box-shadow: 0 8px 32px rgba(244, 129, 32, 0.15);
+    }
+
+    /* Main Row Layout */
+    .optimization-main-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 24px 28px;
+    }
+
+    /* Feature Icon */
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(244, 129, 32, 0.15), rgba(244, 129, 32, 0.05));
+      border-radius: 12px;
+      color: var(--accent-primary);
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .enhanced-optimization-item:hover .feature-icon {
+      background: linear-gradient(135deg, rgba(244, 129, 32, 0.25), rgba(244, 129, 32, 0.1));
+      transform: scale(1.05);
+    }
+
+    .enhanced-optimization-item.expanded .feature-icon {
+      background: var(--accent-primary);
+      color: #000;
+      transform: scale(1.1);
+    }
+
+    .feature-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .optimization-content {
+      flex: 1;
+    }
+    
+    .optimization-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+    
+    .optimization-description {
+      color: var(--text-description);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Expand Button (Question Mark) */
+    .expand-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .expand-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      transform: scale(1.1);
+    }
+
+    .enhanced-optimization-item.expanded .expand-btn {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #000;
+      transform: rotate(180deg);
+    }
+
+    /* Toggle */
+    .toggle-container {
+      position: relative;
+      width: 68px;
+      height: 38px;
+      flex-shrink: 0;
+    }
+    .toggle-input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--toggle-off-bg);
+      border: 2px solid var(--toggle-off-border);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 38px;
+    }
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 28px;
+      width: 28px;
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--toggle-knob);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+    .toggle-input:checked + .toggle-slider {
+      background-color: var(--accent-primary);
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .toggle-input:checked + .toggle-slider:before {
+      transform: translateX(30px);
+      background-color: var(--toggle-knob-on);
+    }
+
+    /* Accordion */
+    .optimization-accordion {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .enhanced-optimization-item.expanded .optimization-accordion {
+      max-height: 2000px;
+    }
+
+    .accordion-inner {
+      padding: 0 28px 28px 28px;
+      border-top: 1px solid var(--border-card);
+      margin-top: 0;
+      padding-top: 24px;
+    }
+
+    /* Detailed Description */
+    .detailed-description {
+      margin-bottom: 28px;
+    }
+
+    .detailed-description p {
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 14px;
+    }
+
+    .detailed-description strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .detailed-description em {
+      color: var(--accent-primary);
+      font-style: normal;
+      font-weight: 500;
+    }
+
+    .detailed-description code {
+      background: rgba(244, 129, 32, 0.1);
+      color: var(--accent-primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+    }
+
+    .detail-highlight {
+      background: linear-gradient(135deg, rgba(244, 129, 32, 0.1), rgba(244, 129, 32, 0.05));
+      padding: 14px 18px;
+      border-radius: 12px;
+      border-left: 3px solid var(--accent-primary);
+      margin-top: 16px !important;
+    }
+
+    /* AHA Visualization Header */
+    .aha-visualization {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .viz-header {
+      padding: 14px 20px;
+      background: linear-gradient(135deg, rgba(244, 129, 32, 0.1), transparent);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .viz-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== VISUALIZATION CONTAINERS ===== */
+    .visualization {
+      padding: 32px;
+    }
+
+    .viz-container {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* ===== ROCKET LOADER VISUALIZATION ===== */
+    .rocket-loader-viz .timeline-compare {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .timeline-section {
+      position: relative;
+    }
+
+    .timeline-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .timeline-bar {
+      display: flex;
+      height: 44px;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .timeline-bar.slow {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+    }
+
+    .timeline-bar.fast {
+      background: var(--bg-card);
+      border: 1px solid var(--accent-primary);
+    }
+
+    .timeline-segment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .timeline-segment span {
+      white-space: nowrap;
+      padding: 0 8px;
+    }
+
+    .timeline-segment.js-block {
+      width: 70%;
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+      color: #fff;
+      animation: pulseRed 2s ease-in-out infinite;
+    }
+
+    .timeline-segment.content-wait {
+      width: 30%;
+      background: var(--bg-card-hover);
+      color: var(--text-muted);
+      border-left: 1px dashed var(--border-card);
+    }
+
+    .timeline-segment.content-first {
+      width: 30%;
+      background: linear-gradient(90deg, var(--accent-primary), #ff9033);
+      color: #000;
+      animation: slideInLeft 0.5s ease-out;
+    }
+
+    .timeline-segment.js-defer {
+      width: 70%;
+      background: rgba(244, 129, 32, 0.15);
+      color: var(--accent-primary);
+      font-style: italic;
+    }
+
+    .timeline-time {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      text-align: right;
+    }
+
+    .timeline-bar.fast + .timeline-time {
+      color: var(--success-color);
+      font-weight: 600;
+    }
+
+    /* Rocket Animation */
+    .rocket-animation {
+      position: relative;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .rocket-icon {
+      position: relative;
+      z-index: 2;
+      animation: rocketFloat 2s ease-in-out infinite;
+    }
+
+    .rocket-svg {
+      width: 64px;
+      height: 64px;
+      filter: drop-shadow(0 4px 12px rgba(244, 129, 32, 0.4));
+    }
+
+    .rocket-svg .flame {
+      animation: flameFlicker 0.15s ease-in-out infinite;
+      transform-origin: center top;
+    }
+
+    .rocket-trail {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, 0);
+      width: 30px;
+      height: 100px;
+      background: linear-gradient(to bottom, rgba(244, 129, 32, 0.4), transparent);
+      border-radius: 50%;
+      animation: trailPulse 0.3s ease-in-out infinite;
+    }
+
+    .speed-lines {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 100px;
+    }
+
+    .speed-line {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--accent-primary), transparent);
+      animation: speedLine 1s ease-out infinite;
+    }
+
+    .speed-line:nth-child(1) {
+      left: 0;
+      top: 30%;
+      width: 60px;
+      animation-delay: 0s;
+    }
+
+    .speed-line:nth-child(2) {
+      left: 10px;
+      top: 50%;
+      width: 80px;
+      animation-delay: 0.3s;
+    }
+
+    .speed-line:nth-child(3) {
+      left: 5px;
+      top: 70%;
+      width: 50px;
+      animation-delay: 0.6s;
+    }
+
+    /* Browser Mockup */
+    .browser-mockup {
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border-card);
+      overflow: hidden;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    .browser-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .browser-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .browser-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border-card);
+    }
+
+    .browser-dots span:nth-child(1) { background: #ef4444; }
+    .browser-dots span:nth-child(2) { background: #eab308; }
+    .browser-dots span:nth-child(3) { background: #22c55e; }
+
+    .browser-url {
+      flex: 1;
+      background: var(--bg-card);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'SF Mono', monospace;
+    }
+
+    .browser-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .content-block {
+      border-radius: 6px;
+      animation: contentLoad 2s ease-out infinite;
+    }
+
+    .content-block.header-block {
+      height: 24px;
+      width: 50%;
+      background: var(--accent-primary);
+      animation-delay: 0s;
+    }
+
+    .content-block.nav-block {
+      height: 12px;
+      width: 80%;
+      background: var(--border-card);
+      animation-delay: 0.1s;
+    }
+
+    .content-block.hero-block {
+      height: 60px;
+      background: linear-gradient(90deg, var(--border-card), var(--border-card-hover));
+      animation-delay: 0.2s;
+    }
+
+    .content-block.text-block {
+      height: 8px;
+      width: 90%;
+      background: var(--border-card);
+      animation-delay: 0.3s;
+    }
+
+    .js-indicator {
+      font-size: 11px;
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 6px;
+      text-align: center;
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--success-color);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes pulseRed {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    @keyframes slideInLeft {
+      from { transform: translateX(-20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes rocketFloat {
+      0%, 100% { transform: translateY(0) rotate(-45deg); }
+      50% { transform: translateY(-10px) rotate(-45deg); }
+    }
+
+    @keyframes flameFlicker {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.3); }
+    }
+
+    @keyframes trailPulse {
+      0%, 100% { opacity: 0.3; height: 80px; }
+      50% { opacity: 0.6; height: 100px; }
+    }
+
+    @keyframes speedLine {
+      0% { opacity: 0; transform: translateX(60px); }
+      50% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(-60px); }
+    }
+
+    @keyframes contentLoad {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Instruction banner */
+    .instruction-banner {
+      background: linear-gradient(135deg, rgba(244, 129, 32, 0.2), rgba(244, 129, 32, 0.05));
+      border: 1px solid var(--accent-primary);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .instruction-banner p {
+      color: var(--accent-primary);
+      font-size: 14px;
+    }
+    .instruction-banner strong {
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">⚡ Performance</h1>
+      <p class="page-subtitle">Optimize your site's speed and loading times with these Cloudflare settings.</p>
+    </div>
+    
+    <div class="instruction-banner">
+      <p>👆 <strong>Click the question mark icon</strong> (or the title) to expand and see the "AHA moment" visualization!</p>
+    </div>
+
+    <div class="enhanced-optimization-list">
+      <!-- Rocket Loader -->
+      <div class="enhanced-optimization-item" data-optimization="rocket_loader">
+        <div class="optimization-main-row">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+          </div>
+          
+          <div class="optimization-content">
+            <div class="optimization-title">Rocket Loader</div>
+            <div class="optimization-description">Improve paint times for pages that include JavaScript by deferring their loading until after rendering.</div>
+          </div>
+          
+          <button class="expand-btn" aria-label="Learn more">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </button>
+          
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Imagine your webpage as a race car.</strong> Without Rocket Loader, your car has to wait at the starting line while all the complex engine parts (JavaScript) get assembled. Visitors stare at a blank screen.</p>
+              <p>With Rocket Loader, your car <em>rockets off immediately</em>—showing your beautiful content to visitors while the engine quietly assembles in the background. The page feels instant because people see what matters first: your text, images, and design.</p>
+              <p class="detail-highlight">✨ <strong>The magic:</strong> JavaScript is deferred until after the visual content renders, making your First Contentful Paint dramatically faster.</p>
+            </div>
+            
+            <div class="aha-visualization">
+              <div class="viz-header">
+                <span class="viz-label">✨ Visual Explanation</span>
+              </div>
+              <div class="visualization rocket-loader-viz">
+                <div class="viz-container">
+                  <!-- Timeline comparison -->
+                  <div class="timeline-compare">
+                    <div class="timeline-section">
+                      <div class="timeline-label">Without Rocket Loader</div>
+                      <div class="timeline-bar slow">
+                        <div class="timeline-segment js-block">
+                          <span>⏳ JS Loading...</span>
+                        </div>
+                        <div class="timeline-segment content-wait">
+                          <span>Content</span>
+                        </div>
+                      </div>
+                      <div class="timeline-time">~3.2s to see content</div>
+                    </div>
+                    
+                    <div class="timeline-section">
+                      <div class="timeline-label">With Rocket Loader</div>
+                      <div class="timeline-bar fast">
+                        <div class="timeline-segment content-first">
+                          <span>Content</span>
+                        </div>
+                        <div class="timeline-segment js-defer">
+                          <span>JS (deferred)</span>
+                        </div>
+                      </div>
+                      <div class="timeline-time">~0.8s to see content</div>
+                    </div>
+                  </div>
+                  
+                  <!-- Animated Rocket -->
+                  <div class="rocket-animation">
+                    <div class="rocket-trail"></div>
+                    <div class="rocket-icon">
+                      <svg viewBox="0 0 64 64" class="rocket-svg">
+                        <defs>
+                          <linearGradient id="rocketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#F48120"/>
+                            <stop offset="100%" style="stop-color:#ff6b00"/>
+                          </linearGradient>
+                        </defs>
+                        <path d="M32 4 L40 20 L40 44 L36 52 L28 52 L24 44 L24 20 Z" fill="url(#rocketGrad)"/>
+                        <ellipse cx="32" cy="28" rx="4" ry="6" fill="#fff" opacity="0.9"/>
+                        <path d="M24 32 L16 40 L20 44 L24 40 Z" fill="url(#rocketGrad)" opacity="0.8"/>
+                        <path d="M40 32 L48 40 L44 44 L40 40 Z" fill="url(#rocketGrad)" opacity="0.8"/>
+                        <path d="M28 52 L32 64 L36 52 Z" fill="#ff4444" class="flame"/>
+                      </svg>
+                    </div>
+                    <div class="speed-lines">
+                      <div class="speed-line"></div>
+                      <div class="speed-line"></div>
+                      <div class="speed-line"></div>
+                    </div>
+                  </div>
+                  
+                  <!-- Browser mockup -->
+                  <div class="browser-mockup">
+                    <div class="browser-bar">
+                      <div class="browser-dots">
+                        <span></span><span></span><span></span>
+                      </div>
+                      <div class="browser-url">yoursite.com</div>
+                    </div>
+                    <div class="browser-content">
+                      <div class="content-block header-block"></div>
+                      <div class="content-block nav-block"></div>
+                      <div class="content-block hero-block"></div>
+                      <div class="content-block text-block"></div>
+                      <div class="js-indicator">✓ Content visible instantly!</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Minify JavaScript -->
+      <div class="enhanced-optimization-item" data-optimization="minify_js">
+        <div class="optimization-main-row">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          </div>
+          
+          <div class="optimization-content">
+            <div class="optimization-title">Minify JavaScript</div>
+            <div class="optimization-description">Reduce JavaScript file sizes by removing unnecessary characters and whitespace.</div>
+          </div>
+          
+          <button class="expand-btn" aria-label="Learn more">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </button>
+          
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Think of JavaScript files like a book with excessive whitespace.</strong> Every unnecessary space, comment, and line break is like blank pages—they add weight without value.</p>
+              <p>Minification is like a master editor condensing your book while keeping every word intact. The story stays the same, but the book becomes <em>significantly lighter</em> to carry (download).</p>
+              <p class="detail-highlight">📦 <strong>The magic:</strong> Files shrink by 20-60%, meaning faster downloads and less bandwidth consumption.</p>
+            </div>
+            
+            <div class="aha-visualization">
+              <div class="viz-header">
+                <span class="viz-label">✨ Visual Explanation</span>
+              </div>
+              <div class="visualization" style="padding: 32px; text-align: center;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap;">
+                  <div style="background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 12px; padding: 20px; max-width: 300px;">
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">BEFORE</div>
+                    <pre style="text-align: left; font-size: 11px; font-family: monospace; color: var(--text-secondary); line-height: 1.6;">function calc(items) {
+  // Calculate total
+  let total = 0;
+  
+  for (let i = 0; i &lt; items.length; i++) {
+    total += items[i].price;
+  }
+  
+  return total;
+}</pre>
+                    <div style="margin-top: 12px; padding: 8px; background: #ef4444; color: #fff; border-radius: 6px; font-size: 13px; font-weight: 600;">2.4 KB</div>
+                  </div>
+                  
+                  <div style="color: var(--accent-primary); font-size: 32px;">→</div>
+                  
+                  <div style="background: var(--bg-card); border: 1px solid var(--accent-primary); border-radius: 12px; padding: 20px; max-width: 300px;">
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">AFTER</div>
+                    <pre style="text-align: left; font-size: 11px; font-family: monospace; color: var(--success-color); line-height: 1.6; word-break: break-all;">function calc(t){let e=0;for(let n=0;n&lt;t.length;n++)e+=t[n].price;return e}</pre>
+                    <div style="margin-top: 12px; padding: 8px; background: var(--success-color); color: #000; border-radius: 6px; font-size: 13px; font-weight: 600;">0.9 KB <span style="opacity: 0.8;">(-62%)</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Minify CSS -->
+      <div class="enhanced-optimization-item" data-optimization="minify_css">
+        <div class="optimization-main-row">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          </div>
+          
+          <div class="optimization-content">
+            <div class="optimization-title">Minify CSS</div>
+            <div class="optimization-description">Reduce CSS file sizes by removing unnecessary characters and whitespace.</div>
+          </div>
+          
+          <button class="expand-btn" aria-label="Learn more">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </button>
+          
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Your stylesheet is the fashion guide for your website.</strong> But like fashion notes, it often contains verbose descriptions.</p>
+              <p>CSS minification is like a fashion shorthand expert who rewrites <em>"top, right, bottom, left all 10 pixels"</em> as simply <code>margin: 10px;</code>. Same style, fewer characters.</p>
+              <p class="detail-highlight">🎨 <strong>The magic:</strong> Your site's visual instructions load faster, meaning styles apply sooner and your design appears instantly.</p>
+            </div>
+            
+            <div class="aha-visualization">
+              <div class="viz-header">
+                <span class="viz-label">✨ Visual Explanation</span>
+              </div>
+              <div class="visualization" style="padding: 32px; text-align: center;">
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">96 characters → 21 characters = <span style="color: var(--success-color); font-weight: 700;">78% smaller!</span></p>
+                <button style="background: var(--accent-primary); color: #000; border: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;">Same Beautiful Button</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Brotli -->
+      <div class="enhanced-optimization-item" data-optimization="brotli">
+        <div class="optimization-main-row">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="7.5 4.21 12 6.81 16.5 4.21"/><polyline points="7.5 19.79 7.5 14.6 3 12"/><polyline points="21 12 16.5 14.6 16.5 19.79"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          </div>
+          
+          <div class="optimization-content">
+            <div class="optimization-title">Brotli Compression</div>
+            <div class="optimization-description">Enable Brotli compression to reduce file sizes and improve load times for supported browsers.</div>
+          </div>
+          
+          <button class="expand-btn" aria-label="Learn more">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </button>
+          
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Imagine shipping a fully assembled IKEA wardrobe versus flat-packed.</strong> Brotli is like the world's best flat-pack engineer—squeezing your files into the smallest possible package.</p>
+              <p>Brotli compression is <em>15-25% more efficient</em> than the older Gzip method. It's like fitting three wardrobes worth of content into the space of two.</p>
+              <p class="detail-highlight">🗜️ <strong>The magic:</strong> Files travel across the internet in a compressed format, then expand instantly in the browser. Less data = faster loads.</p>
+            </div>
+            
+            <div class="aha-visualization">
+              <div class="viz-header">
+                <span class="viz-label">✨ Visual Explanation</span>
+              </div>
+              <div class="visualization" style="padding: 32px;">
+                <div style="display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;">
+                  <div style="text-align: center;">
+                    <div style="font-size: 48px; font-weight: 700; color: var(--accent-primary);">78%</div>
+                    <div style="font-size: 13px; color: var(--text-muted);">Compression Ratio</div>
+                  </div>
+                  <div style="text-align: center;">
+                    <div style="font-size: 48px; font-weight: 700; color: var(--success-color);">4x</div>
+                    <div style="font-size: 13px; color: var(--text-muted);">Faster Transfer</div>
+                  </div>
+                </div>
+                <div style="margin-top: 24px; text-align: center; padding: 16px; background: var(--bg-card); border-radius: 12px;">
+                  <span style="color: var(--text-secondary);">100 KB</span>
+                  <span style="color: var(--accent-primary); margin: 0 16px;">→ Brotli →</span>
+                  <span style="color: var(--success-color); font-weight: 600;">22 KB</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Early Hints -->
+      <div class="enhanced-optimization-item" data-optimization="early_hints">
+        <div class="optimization-main-row">
+          <div class="feature-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          
+          <div class="optimization-content">
+            <div class="optimization-title">Early Hints</div>
+            <div class="optimization-description">Send 103 Early Hints responses to preload resources before the main response arrives.</div>
+          </div>
+          
+          <button class="expand-btn" aria-label="Learn more">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </button>
+          
+          <label class="toggle-container">
+            <input type="checkbox" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="optimization-accordion">
+          <div class="accordion-inner">
+            <div class="detailed-description">
+              <p><strong>Imagine ordering at a restaurant.</strong> Normally, you wait for the menu, decide, then wait for food. But what if the waiter brought bread and water <em>while</em> you were still reading the menu?</p>
+              <p>Early Hints sends a "103" response before your main page—telling browsers to start loading critical resources (fonts, CSS, key images) <em>immediately</em>, while the server prepares the full response.</p>
+              <p class="detail-highlight">⚡ <strong>The magic:</strong> By the time your main page arrives, essential resources are already loaded. It's like time travel for web performance.</p>
+            </div>
+            
+            <div class="aha-visualization">
+              <div class="viz-header">
+                <span class="viz-label">✨ Visual Explanation</span>
+              </div>
+              <div class="visualization" style="padding: 32px;">
+                <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05)); border-radius: 12px;">
+                  <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">Page load time improvement:</div>
+                  <div style="font-size: 36px; font-weight: 700; color: var(--success-color);">57% faster!</div>
+                  <div style="margin-top: 12px; font-size: 13px; color: var(--text-muted);">2.1s → 0.9s</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Accordion functionality
+    document.querySelectorAll('.expand-btn, .feature-icon, .optimization-title').forEach(el => {
+      el.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const item = this.closest('.enhanced-optimization-item');
+        if (!item) return;
+        
+        // Close all others
+        document.querySelectorAll('.enhanced-optimization-item.expanded').forEach(other => {
+          if (other !== item) other.classList.remove('expanded');
+        });
+        
+        // Toggle this one
+        item.classList.toggle('expanded');
+      });
+    });
+  </script>
+</body>
+</html>
