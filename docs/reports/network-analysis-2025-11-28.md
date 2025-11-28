@@ -82,4 +82,12 @@ The provided routing table screenshot confirms:
 1.  Run `dig api2.cursor.sh` -> Should return a **Public IP** (not `198.18.x.x`) or a functioning internal IP.
 2.  Run `curl -v https://api2.cursor.sh` -> Should connect in <500ms (TLS handshake).
 
+### Phase 4: Troubleshooting "Instant Failure" (Post-Config Change)
+If you see `ENOTFOUND` immediately after switching to `redir-host`:
+-   **Cause:** The macOS network stack is still clinging to the old "Fake-IP" DNS resolvers (`192.0.2.2`) which may be unresponsive in the new mode.
+-   **Solution:**
+    1.  **Restart Clash Verge:** Toggle "Tun Mode" OFF and ON again.
+    2.  **Flush DNS:** Run `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder` in the terminal.
+    3.  **Verify:** Check `scutil --dns` to ensure the resolver list is clean.
+
 
