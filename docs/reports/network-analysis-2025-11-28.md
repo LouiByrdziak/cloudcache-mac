@@ -90,16 +90,17 @@ If you see `ENOTFOUND` immediately after switching to `redir-host`:
     2.  **Flush DNS:** Run `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder` in the terminal.
     3.  **Verify:** Check `scutil --dns` to ensure the resolver list is clean.
 
-### Phase 6: Latency Optimization (The "GLOBAL" Route)
-**Status:** DNS resolution is FIXED (`198.18.x.x` is gone). However, latency is high (~1000ms) because traffic is routing through a proxy group ("GLOBAL" / "日本IEPL") that is unstable or slow.
-
-**Logs indicate:**
--   `[TCP] 127.0.0.1:58837 --> api2.cursor.sh:443 using GLOBAL`
--   `日本IEPL 02 failed ... context deadline exceeded`
+### Phase 7: IPv6 Complexity (The "2001:db8" Regression)
+**Status:** After initial success, the system regressed to `ENOTFOUND` / `ERR_NAME_NOT_RESOLVED`.
+**New Findings:**
+-   DNS resolvers updated to include IPv6 addresses: `2001:db8:1111::2` and `2001:db8:1111::3`.
+-   These are "Documentation" IPv6 addresses (RFC 3849), likely used by Clash as placeholders for Fake-IPv6, similar to how it uses `198.18.0.1` for IPv4.
+-   **The Issue:** The OS is preferring these IPv6 resolvers, but they are unreachable or the tunnel is dropping IPv6 traffic.
+-   `dig @223.6.6.6` and `dig @1.1.1.1` still work flawlessly for IPv4.
 
 **Recommendation:**
-1.  **Switch Proxy Mode:** In Clash Verge, change from "Global" to "Rule" mode.
-2.  **Verify Rule:** Ensure `api2.cursor.sh` is hitting a fast node (e.g., "Auto Select" or "Direct" if you are in a region that allows it), not a failing manual node.
-3.  **Health Check:** The current node "日本IEPL 02" is timing out. Select a different node manually in the Dashboard if staying in Global mode.
+1.  **Disable IPv6 in Clash:** In Clash Verge -> Settings -> DNS, toggle **"Enable IPv6"** to **OFF**. This forces the OS to stick to the working IPv4 stack.
+2.  **Flush DNS Again:** After disabling IPv6, run `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder`.
+3.  **Check Connection:** Verify that the `2001:db8` entries disappear from `scutil --dns`.
 
 
