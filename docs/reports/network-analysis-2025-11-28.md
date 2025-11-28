@@ -90,4 +90,13 @@ If you see `ENOTFOUND` immediately after switching to `redir-host`:
     2.  **Flush DNS:** Run `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder` in the terminal.
     3.  **Verify:** Check `scutil --dns` to ensure the resolver list is clean.
 
+### Phase 5: Advanced Troubleshooting (The "Stale Interface" Lock)
+If `ENOTFOUND` persists and `192.0.2.2` is still showing as the top resolver but failing (timed out):
+-   **Diagnosis:** The Clash "Tun" interface (`utun4`) is up, but the DNS service on it is not listening or has crashed, yet macOS still prioritizes it.
+-   **Immediate Fix:**
+    1.  **Quit Clash Verge** completely (Cmd+Q).
+    2.  **Kill the Stale Interface:** Run `sudo ifconfig utun4 down` (or whatever `scutil` reports as the interface for `192.0.2.2`).
+    3.  **Restart Cloudflare WARP:** This forces WARP to re-establish valid routes.
+    4.  **Restart Clash** (Optional, if you still need it).
+
 
