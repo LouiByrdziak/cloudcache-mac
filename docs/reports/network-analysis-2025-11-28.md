@@ -90,13 +90,16 @@ If you see `ENOTFOUND` immediately after switching to `redir-host`:
     2.  **Flush DNS:** Run `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder` in the terminal.
     3.  **Verify:** Check `scutil --dns` to ensure the resolver list is clean.
 
-### Phase 5: Advanced Troubleshooting (The "Stale Interface" Lock)
-If `ENOTFOUND` persists and `192.0.2.2` is still showing as the top resolver but failing (timed out):
--   **Diagnosis:** The Clash "Tun" interface (`utun4`) is up, but the DNS service on it is not listening or has crashed, yet macOS still prioritizes it.
--   **Immediate Fix:**
-    1.  **Quit Clash Verge** completely (Cmd+Q).
-    2.  **Kill the Stale Interface:** Run `sudo ifconfig utun4 down` (or whatever `scutil` reports as the interface for `192.0.2.2`).
-    3.  **Restart Cloudflare WARP:** This forces WARP to re-establish valid routes.
-    4.  **Restart Clash** (Optional, if you still need it).
+### Phase 6: Latency Optimization (The "GLOBAL" Route)
+**Status:** DNS resolution is FIXED (`198.18.x.x` is gone). However, latency is high (~1000ms) because traffic is routing through a proxy group ("GLOBAL" / "日本IEPL") that is unstable or slow.
+
+**Logs indicate:**
+-   `[TCP] 127.0.0.1:58837 --> api2.cursor.sh:443 using GLOBAL`
+-   `日本IEPL 02 failed ... context deadline exceeded`
+
+**Recommendation:**
+1.  **Switch Proxy Mode:** In Clash Verge, change from "Global" to "Rule" mode.
+2.  **Verify Rule:** Ensure `api2.cursor.sh` is hitting a fast node (e.g., "Auto Select" or "Direct" if you are in a region that allows it), not a failing manual node.
+3.  **Health Check:** The current node "日本IEPL 02" is timing out. Select a different node manually in the Dashboard if staying in Global mode.
 
 
