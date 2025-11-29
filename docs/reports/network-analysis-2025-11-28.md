@@ -8,7 +8,7 @@ We have identified a critical **Double Tunnel Conflict** between **Clash Verge**
 
 **The core issue:** Both applications are attempting to utilize the **198.18.0.0/15** IP range (RFC 2544 Benchmark/CGNAT space) for their internal traffic interception mechanisms. This overlap creates a routing blackhole where DNS resolves to a "Fake IP" that the operating system cannot correctly route back to the appropriate tunnel.
 
-**Recommendation:** Immediately reconfigure Clash to stop using `fake-ip` mode or shift its Fake-IP range, and configure Cloudflare Split Tunnels to bypass Clash traffic.
+**Recommendation:** Configure Cloudflare Zero Trust to **Exclude** the specific IP ranges used by Clash (Fake-IP and DNS listeners) to allow both tunnels to coexist peacefully.
 
 ---
 
@@ -47,60 +47,41 @@ The provided routing table screenshot confirms:
 
 ---
 
-## 4. Remediation Plan
+## 4. Remediation Plan: The "Coexistence" Strategy
+**Objective:** Allow Clash to keep using its preferred "Fake IP" mode (for speed and features) by configuring Cloudflare Zero Trust to **ignore** Clash's traffic ranges. Instead of fighting Clash, we tell Cloudflare to step aside.
 
-### Phase 1: Immediate Stabilization (Clash Config)
-**Objective:** Stop Clash from poisoning the system DNS cache with unroutable IPs.
+### Step 1: Cloudflare Split Tunnel Exclusions
+**Action:** You must add the specific IP ranges Clash uses to the **Split Tunnels "Exclude"** list in your Cloudflare Zero Trust Dashboard.
 
-1.  **Switch Clash to `redir-host` (or "Compatible") Mode:**
-    -   In Clash Verge settings -> DNS -> Enhanced Mode.
-    -   Change `fake-ip` to `redir-host` (or `real-ip` / `compatible`).
-    -   *Why:* This forces Clash to resolve the *real* IP (e.g., `104.x.x.x`) before returning it to the system. Both WARP and Clash can route real IPs more reliably than internal Fake IPs.
+1.  Go to **Settings** -> **Network** -> **Split Tunnels**.
+2.  Ensure the mode is set to **Exclude IPs and domains**.
+3.  **Add the following CIDR ranges:**
+    *   **`198.18.0.0/15`** (Clash IPv4 Fake-IP Range)
+    *   **`192.0.2.0/24`** (Clash DNS Listener Range / TEST-NET-1)
+    *   **`2001:db8::/32`** (Clash IPv6 Fake-IP / Documentation Range)
 
-2.  **Alternative: Change Fake-IP Range (If Fake-IP is required):**
-    -   Edit `clash-config.yaml`:
-        ```yaml
-        dns:
-          enable: true
-          enhanced-mode: fake-ip
-          fake-ip-range: 198.19.0.1/16 # Shift to avoid 198.18.0.0/15 collision
-        ```
+**Why this works:** This tells the Cloudflare WARP client: *"If you see traffic destined for these Clash IPs, do NOT send it to Cloudflare. Let the local OS routing table handle it."* The local OS knows that `198.18.x.x` belongs to the Clash interface (`utun4`).
 
-### Phase 2: Frictionless "Double Tunnel" Setup
-**Objective:** Allow Clash and Cloudflare Zero Trust to coexist without fighting.
+### Step 2: Revert/Verify Clash Settings
+Once Cloudflare is configured to ignore these ranges, you can run Clash in its native/preferred mode:
+1.  **Enhanced Mode:** You can use `fake-ip` (preferred for speed) or `redir-host`. Both should now work because Cloudflare won't steal the traffic.
+2.  **IPv6:** You can re-enable IPv6 if desired, as `2001:db8::` is now excluded from the tunnel.
 
-1.  **Cloudflare Split Tunnels (Exclude Clash):**
-    -   In Cloudflare Zero Trust Dashboard -> Settings -> Network -> Split Tunnels.
-    -   **Exclude** the Clash local proxy port (usually `7890` or `7897`).
-    -   **Exclude** the Clash Dashboard/Controller port (`9090` or `9097`).
-    -   **Exclude** the Clash Fake-IP range if you kept it (`198.18.0.0/15`).
+### Step 3: Verification
+1.  **Flush DNS:** `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder` (Clear out old bad states).
+2.  **Test:** `curl -v https://api2.cursor.sh`
+    *   If Clash uses Fake-IP, it might resolve to `198.18.0.x`, but `curl` will now successfully connect because WARP won't intercept it.
 
-2.  **Clash "Process Direct" (Tun Mode):**
-    -   Ensure `Cloudflare WARP` is in the `skip-proxy` or "Direct" list in Clash config so Clash doesn't try to proxy WARP's tunnel traffic.
+---
 
-### Phase 3: Verification
-1.  Run `dig api2.cursor.sh` -> Should return a **Public IP** (not `198.18.x.x`) or a functioning internal IP.
-2.  Run `curl -v https://api2.cursor.sh` -> Should connect in <500ms (TLS handshake).
+### Phase 6: Latency Optimization (The "GLOBAL" Route)
+**Status:** DNS resolution is FIXED (`198.18.x.x` is gone). However, latency is high (~1000ms) because traffic is routing through a proxy group ("GLOBAL" / "日本IEPL") that is unstable or slow.
 
-### Phase 4: Troubleshooting "Instant Failure" (Post-Config Change)
-If you see `ENOTFOUND` immediately after switching to `redir-host`:
--   **Cause:** The macOS network stack is still clinging to the old "Fake-IP" DNS resolvers (`192.0.2.2`) which may be unresponsive in the new mode.
--   **Solution:**
-    1.  **Restart Clash Verge:** Toggle "Tun Mode" OFF and ON again.
-    2.  **Flush DNS:** Run `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder` in the terminal.
-    3.  **Verify:** Check `scutil --dns` to ensure the resolver list is clean.
-
-### Phase 7: IPv6 Complexity (The "2001:db8" Regression)
-**Status:** After initial success, the system regressed to `ENOTFOUND` / `ERR_NAME_NOT_RESOLVED`.
-**New Findings:**
--   DNS resolvers updated to include IPv6 addresses: `2001:db8:1111::2` and `2001:db8:1111::3`.
--   These are "Documentation" IPv6 addresses (RFC 3849), likely used by Clash as placeholders for Fake-IPv6, similar to how it uses `198.18.0.1` for IPv4.
--   **The Issue:** The OS is preferring these IPv6 resolvers, but they are unreachable or the tunnel is dropping IPv6 traffic.
--   `dig @223.6.6.6` and `dig @1.1.1.1` still work flawlessly for IPv4.
+**Logs indicate:**
+-   `[TCP] 127.0.0.1:58837 --> api2.cursor.sh:443 using GLOBAL`
+-   `日本IEPL 02 failed ... context deadline exceeded`
 
 **Recommendation:**
-1.  **Disable IPv6 in Clash:** In Clash Verge -> Settings -> DNS, toggle **"Enable IPv6"** to **OFF**. This forces the OS to stick to the working IPv4 stack.
-2.  **Flush DNS Again:** After disabling IPv6, run `sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder`.
-3.  **Check Connection:** Verify that the `2001:db8` entries disappear from `scutil --dns`.
-
-
+1.  **Switch Proxy Mode:** In Clash Verge, change from "Global" to "Rule" mode.
+2.  **Verify Rule:** Ensure `api2.cursor.sh` is hitting a fast node (e.g., "Auto Select" or "Direct" if you are in a region that allows it), not a failing manual node.
+3.  **Health Check:** The current node "日本IEPL 02" is timing out. Select a different node manually in the Dashboard if staying in Global mode.
