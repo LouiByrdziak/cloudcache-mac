@@ -496,7 +496,9 @@ export default {
       });
 
       // Fetch PageSpeed data from KV (if available)
-      let pageSpeed: { mobile: number | null; desktop: number | null; lastUpdated?: string } | undefined;
+      let pageSpeed:
+        | { mobile: number | null; desktop: number | null; lastUpdated?: string }
+        | undefined;
       try {
         const shopDomain = url.searchParams.get("shop") || url.hostname;
         const pageSpeedData = await appEnv.APP_KV.get(`pagespeed:${shopDomain}`, "json");
@@ -885,10 +887,7 @@ async function handleWebhookRoute(
  * - Every 5 minutes: Sync Cloudflare settings to KV
  * - Twice daily (6am/6pm): Fetch PageSpeed scores
  */
-async function handleScheduled(
-  event: ScheduledEvent,
-  env: ExtendedEnv
-): Promise<void> {
+async function handleScheduled(event: ScheduledEvent, env: ExtendedEnv): Promise<void> {
   const cronTime = new Date(event.scheduledTime);
   const hour = cronTime.getUTCHours();
   const minute = cronTime.getUTCMinutes();

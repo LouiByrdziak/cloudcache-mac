@@ -157,10 +157,12 @@ async function saveToStorage(state: ToggleState): Promise<void> {
   try {
     // Use cache API as localStorage isn't available in Service Workers
     const cache = await caches.open("toggle-state");
-    const response = new Response(JSON.stringify({
-      toggles: state,
-      timestamp: Date.now(),
-    }));
+    const response = new Response(
+      JSON.stringify({
+        toggles: state,
+        timestamp: Date.now(),
+      })
+    );
     await cache.put("/toggle-state", response);
   } catch (error) {
     console.error("[SW] Failed to save to storage:", error);
@@ -269,4 +271,3 @@ self.addEventListener("fetch", (event: FetchEvent) => {
 });
 
 console.log("[SW] Service Worker loaded");
-

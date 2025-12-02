@@ -37,7 +37,13 @@ export const NAV_ITEMS = [
   { id: "network", text: "Network", icon: "🌐", href: "/network", subtext: "Protocol Settings" },
   { id: "caching", text: "Caching", icon: "💾", href: "/caching", subtext: "Cache Controls" },
   { id: "ssl", text: "SSL/TLS", icon: "🔒", href: "/ssl", subtext: "Encryption Settings" },
-  { id: "analytics", text: "Analytics", icon: "📊", href: "/analytics", subtext: "Traffic & Insights" },
+  {
+    id: "analytics",
+    text: "Analytics",
+    icon: "📊",
+    href: "/analytics",
+    subtext: "Traffic & Insights",
+  },
 ];
 
 // Page configurations with their toggles
@@ -319,21 +325,24 @@ export const PAGE_CONFIGS: Record<string, PageConfig> = {
       {
         id: "web_analytics",
         title: "Web Analytics",
-        description: "Privacy-first analytics without client-side scripts. Zero impact on page performance.",
+        description:
+          "Privacy-first analytics without client-side scripts. Zero impact on page performance.",
         cfSettingName: "web_analytics",
         valueType: "on_off",
       },
       {
         id: "rum",
         title: "Real User Monitoring",
-        description: "Collect performance metrics from actual visitors to understand real-world experience.",
+        description:
+          "Collect performance metrics from actual visitors to understand real-world experience.",
         cfSettingName: "rum",
         valueType: "on_off",
       },
       {
         id: "core_web_vitals",
         title: "Core Web Vitals",
-        description: "Track LCP, FID, CLS, and INP—the metrics Google uses for page experience ranking.",
+        description:
+          "Track LCP, FID, CLS, and INP—the metrics Google uses for page experience ranking.",
         cfSettingName: "core_web_vitals",
         valueType: "on_off",
       },

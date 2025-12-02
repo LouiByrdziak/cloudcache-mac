@@ -224,4 +224,3 @@ export const helpPanelStyles = `
 .banner { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(244,129,32,0.1); border: 1px solid var(--brand); border-radius: 4px; font-size: 12px; font-weight: 500; color: var(--brand-text); }
 .banner__icon { width: 16px; height: 16px; background: var(--brand); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 9px; }
 `;
-

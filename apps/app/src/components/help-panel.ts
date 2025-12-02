@@ -37,18 +37,26 @@ export function HelpPanel({ id, icon, title, content }: HelpPanelProps): string 
         <div class="panel__label">The Solution</div>
         <p class="panel__text">${content.solution}</p>
       </div>
-      ${content.callout ? `
+      ${
+        content.callout
+          ? `
       <div class="callout">
         <div class="callout__title">✨ ${content.callout.title}</div>
         <p>${content.callout.text}</p>
       </div>
-      ` : ""}
-      ${content.visual ? `
+      `
+          : ""
+      }
+      ${
+        content.visual
+          ? `
       <div class="visual">
         <div class="visual__label">${content.visual.label}</div>
         ${content.visual.html}
       </div>
-      ` : ""}
+      `
+          : ""
+      }
     </div>
   </div>
 </aside>
@@ -206,6 +214,3 @@ backdrop.addEventListener('click', closePanel);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
   `.trim();
 }
-
-
-

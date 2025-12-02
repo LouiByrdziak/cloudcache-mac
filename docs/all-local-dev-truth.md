@@ -60,7 +60,7 @@ This tells Wrangler to:
    SHOPIFY_API_SECRET="dummy_secret"
    CF_ACCESS_CLIENT_ID="dummy_id"
    CF_ACCESS_CLIENT_SECRET="dummy_secret"
-   
+
    # Cloudflare Zone API secrets (required for toggle sync functionality)
    # These are needed to call the Cloudflare Zone Settings API at runtime
    CF_API_TOKEN="your_cloudflare_api_token"
@@ -77,6 +77,7 @@ The APP module includes a toggle synchronization feature that calls the Cloudfla
 - `CF_ZONE_ID`: The zone ID for cloudcache.ai (found in domain overview)
 
 **For local testing with real Cloudflare sync:**
+
 ```bash
 # Option 1: Use remote bindings (fetches secrets from preview Worker)
 cd apps/app && wrangler dev --remote --port 8789
