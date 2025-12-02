@@ -14,10 +14,181 @@ import {
 import { renderPage } from "./templates/page";
 import { NAV_ITEMS, getPageConfig, getAllToggleConfigs } from "./config/pages";
 
+// Re-export the Durable Object class for Cloudflare Workers
+export { ToggleHub } from "./durable-objects/toggle-hub";
+
 declare const __VERSION__: string;
 
 const FAVICON_BASE64 =
   "AAABAAIAEBAAAAEAIADGAQAAJgAAACAgAAABACAAiwMAAOwBAACJUE5HDQoaCgAAAA1JSERSAAAAEAAAABAIBgAAAB/z/2EAAAABc1JHQgCuzhzpAAAARGVYSWZNTQAqAAAACAABh2kABAAAAAEAAAAaAAAAAAADoAEAAwAAAAEAAQAAoAIABAAAAAEAAAAQoAMABAAAAAEAAAAQAAAAADRVcfIAAAEwSURBVDgR7ZC/L0NRFMc/9762GIjGYhGmjn62EjFa+AvEIhKdJN1IRCLpIGIhsXXqJlY2C4MBbWKukJA0BqQWVNVr33GfvtfQ0L+gd7jfc8/9/jg50DqqcQWyOd5DOHBE0RlmJHhLp97CNqyiXuVd+ilYeyp+vOjrtF/UscKcEUe5qwbI2RGUpHFIg0QQ2sCZl92paZ8f8AsXZTm6gdIrvDi1dq4KuRL0WTDaDsoMLBiN7BtC2CX9nkB0wnyGeJWagXubTMZC3tv0XRMoe40GAyiZBBgKwqQnmjDY8TPHEDTJ/wySXgLcVw7oUpcMWI/Pn91Pa5n42/XhFYVMNq8SJ6k/DdR2NqXWL5RaOFNmiTc82DMqdto7e74zaIv+HrvyUc774qYoS7FYU0Lrs76BL/LgWyHfgEGBAAAAAElFTSuQmCCiVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAC9UlEQVRYCe1UTUhUURT+7hsdhzQhoUXUmEaLsEKNJswgLSgQghZhGzcp9EtQllCLIMJVEmVBPwTtrI1RtIigoCbaFCS0KAqslAyiJEsdf0Zn3u07d94bx9c8kXDXHOa+c8695+c7331vgJzkGMgx8L8zoOZLgL5Z0wRbncZvew3WB+MI4gtC6jGKrE5VHe2XOvr51nIkrGOYtHZiWpdiGnGMI4rJxFF18MW3bL3mBUBfYPNiqwsjNtCXBFYHgHV5QAHTF1tTsHCcjcCGnUiooLETPJvWwAR1Qt1TLU/3ZAPAKvMQjRPQLDZKACIfCUIyK/PFC0LjmhhQmfMw3vW1rjfnWR5Wlr2/txQqTLERFnXlA0G8TdDjntlmcwEpkm5sHHmU6BvbB/TFbXXiZIovA3pffQjh8aukuZEJIcQ5/VRmKu13BCDLlTCvJlIwAyiFjKfCjF5BYOdp1Ljhon0BoDh2BirQkg4eS1vZDfbFhmBqesMA2RBtSEnba73Jc1yB1WiS3SIx5/69FVx/ExGEnHLmKpzmMryI7Cnw3mbLHAB0WSrUjADEHD07P+WVk/pSLlcM49542VRRN8TV/legMEHEwqn5oYKhQdry6eVxReOpGiGqLQxz40xfyXEB0Daik0jqdsdJK38GNNFKDaEuXVSK0RnKYLKWzUNOkxTN6eIpwxQhINWm2p71eA7neAmh2jnULq6ADDfrExtIvOFOFcKWxirS4Xx20v/Jp0o79v77RO3g3UJJswqCWBRefrvobG+nt7n4vgyoK696OGyboVaGcF9Grc5hyF5CRINYae2gfsA1TIDD9380vL48dtK6VdpR+LJkt+lnx6cw2vu5zjhZHg53WU58tvShqjIE8vtg23vV9Z7uzLCGS/1NSvEvm7K/rxWbh4iNorX+uqwrGTaO5+HLgCduxrWsejrd3uYS8Ki17E7k18OO5v5TP2sympPJA3K+IKIPb+zQzdVLF6TYvxTRRyKRf8nL5eQYyDGQY8CPgT8p4ed9RS416QAAAABJRU5ErkJggg==";
+
+/**
+ * Generate the Service Worker script for toggle state persistence
+ */
+function generateServiceWorkerScript(): string {
+  return `
+// Service Worker for Toggle State Persistence
+// Maintains WebSocket connection across page navigations
+
+let ws = null;
+let toggleState = {};
+let shopDomain = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_DELAY = 30000;
+
+function connect(domain) {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    return;
+  }
+
+  shopDomain = domain;
+  const wsProtocol = self.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsHost = self.location.host;
+  const wsUrl = wsProtocol + '//' + wsHost + '/ws?shop=' + encodeURIComponent(domain);
+
+  console.log('[SW] Connecting to', wsUrl);
+
+  try {
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = function() {
+      console.log('[SW] WebSocket connected');
+      reconnectAttempts = 0;
+    };
+
+    ws.onmessage = async function(event) {
+      try {
+        const msg = JSON.parse(event.data);
+        await handleServerMessage(msg);
+      } catch (error) {
+        console.error('[SW] Error parsing message:', error);
+      }
+    };
+
+    ws.onclose = function(event) {
+      console.log('[SW] WebSocket closed:', event.code, event.reason);
+      ws = null;
+      scheduleReconnect();
+    };
+
+    ws.onerror = function(error) {
+      console.error('[SW] WebSocket error:', error);
+    };
+  } catch (error) {
+    console.error('[SW] Failed to create WebSocket:', error);
+    scheduleReconnect();
+  }
+}
+
+function scheduleReconnect() {
+  if (!shopDomain) return;
+  reconnectAttempts++;
+  const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), MAX_RECONNECT_DELAY);
+  console.log('[SW] Scheduling reconnect in', delay, 'ms');
+  setTimeout(function() {
+    if (shopDomain) connect(shopDomain);
+  }, delay);
+}
+
+async function handleServerMessage(msg) {
+  if (msg.type === 'FULL_STATE') {
+    toggleState = msg.toggles;
+    await saveToStorage(toggleState);
+    await broadcastToClients(msg);
+  } else if (msg.type === 'TOGGLE_UPDATE') {
+    toggleState[msg.toggleId] = msg.value;
+    await saveToStorage(toggleState);
+    await broadcastToClients(msg);
+  }
+}
+
+async function saveToStorage(state) {
+  try {
+    const cache = await caches.open('toggle-state');
+    const response = new Response(JSON.stringify({
+      toggles: state,
+      timestamp: Date.now()
+    }));
+    await cache.put('/toggle-state', response);
+  } catch (error) {
+    console.error('[SW] Failed to save to storage:', error);
+  }
+}
+
+async function loadFromStorage() {
+  try {
+    const cache = await caches.open('toggle-state');
+    const response = await cache.match('/toggle-state');
+    if (response) {
+      const data = await response.json();
+      return data.toggles || {};
+    }
+  } catch (error) {
+    console.error('[SW] Failed to load from storage:', error);
+  }
+  return {};
+}
+
+async function broadcastToClients(message) {
+  const clients = await self.clients.matchAll({ type: 'window' });
+  clients.forEach(function(client) {
+    client.postMessage(message);
+  });
+}
+
+async function sendStateToClient(client) {
+  client.postMessage({
+    type: 'FULL_STATE',
+    toggles: toggleState,
+    timestamp: Date.now()
+  });
+}
+
+self.addEventListener('install', function(event) {
+  console.log('[SW] Installing...');
+  event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener('activate', function(event) {
+  console.log('[SW] Activating...');
+  event.waitUntil(
+    (async function() {
+      await self.clients.claim();
+      toggleState = await loadFromStorage();
+      console.log('[SW] Loaded cached state:', Object.keys(toggleState).length, 'toggles');
+    })()
+  );
+});
+
+self.addEventListener('message', function(event) {
+  const msg = event.data;
+
+  if (msg.type === 'INIT') {
+    connect(msg.shopDomain);
+    if (event.source) {
+      sendStateToClient(event.source);
+    }
+  } else if (msg.type === 'TOGGLE_CHANGE') {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(msg));
+      toggleState[msg.toggleId] = msg.value;
+    } else {
+      toggleState[msg.toggleId] = msg.value;
+    }
+  } else if (msg.type === 'REQUEST_STATE') {
+    if (event.source) {
+      sendStateToClient(event.source);
+    }
+  }
+});
+
+self.addEventListener('fetch', function(event) {
+  // Pass through - we don't intercept network requests
+});
+
+console.log('[SW] Service Worker loaded');
+`;
+}
 
 // KV key prefix for settings
 const SETTINGS_KV_PREFIX = "settings:";
@@ -183,11 +354,45 @@ async function getPageSettingsStates(
   return { states, rawValues };
 }
 
+// Extended environment type with Durable Objects
+interface ExtendedEnv extends AppEnv {
+  TOGGLE_HUB: DurableObjectNamespace;
+}
+
 export default {
   async fetch(request: Request, env: unknown): Promise<Response> {
     const correlationId = getCorrelationId(request);
     const url = new URL(request.url);
     const pathname = canonicalizePath(url.pathname);
+
+    // WebSocket route - proxy to ToggleHub Durable Object
+    if (pathname === "/ws" && request.headers.get("Upgrade") === "websocket") {
+      try {
+        const extendedEnv = env as ExtendedEnv;
+        if (!extendedEnv.TOGGLE_HUB) {
+          return createErrorResponse(
+            "CONFIGURATION_ERROR",
+            "WebSocket hub not configured",
+            correlationId,
+            500
+          );
+        }
+
+        // Get or create the ToggleHub instance (singleton per global scope)
+        const hubId = extendedEnv.TOGGLE_HUB.idFromName("global");
+        const hub = extendedEnv.TOGGLE_HUB.get(hubId);
+
+        // Forward the WebSocket upgrade request to the Durable Object
+        return hub.fetch(request);
+      } catch (error) {
+        return createErrorResponse(
+          "WEBSOCKET_ERROR",
+          error instanceof Error ? error.message : "WebSocket connection failed",
+          correlationId,
+          500
+        );
+      }
+    }
 
     // Handle simple routes that don't require environment validation
     if (pathname === "/favicon.ico") {
@@ -207,6 +412,19 @@ export default {
         200,
         correlationId
       );
+    }
+
+    // Serve the Service Worker file
+    if (pathname === "/sw.js") {
+      const swScript = generateServiceWorkerScript();
+      const response = new Response(swScript, {
+        headers: {
+          "Content-Type": "application/javascript",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Service-Worker-Allowed": "/",
+        },
+      });
+      return addSecurityHeaders(response, correlationId);
     }
 
     // From here on, routes require environment validation
@@ -277,6 +495,18 @@ export default {
         return opt;
       });
 
+      // Fetch PageSpeed data from KV (if available)
+      let pageSpeed: { mobile: number | null; desktop: number | null; lastUpdated?: string } | undefined;
+      try {
+        const shopDomain = url.searchParams.get("shop") || url.hostname;
+        const pageSpeedData = await appEnv.APP_KV.get(`pagespeed:${shopDomain}`, "json");
+        if (pageSpeedData) {
+          pageSpeed = pageSpeedData as typeof pageSpeed;
+        }
+      } catch (e) {
+        logger.warn("Failed to fetch PageSpeed data", { error: e });
+      }
+
       const html = renderPage({
         faviconBase64: FAVICON_BASE64,
         dashboardTitle: pageConfig.title,
@@ -288,6 +518,7 @@ export default {
         footer: {
           copyright: `© ${new Date().getFullYear()} Cloudcache. All rights reserved.`,
         },
+        pageSpeed,
       });
 
       const response = new Response(html, {
@@ -332,6 +563,13 @@ export default {
     // 404 Not Found
     logger.warn("Route not found", { pathname, method: request.method });
     return createErrorResponse("NOT_FOUND", `Route ${pathname} not found`, correlationId, 404);
+  },
+
+  /**
+   * Scheduled handler for cron triggers
+   */
+  async scheduled(event: ScheduledEvent, env: unknown): Promise<void> {
+    await handleScheduled(event, env as ExtendedEnv);
   },
 };
 
@@ -638,4 +876,120 @@ async function handleWebhookRoute(
     correlationId,
     501
   );
+}
+
+/**
+ * Scheduled handler for cron jobs
+ *
+ * Cron triggers:
+ * - Every 5 minutes: Sync Cloudflare settings to KV
+ * - Twice daily (6am/6pm): Fetch PageSpeed scores
+ */
+async function handleScheduled(
+  event: ScheduledEvent,
+  env: ExtendedEnv
+): Promise<void> {
+  const cronTime = new Date(event.scheduledTime);
+  const hour = cronTime.getUTCHours();
+  const minute = cronTime.getUTCMinutes();
+
+  console.log(`Scheduled event triggered at ${cronTime.toISOString()}`);
+
+  // Twice daily PageSpeed fetch (6am and 6pm UTC)
+  if ((hour === 6 || hour === 18) && minute === 0) {
+    await fetchPageSpeedScores(env);
+  }
+
+  // Every 5 minutes: Record last sync timestamp
+  await env.APP_KV.put("sync:lastRun", cronTime.toISOString());
+}
+
+/**
+ * Fetch PageSpeed Insights scores for all registered shops
+ */
+async function fetchPageSpeedScores(env: ExtendedEnv): Promise<void> {
+  try {
+    // List all shop keys
+    const shopKeys = await env.APP_KV.list({ prefix: "shop:" });
+
+    // Extract unique shop domains
+    const shopDomains = new Set<string>();
+    for (const key of shopKeys.keys) {
+      const parts = key.name.split(":");
+      if (parts.length >= 2) {
+        shopDomains.add(parts[1]);
+      }
+    }
+
+    console.log(`Fetching PageSpeed scores for ${shopDomains.size} shops`);
+
+    for (const shopDomain of shopDomains) {
+      try {
+        // Fetch mobile and desktop scores
+        const [mobileScore, desktopScore] = await Promise.all([
+          fetchPageSpeedScore(shopDomain, "mobile"),
+          fetchPageSpeedScore(shopDomain, "desktop"),
+        ]);
+
+        // Store in KV
+        const pageSpeedData = {
+          mobile: mobileScore,
+          desktop: desktopScore,
+          lastUpdated: new Date().toISOString(),
+        };
+
+        await env.APP_KV.put(
+          `pagespeed:${shopDomain}`,
+          JSON.stringify(pageSpeedData),
+          { expirationTtl: 86400 } // 24 hours
+        );
+
+        console.log(`PageSpeed scores for ${shopDomain}:`, pageSpeedData);
+      } catch (error) {
+        console.error(`Error fetching PageSpeed for ${shopDomain}:`, error);
+      }
+    }
+  } catch (error) {
+    console.error("Error in fetchPageSpeedScores:", error);
+  }
+}
+
+/**
+ * Fetch PageSpeed score from Google PageSpeed Insights API
+ */
+async function fetchPageSpeedScore(
+  domain: string,
+  strategy: "mobile" | "desktop"
+): Promise<number | null> {
+  try {
+    // Note: For production, you'd want to add an API key
+    const url = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https://${domain}&strategy=${strategy}&category=performance`;
+
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      console.error(`PageSpeed API error for ${domain}:`, response.status);
+      return null;
+    }
+
+    const data = (await response.json()) as {
+      lighthouseResult?: {
+        categories?: {
+          performance?: {
+            score?: number;
+          };
+        };
+      };
+    };
+
+    const score = data.lighthouseResult?.categories?.performance?.score;
+    return score !== undefined ? Math.round(score * 100) : null;
+  } catch (error) {
+    console.error(`Error fetching PageSpeed for ${domain}:`, error);
+    return null;
+  }
 }

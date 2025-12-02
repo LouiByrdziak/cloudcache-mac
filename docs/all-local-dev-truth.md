@@ -55,11 +55,35 @@ This tells Wrangler to:
 2. **Populate with dummy values** for local testing (or real dev keys if needed):
 
    ```bash
+   # Core secrets (required for worker startup)
    SHOPIFY_API_KEY="dummy_key"
    SHOPIFY_API_SECRET="dummy_secret"
    CF_ACCESS_CLIENT_ID="dummy_id"
    CF_ACCESS_CLIENT_SECRET="dummy_secret"
+   
+   # Cloudflare Zone API secrets (required for toggle sync functionality)
+   # These are needed to call the Cloudflare Zone Settings API at runtime
+   CF_API_TOKEN="your_cloudflare_api_token"
+   CF_ACCOUNT_ID="your_cloudflare_account_id"
+   CF_ZONE_ID="your_cloudflare_zone_id"
    ```
+
+### Toggle Sync Feature
+
+The APP module includes a toggle synchronization feature that calls the Cloudflare Zone Settings API to enable/disable settings like Rocket Loader, Brotli compression, etc. This requires:
+
+- `CF_API_TOKEN`: Cloudflare API token with Zone:Edit permissions
+- `CF_ACCOUNT_ID`: Your Cloudflare account ID (found in dashboard sidebar)
+- `CF_ZONE_ID`: The zone ID for cloudcache.ai (found in domain overview)
+
+**For local testing with real Cloudflare sync:**
+```bash
+# Option 1: Use remote bindings (fetches secrets from preview Worker)
+cd apps/app && wrangler dev --remote --port 8789
+
+# Option 2: Use .dev.vars with real credentials
+# Update apps/app/.dev.vars with real CF_API_TOKEN, CF_ACCOUNT_ID, CF_ZONE_ID
+```
 
 ### Optional Local Config
 

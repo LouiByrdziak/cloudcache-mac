@@ -17,6 +17,21 @@ port = 8789
 binding = "APP_KV"
 id = "0b01afadb4984342a5e0ef09d7ff5fcd"
 
+# Durable Objects - WebSocket hub for real-time toggle sync
+[durable_objects]
+bindings = [
+  { name = "TOGGLE_HUB", class_name = "ToggleHub" }
+]
+
+# Durable Object migrations
+[[migrations]]
+tag = "v1"
+new_classes = ["ToggleHub"]
+
+# Cron triggers for background sync and PageSpeed updates
+[triggers]
+crons = ["*/5 * * * *", "0 6,18 * * *"]
+
 # Staging environment
 [env.staging]
 name = "app-worker-staging"
@@ -28,6 +43,11 @@ routes = [
 binding = "APP_KV"
 id = "5df224d061fb4f869a1a713f1ebd7252"
 
+[env.staging.durable_objects]
+bindings = [
+  { name = "TOGGLE_HUB", class_name = "ToggleHub" }
+]
+
 # Preview environment
 [env.preview]
 name = "app-worker-preview"
@@ -38,3 +58,8 @@ workers_dev = true
 [[env.preview.kv_namespaces]]
 binding = "APP_KV"
 id = "58050e98476b42578f917f32582b6647"
+
+[env.preview.durable_objects]
+bindings = [
+  { name = "TOGGLE_HUB", class_name = "ToggleHub" }
+]

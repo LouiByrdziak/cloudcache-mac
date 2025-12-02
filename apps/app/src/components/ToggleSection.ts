@@ -44,12 +44,13 @@ export function ToggleSection(props: ToggleSectionProps = {}): string {
         if (isSlider) {
           // Slider control - toggle that opens a slide-out panel (always ON)
           return `
-            <div class="optimization-item optimization-item-slider" data-slider-id="${escapeHtml(opt.id || '')}">
+            <div class="optimization-item optimization-item-slider card" data-slider-id="${escapeHtml(opt.id || '')}" data-id="${escapeHtml(opt.id || '')}">
               <div class="optimization-content">
                 <div class="optimization-title">${escapeHtml(opt.title || '')}</div>
                 <div class="optimization-description">${escapeHtml(opt.description || '')}</div>
                 ${opt.currentLabel ? `<div class="optimization-value">${escapeHtml(opt.currentLabel)}</div>` : ''}
               </div>
+              <button class="card__info" data-panel="${escapeHtml(opt.id || '')}" aria-label="Learn more about ${escapeHtml(opt.title || '')}">ⓘ</button>
               <label class="toggle-container toggle-slider-trigger" data-slider-id="${escapeHtml(opt.id || '')}">
                 <input type="checkbox" class="toggle-input toggle-always-on" checked disabled data-slider-id="${escapeHtml(opt.id || '')}">
                 <span class="toggle-slider"></span>
@@ -57,13 +58,14 @@ export function ToggleSection(props: ToggleSectionProps = {}): string {
             </div>
           `;
         } else {
-          // Regular toggle control
+          // Regular toggle control with info button for help panel
           return `
-            <div class="optimization-item">
+            <div class="optimization-item card" data-id="${escapeHtml(opt.id || '')}">
               <div class="optimization-content">
                 <div class="optimization-title">${escapeHtml(opt.title || '')}</div>
                 <div class="optimization-description">${escapeHtml(opt.description || '')}</div>
               </div>
+              <button class="card__info" data-panel="${escapeHtml(opt.id || '')}" aria-label="Learn more about ${escapeHtml(opt.title || '')}">ⓘ</button>
               <label class="toggle-container">
                 <input type="checkbox" class="toggle-input" ${opt.enabled ? 'checked' : ''} data-optimization-id="${escapeHtml(opt.id || '')}">
                 <span class="toggle-slider"></span>

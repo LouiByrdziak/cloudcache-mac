@@ -2,6 +2,18 @@ import { z } from "zod";
 
 /**
  * Environment schema for APP module (Hono Worker)
+ *
+ * Required secrets:
+ * - SHOPIFY_API_KEY, SHOPIFY_API_SECRET: Shopify OAuth credentials
+ * - CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET: Cloudflare Access service tokens
+ *
+ * Cloudflare Zone API secrets (required for toggle sync feature):
+ * - CF_API_TOKEN: API token with Zone:Edit permissions
+ * - CF_ACCOUNT_ID: Cloudflare account ID
+ * - CF_ZONE_ID: Zone ID for cloudcache.ai
+ *
+ * These are optional at schema level for backward compatibility, but the toggle
+ * functionality will fail gracefully if they're missing, returning an error to the UI.
  */
 export const AppEnvSchema = z
   .object({
@@ -10,6 +22,7 @@ export const AppEnvSchema = z
     SHOPIFY_API_SECRET: z.string().min(1, "SHOPIFY_API_SECRET is required"),
     CF_ACCESS_CLIENT_ID: z.string().min(1, "CF_ACCESS_CLIENT_ID is required"),
     CF_ACCESS_CLIENT_SECRET: z.string().min(1, "CF_ACCESS_CLIENT_SECRET is required"),
+    // Cloudflare Zone API secrets - required for toggle sync, optional for startup
     CF_API_TOKEN: z.string().optional(),
     CF_ACCOUNT_ID: z.string().optional(),
     CF_ZONE_ID: z.string().optional(),

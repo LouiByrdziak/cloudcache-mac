@@ -7,6 +7,12 @@ import { enhancedStyles } from "../components/enhancedStyles";
 import { getCloudcacheValidatedBadge } from "@cloudcache/worker-utils";
 import { generateSliderPanels, type SliderOption } from "../components/ToggleSection";
 
+export interface PageSpeedData {
+  mobile: number | null;
+  desktop: number | null;
+  lastUpdated?: string;
+}
+
 export interface PageProps {
   faviconBase64?: string;
   title?: string;
@@ -37,6 +43,7 @@ export interface PageProps {
     copyright?: string;
     links?: Array<{ text: string; href: string }>;
   };
+  pageSpeed?: PageSpeedData;
 }
 
 export function renderPage(props: PageProps = {}): string {
@@ -55,6 +62,7 @@ export function renderPage(props: PageProps = {}): string {
     optimizations = [],
     announcement,
     footer,
+    pageSpeed,
   } = props;
 
   const faviconLinks = faviconBase64
@@ -112,6 +120,7 @@ export function renderPage(props: PageProps = {}): string {
         connectButtonText,
         optimizations,
         pageId,
+        pageSpeed,
       });
     }
   } catch {
@@ -181,6 +190,130 @@ export function renderPage(props: PageProps = {}): string {
       });
     })();
     
+    // ===== TOGGLE SYNC MANAGER =====
+    // Real-time toggle state synchronization via WebSocket
+    class ToggleSyncManager {
+      constructor() {
+        this.toggles = {};
+        this.serviceWorkerReady = false;
+        this.shopDomain = this.getShopDomain();
+      }
+      
+      getShopDomain() {
+        // Extract shop domain from URL params or use default
+        const params = new URLSearchParams(window.location.search);
+        return params.get('shop') || window.location.hostname;
+      }
+      
+      async init() {
+        // Layer 1: Load from localStorage (instant, possibly stale)
+        this.loadFromLocalStorage();
+        this.render();
+        
+        // Layer 2: Register Service Worker for persistent WebSocket
+        if ('serviceWorker' in navigator) {
+          try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            
+            // Wait for the service worker to be ready
+            await navigator.serviceWorker.ready;
+            this.serviceWorkerReady = true;
+            
+            // Initialize connection
+            navigator.serviceWorker.controller?.postMessage({
+              type: 'INIT',
+              shopDomain: this.shopDomain
+            });
+            
+            // Listen for messages from Service Worker
+            navigator.serviceWorker.addEventListener('message', (e) => {
+              this.handleMessage(e.data);
+            });
+          } catch (error) {
+            console.error('[ToggleSync] Service Worker registration failed:', error);
+          }
+        }
+        
+        // Layer 3: Refetch on tab focus (catch up if tab was hidden)
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible' && this.serviceWorkerReady) {
+            navigator.serviceWorker.controller?.postMessage({ type: 'REQUEST_STATE' });
+          }
+        });
+      }
+      
+      loadFromLocalStorage() {
+        try {
+          const cached = localStorage.getItem('toggleState');
+          if (cached) {
+            const data = JSON.parse(cached);
+            this.toggles = data.toggles || data;
+          }
+        } catch (error) {
+          console.error('[ToggleSync] Failed to load from localStorage:', error);
+        }
+      }
+      
+      saveToLocalStorage() {
+        try {
+          localStorage.setItem('toggleState', JSON.stringify({
+            toggles: this.toggles,
+            timestamp: Date.now()
+          }));
+        } catch (error) {
+          console.error('[ToggleSync] Failed to save to localStorage:', error);
+        }
+      }
+      
+      handleMessage(msg) {
+        if (msg.type === 'FULL_STATE') {
+          this.toggles = msg.toggles || {};
+          this.saveToLocalStorage();
+          this.render();
+        }
+        
+        if (msg.type === 'TOGGLE_UPDATE' && msg.toggleId) {
+          this.toggles[msg.toggleId] = msg.value;
+          this.saveToLocalStorage();
+          this.renderSingle(msg.toggleId);
+        }
+      }
+      
+      render() {
+        // Update all toggle UI elements
+        Object.entries(this.toggles).forEach(([id, value]) => {
+          this.renderSingle(id);
+        });
+      }
+      
+      renderSingle(toggleId) {
+        const toggle = document.querySelector('[data-optimization-id="' + toggleId + '"]');
+        if (toggle && toggle.checked !== this.toggles[toggleId]) {
+          toggle.checked = this.toggles[toggleId];
+        }
+      }
+      
+      // Called when user toggles a switch
+      toggle(id, value) {
+        // Optimistic update
+        this.toggles[id] = value;
+        this.saveToLocalStorage();
+        
+        // Send to Service Worker for WebSocket broadcast
+        if (this.serviceWorkerReady && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'TOGGLE_CHANGE',
+            toggleId: id,
+            value: value
+          });
+        }
+      }
+    }
+    
+    // Initialize toggle sync manager
+    const toggleSyncManager = new ToggleSyncManager();
+    toggleSyncManager.init().catch(err => console.error('[ToggleSync] Init failed:', err));
+    
     // Handle optimization toggle switches
     document.addEventListener('DOMContentLoaded', function() {
       const toggleInputs = document.querySelectorAll('.toggle-input[data-optimization-id]');
@@ -213,7 +346,8 @@ export function renderPage(props: PageProps = {}): string {
             if (!response.ok) {
               try {
                 const errorData = await response.json();
-                errorMessage = errorData.message || errorData.error || errorMessage;
+                // Error response format: { error: { code, message, correlationId } }
+                errorMessage = errorData.error?.message || errorData.message || errorMessage;
                 console.error('Failed to toggle setting:', {
                   setting: optimizationId,
                   status: response.status,
@@ -439,6 +573,7 @@ export function renderPage(props: PageProps = {}): string {
           }
         });
       });
+      
     });
     
     // Toast notification system

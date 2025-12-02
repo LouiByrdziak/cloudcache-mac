@@ -793,8 +793,8 @@ export function EnhancedToggleSection(props: EnhancedToggleSectionProps = {}): s
                 ${opt.currentLabel ? `<div class="optimization-value">${escapeHtml(opt.currentLabel)}</div>` : ""}
               </div>
               
-              <!-- Question Mark / Expand Button -->
-              <button class="expand-btn" aria-label="Learn more about ${escapeHtml(opt.title)}" aria-expanded="false">
+              <!-- Info Button - Expands accordion -->
+              <button class="expand-btn" aria-expanded="false" aria-label="Learn more about ${escapeHtml(opt.title)}">
                 ${QUESTION_ICON}
               </button>
               

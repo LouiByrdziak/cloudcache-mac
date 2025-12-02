@@ -207,6 +207,18 @@ export const styles = `
   /* Page Header Styles */
   .page-header {
     margin-bottom: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .page-header__left {
+    flex: 1;
+    min-width: 200px;
+  }
+  .page-header__right {
+    flex-shrink: 0;
   }
   .page-title {
     color: var(--text-primary);
@@ -215,6 +227,59 @@ export const styles = `
     margin-bottom: 12px;
     letter-spacing: -1px;
     transition: color 0.3s ease;
+  }
+  
+  /* PageSpeed Widget */
+  .pagespeed-widget {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    padding: 16px 20px;
+    min-width: 200px;
+  }
+  .pagespeed-widget__scores {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 8px;
+  }
+  .pagespeed-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .pagespeed-score__icon {
+    font-size: 16px;
+  }
+  .pagespeed-score__value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .pagespeed-score__label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .pagespeed-widget__updated {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+  
+  /* PageSpeed score colors */
+  .score--good .pagespeed-score__value {
+    color: #0cce6b;
+  }
+  .score--needs-improvement .pagespeed-score__value {
+    color: #ffa400;
+  }
+  .score--poor .pagespeed-score__value {
+    color: #ff4e42;
+  }
+  .score--unknown .pagespeed-score__value {
+    color: var(--text-muted);
   }
   .page-subtitle {
     color: var(--text-muted);

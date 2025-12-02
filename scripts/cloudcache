@@ -113,12 +113,14 @@ get_worker_name() {
 }
 
 # Get secrets required for a module (returns space-separated string)
+# Note: app module requires Cloudflare Zone API secrets for toggle functionality
 get_module_secrets() {
   local module="$1"
   
   case "$module" in
     app)
-      echo "SHOPIFY_API_KEY SHOPIFY_API_SECRET CF_ACCESS_CLIENT_ID CF_ACCESS_CLIENT_SECRET"
+      # Core secrets + Cloudflare Zone API secrets for toggle sync
+      echo "SHOPIFY_API_KEY SHOPIFY_API_SECRET CF_ACCESS_CLIENT_ID CF_ACCESS_CLIENT_SECRET CF_API_TOKEN CF_ACCOUNT_ID CF_ZONE_ID"
       ;;
     admin|apex)
       echo "CF_ACCESS_CLIENT_ID CF_ACCESS_CLIENT_SECRET"

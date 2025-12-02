@@ -18,7 +18,7 @@ All runtime secrets are stored in Cloudflare (Workers secrets or Pages environme
 
 Secrets are stored per Worker and per environment using `wrangler secret put`:
 
-- **app-worker** (production): `SHOPIFY_API_KEY`, `SHOPIFY_API_SECRET`, `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`
+- **app-worker** (production): `SHOPIFY_API_KEY`, `SHOPIFY_API_SECRET`, `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`, `CF_API_TOKEN`, `CF_ACCOUNT_ID`, `CF_ZONE_ID`
 - **app-worker-staging**: Same secrets, different values
 - **app-worker-preview**: Same secrets, different values
 - **admin-worker** (production): `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`
@@ -27,6 +27,8 @@ Secrets are stored per Worker and per environment using `wrangler secret put`:
 - **apex-worker** (production): `CF_ACCESS_CLIENT_ID`, `CF_ACCESS_CLIENT_SECRET`
 - **apex-worker-staging**: Same secrets, different values
 - **apex-worker-preview**: Same secrets, different values
+
+> **Note**: The APP module requires additional Cloudflare Zone API secrets (`CF_API_TOKEN`, `CF_ACCOUNT_ID`, `CF_ZONE_ID`) for the toggle synchronization feature, which calls the Cloudflare Zone Settings API at runtime to enable/disable settings like Rocket Loader, Brotli, etc.
 
 ### CI/CD
 
